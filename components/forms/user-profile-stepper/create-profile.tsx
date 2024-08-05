@@ -187,7 +187,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       </div>
       <Separator />
       <Dialog open={isCityModalOpen} onOpenChange={(open) => !open && closeCityModal()}>
-        <DialogContent >
+        <DialogContent className="max-w-lg" >
           <DialogHeader>
             <DialogTitle>Manage Cities</DialogTitle>
             <DialogDescription>You can manage cities here.</DialogDescription>
