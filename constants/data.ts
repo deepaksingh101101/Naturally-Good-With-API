@@ -118,12 +118,7 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     label: 'Dashboard'
   },
-  // {
-  //   title: 'User',
-  //   href: '/user',
-  //   icon: 'user',
-  //   label: 'User'
-  // },
+
   {
     title: 'Product/Item Management',
     href: '/product-management',
@@ -278,6 +273,12 @@ export const navItems: NavItem[] = [
     icon: 'settings',
     label: 'settings',
     subItems: [
+        {
+    title: 'Admin',
+    href: '/admin',
+    icon: 'user',
+    label: 'Admin'
+  },
       {
         title: 'General Settings',
         href: '/settings-management/general',
