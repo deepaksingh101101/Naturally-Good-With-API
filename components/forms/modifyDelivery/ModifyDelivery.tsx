@@ -64,8 +64,8 @@ const order = {
 
 const dummyItems = [
   { value: 'Carrot', label: 'Carrot', price: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5 },
-  { value: 'Cucumber', label: 'Cucumber', price: 100, unitQuantity: 300, minimumQuantity: 1, maximumQuantity: 5 },
-  { value: 'Ladyfinger', label: 'Ladyfinger', price: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 5 },
+  { value: 'Cucumber', label: 'Cucumber', price: 100, unitQuantity: 300, minimumQuantity: 2, maximumQuantity: 5 },
+  { value: 'Ladyfinger', label: 'Ladyfinger', price: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 3 },
 ];
 
 const cityRoutes = [
@@ -213,7 +213,7 @@ export const ModifyDelivery: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {fields.map((item, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 textWidth py-4 whitespace-nowrap text-sm text-gray-500">
                     <Controller
                       control={control}
                       name={`bagItems.${index}.itemName` as const}
@@ -230,7 +230,7 @@ export const ModifyDelivery: React.FC = () => {
                             maximumQuantity: item.maximumQuantity
                           }))}
                           formatOptionLabel={({ label, price }) => (
-                            <div className="flex justify-between">
+                            <div className="flex justify-between w-full">
                               <span>{label}</span>
                               <span>₹{price}</span>
                             </div>
