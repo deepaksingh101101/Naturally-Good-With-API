@@ -37,6 +37,7 @@ const complaintFormSchema = z.object({
 export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [selectedDeliveryDate, setSelectedDeliveryDate] = useState<string | null>(null);
   const [deliveryDates, setDeliveryDates] = useState<string[]>([]);
 
   const form = useForm<ComplaintManagement>({
@@ -80,12 +81,16 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       phoneNumber: '123-456-7890',
       assignedEmployee: 'Deepak Singh',
       assignedRoutes: 'Route 1',
-      bagOrdered: 'Regular Veggie Bag',
+      subscriptionType: 'Biweekly Regular Veggie',
       totalWeightKg: 10,
       totalPriceInr: 779,
       addOns: 'Lemons',
       specialInstructions: 'Leave the package at the front door.',
-      deliveryDates: ['11/JUN/2024', '17/MAR/2024', '21/JUL/2024']
+      deliveryDates: [
+        { date: '11/JUN/2024' },
+        { date: '17/MAR/2024'},
+        { date: '21/JUL/2024' }
+      ]
     },
     {
       id: '2',
@@ -95,12 +100,16 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       phoneNumber: '098-765-4321',
       assignedEmployee: 'Jane Doe',
       assignedRoutes: 'Route 2',
-      bagOrdered: 'Organic Fruit Bag',
+      subscriptionType: 'Biweekly Mini Veggie',
       totalWeightKg: 5,
       totalPriceInr: 459,
       addOns: 'Bananas',
       specialInstructions: 'Ring the bell upon arrival.',
-      deliveryDates: ['10/JUN/2024', '15/MAR/2024', '20/JUL/2024']
+      deliveryDates: [
+        { date: '10/JUN/2024', details: 'First delivery in June' },
+        { date: '15/MAR/2024', details: 'Delivery in March' },
+        { date: '20/JUL/2024', details: 'Mid-year delivery' }
+      ]
     },
     {
       id: '3',
@@ -110,12 +119,16 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       phoneNumber: '123-123-1234',
       assignedEmployee: 'John Smith',
       assignedRoutes: 'Route 3',
-      bagOrdered: 'Mixed Greens Bag',
+      subscriptionType: 'Mixed Greens Bag',
       totalWeightKg: 7,
       totalPriceInr: 569,
       addOns: 'Cucumbers',
       specialInstructions: 'Call before delivery.',
-      deliveryDates: ['12/JUN/2024', '18/MAR/2024', '22/JUL/2024']
+      deliveryDates: [
+        { date: '12/JUN/2024', details: 'First delivery in June' },
+        { date: '18/MAR/2024', details: 'Delivery in March' },
+        { date: '22/JUL/2024', details: 'Mid-year delivery' }
+      ]
     }
   ];
 
@@ -150,7 +163,8 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                       onChange={(selected) => {
                         field.onChange(selected ? selected.name : '');
                         setSelectedCustomer(selected || null);
-                        setDeliveryDates(selected ? selected.deliveryDates : []);
+                        setDeliveryDates(selected ? selected.deliveryDates.map((d) => d.date) : []);
+                        setSelectedDeliveryDate(null); // Reset delivery date when customer changes
                       }}
                       value={customerOptions.find(option => option.name === field.value)}
                       filterOption={(candidate, input) => {
@@ -176,7 +190,10 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                       isClearable
                       isSearchable
                       options={deliveryDates.map((slot) => ({ value: slot, label: slot }))}
-                      onChange={(selected) => field.onChange(selected?.value)}
+                      onChange={(selected) => {
+                        field.onChange(selected?.value);
+                        setSelectedDeliveryDate(selected ? selected.value : null);
+                      }}
                       value={deliveryDates.find((slot) => slot === field.value) ? { value: field.value, label: field.value } : null}
                       isDisabled={loading}
                     />
@@ -269,7 +286,7 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
         </form>
       </Form>
 
-      {selectedCustomer && (
+      {selectedCustomer && selectedDeliveryDate && (
         <div className="mt-8">
           <Heading title="Customer Details" description="Details of the selected customer" />
           <Separator />
@@ -302,11 +319,11 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                 <td className="py-2 px-4 border">{selectedCustomer.assignedRoutes}</td>
               </tr>
               <tr>
-                <td className="py-2 px-4 border">Bag Ordered</td>
-                <td className="py-2 px-4 border">{selectedCustomer.bagOrdered}</td>
+                <td className="py-2 px-4 border">Subscription Type</td>
+                <td className="py-2 px-4 border">{selectedCustomer.subscriptionType}</td>
               </tr>
               <tr>
-                <td className="py-2 px-4 border">Total Weight (kg)</td>
+                <td className="py-2 px-4 border">Total Weight (Kg)</td>
                 <td className="py-2 px-4 border">{selectedCustomer.totalWeightKg}</td>
               </tr>
               <tr>
@@ -321,6 +338,7 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                 <td className="py-2 px-4 border">Special Instructions</td>
                 <td className="py-2 px-4 border">{selectedCustomer.specialInstructions}</td>
               </tr>
+           
             </tbody>
           </table>
         </div>
