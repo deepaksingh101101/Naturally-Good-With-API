@@ -48,6 +48,7 @@ const productFormSchema = z.object({
   minUnit: z.number().min(1, 'Minimum Quantity is required'),
   maxUnit: z.number().min(1, 'Maximum Quantity is required'),
   available: z.string().min(1, 'Please Enter availability'),
+  // organic: z.string().min(1, 'Please Enter Product Type'),
   productPrice: z.number().min(1, 'Product Price is required'),
   type: z.string().min(1, 'Type is required'),
   subtype: z.string().min(1, 'Subtype is required'),
@@ -639,6 +640,27 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
+            {/* <FormField
+              control={control}
+              name="organic"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Organic/Inorganic</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select organic/Inorganic" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Organic">Organic</SelectItem>
+                        <SelectItem value="Inorganic">Inorganic</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.available?.message}</FormMessage>
+                </FormItem>
+              )}
+            /> */}
             <FormField
               control={form.control}
               name="visibility"

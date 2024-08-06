@@ -20,21 +20,25 @@ export interface ComplaintManagement {
   description: string;
   status: 'Active' | 'Inactive';
   resolution?: 'Coupon' | 'Store credits' | 'Add-on bag';
+  deliveryDateSlot: string;
 }
 
 const complaintFormSchema = z.object({
   complaintId: z.number().nonnegative(),
   userId: z.number().nonnegative(),
   customerName: z.string(),
+  deliveryDateSlot: z.string(),
   complaintType: z.string(),
   description: z.string().min(1, 'Description is required'),
   status: z.enum(['Active', 'Inactive']),
-  resolution: z.string(),
+  resolution: z.string().optional(),
 });
 
 export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
+  const [deliveryDates, setDeliveryDates] = useState<string[]>([]);
+
   const form = useForm<ComplaintManagement>({
     resolver: zodResolver(complaintFormSchema),
     defaultValues: initialData || {
@@ -45,6 +49,7 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       description: '',
       status: 'Active',
       resolution: undefined,
+      deliveryDateSlot: ''
     },
   });
 
@@ -73,17 +78,14 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       empId: '1022',
       name: 'Alice Johnson',
       phoneNumber: '123-456-7890',
-      // deliveryDate: '2023-07-17',
-      // deliveryTimeSlot: '10am - 12pm',
-      // deliveryStatus: 'Delivered',
       assignedEmployee: 'Deepak Singh',
       assignedRoutes: 'Route 1',
       bagOrdered: 'Regular Veggie Bag',
       totalWeightKg: 10,
       totalPriceInr: 779,
       addOns: 'Lemons',
-      // paymentStatus: 'Paid',
       specialInstructions: 'Leave the package at the front door.',
+      deliveryDates: ['11/JUN/2024', '17/MAR/2024', '21/JUL/2024']
     },
     {
       id: '2',
@@ -91,17 +93,14 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       empId: '1023',
       name: 'Bob Brown',
       phoneNumber: '098-765-4321',
-      // deliveryDate: '2023-07-18',
-      // deliveryTimeSlot: '2pm - 4pm',
-      // deliveryStatus: 'Pending',
       assignedEmployee: 'Jane Doe',
       assignedRoutes: 'Route 2',
       bagOrdered: 'Organic Fruit Bag',
       totalWeightKg: 5,
       totalPriceInr: 459,
       addOns: 'Bananas',
-      // paymentStatus: 'Unpaid',
       specialInstructions: 'Ring the bell upon arrival.',
+      deliveryDates: ['10/JUN/2024', '15/MAR/2024', '20/JUL/2024']
     },
     {
       id: '3',
@@ -109,17 +108,14 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
       empId: '1024',
       name: 'Deepak Singh',
       phoneNumber: '123-123-1234',
-      // deliveryDate: '2023-07-19',
-      // deliveryTimeSlot: '4pm - 6pm',
-      // deliveryStatus: 'In Progress',
       assignedEmployee: 'John Smith',
       assignedRoutes: 'Route 3',
       bagOrdered: 'Mixed Greens Bag',
       totalWeightKg: 7,
       totalPriceInr: 569,
       addOns: 'Cucumbers',
-      // paymentStatus: 'Paid',
       specialInstructions: 'Call before delivery.',
+      deliveryDates: ['12/JUN/2024', '18/MAR/2024', '22/JUL/2024']
     }
   ];
 
@@ -154,6 +150,7 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                       onChange={(selected) => {
                         field.onChange(selected ? selected.name : '');
                         setSelectedCustomer(selected || null);
+                        setDeliveryDates(selected ? selected.deliveryDates : []);
                       }}
                       value={customerOptions.find(option => option.name === field.value)}
                       filterOption={(candidate, input) => {
@@ -164,6 +161,27 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                     />
                   </FormControl>
                   <FormMessage>{errors.customerName?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="deliveryDateSlot"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Delivery Date Slot</FormLabel>
+                  <FormControl>
+                    <ReactSelect
+                      isClearable
+                      isSearchable
+                      options={deliveryDates.map((slot) => ({ value: slot, label: slot }))}
+                      onChange={(selected) => field.onChange(selected?.value)}
+                      value={deliveryDates.find((slot) => slot === field.value) ? { value: field.value, label: field.value } : null}
+                      isDisabled={loading}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.deliveryDateSlot?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -198,7 +216,7 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                 <FormItem>
                   <FormLabel>Status</FormLabel>
                   <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={loading}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Status" />
                       </SelectTrigger>
@@ -275,18 +293,6 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                 <td className="py-2 px-4 border">Phone Number</td>
                 <td className="py-2 px-4 border">{selectedCustomer.phoneNumber}</td>
               </tr>
-              {/* <tr>
-                <td className="py-2 px-4 border">Delivery Date</td>
-                <td className="py-2 px-4 border">{selectedCustomer.deliveryDate}</td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border">Delivery Time Slot</td>
-                <td className="py-2 px-4 border">{selectedCustomer.deliveryTimeSlot}</td>
-              </tr>
-              <tr>
-                <td className="py-2 px-4 border">Delivery Status</td>
-                <td className="py-2 px-4 border">{selectedCustomer.deliveryStatus}</td>
-              </tr> */}
               <tr>
                 <td className="py-2 px-4 border">Assigned Employee</td>
                 <td className="py-2 px-4 border">{selectedCustomer.assignedEmployee}</td>
@@ -311,10 +317,6 @@ export const ReceivedComplaintForm: React.FC<{ initialData?: ComplaintManagement
                 <td className="py-2 px-4 border">Add-ons</td>
                 <td className="py-2 px-4 border">{selectedCustomer.addOns}</td>
               </tr>
-              {/* <tr>
-                <td className="py-2 px-4 border">Payment Status</td>
-                <td className="py-2 px-4 border">{selectedCustomer.paymentStatus}</td>
-              </tr> */}
               <tr>
                 <td className="py-2 px-4 border">Special Instructions</td>
                 <td className="py-2 px-4 border">{selectedCustomer.specialInstructions}</td>
