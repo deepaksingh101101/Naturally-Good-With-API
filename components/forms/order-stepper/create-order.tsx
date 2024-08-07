@@ -21,6 +21,29 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
+interface Coupon {
+  id: string;
+  code: string;
+  discountPrice: number;
+}
+
+interface SubscriptionType {
+  id: string;
+  name: string;
+  subScriptionPrice: number;
+  coupons: Coupon[];
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  assignedEmployee: {
+    name: string;
+    phoneNumber: string;
+  };
+}
+
 interface OrderManagementFormType {
   initialData: any | null;
 }
@@ -29,10 +52,17 @@ const orderFormSchema = z.object({
   customerName: z.string().min(1, 'Customer Name is required'),
   employeeName: z.string().min(1, 'Employee Name is required'),
   subscriptionType: z.string().min(1, 'Subscription Type is required'),
+  subscriptionPrice: z.number().positive('Subscription Price must be greater than zero'),
+  coupon: z.object({
+    id: z.string(),
+    code: z.string(),
+    discountPrice: z.number()
+  }).optional(),
+  manualDiscount: z.number().min(0, 'Manual Discount cannot be negative').default(0),
+  netPrice: z.number().positive('Net Price must be greater than zero'),
   deliveryStartDate: z.date({
     required_error: "Delivery Date is required.",
   }),
-  deliveryTimeSlot: z.string().min(1, 'Delivery Time Slot is required'),
   deliveryStatus: z.string(),
   bagOrdered: z.array(z.string()).min(1, 'Products Ordered is required'),
   totalWeight: z.number().positive('Total Weight must be greater than zero'),
@@ -53,9 +83,6 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isTimeSlotModalOpen, setIsTimeSlotModalOpen] = useState(false);
-  const [newTimeSlot, setNewTimeSlot] = useState('');
-  const [timeSlots, setTimeSlots] = useState(['9:00 AM - 11:00 AM', '12:00 PM - 2:00 PM', '3:00 PM - 5:00 PM']);
   const title = initialData ? 'Edit Order' : 'Create New Order';
   const description = initialData ? 'Edit the Order details.' : 'To create a new Order, fill in the required information.';
   const toastMessage = initialData ? 'Order updated.' : 'Order created.';
@@ -68,8 +95,11 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       customerName: '',
       employeeName: '',
       subscriptionType: '',
+      subscriptionPrice: 0,
+      coupon: undefined,
+      manualDiscount: 0,
+      netPrice: 0,
       deliveryStartDate: new Date(),
-      deliveryTimeSlot: '',
       deliveryStatus: 'Pending',
       bagOrdered: [] as string[],
       totalWeight: 0,
@@ -121,12 +151,21 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     { id: '2', name: 'Jane Smith', phoneNumber: '098-765-4321' },
   ];
 
-  const customerOptions = [
+  const customerOptions: Customer[] = [
     { id: '1', name: 'Alice Johnson', phoneNumber: '123-456-7890', assignedEmployee: { name: "John Doe", phoneNumber: '123-456-7890' } },
     { id: '2', name: 'Bob Brown', phoneNumber: '098-765-4321', assignedEmployee: { name: "Jane Smith", phoneNumber: '098-765-4321' } },
   ];
 
+  const subscriptionTypes: SubscriptionType[] = [
+    { id: '1', name: 'Staples', subScriptionPrice: 1000, coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
+    { id: '2', name: 'Monthly Mini Veggies', subScriptionPrice: 1200, coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
+  ];
+
   const selectedCustomer = watch('customerName');
+  const selectedSubscriptionType = watch('subscriptionType');
+  const selectedCoupon = watch('coupon');
+  const subscriptionPrice = watch('subscriptionPrice');
+  const manualDiscount = watch('manualDiscount');
 
   useEffect(() => {
     const customer = customerOptions.find(option => option.name === selectedCustomer);
@@ -137,22 +176,31 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     }
   }, [selectedCustomer, setValue]);
 
-  const addTimeSlot = () => {
-    if (newTimeSlot && !timeSlots.includes(newTimeSlot)) {
-      setTimeSlots([...timeSlots, newTimeSlot]);
-      setNewTimeSlot('');
+  useEffect(() => {
+    const subscription = subscriptionTypes.find(option => option.name === selectedSubscriptionType);
+    if (subscription) {
+      setValue('subscriptionPrice', subscription.subScriptionPrice);
+      setValue('coupon', undefined); // Reset coupon when subscription type changes
+      setValue('manualDiscount', 0); // Reset manual discount when subscription type changes
+      setValue('netPrice', subscription.subScriptionPrice); // Reset net price
+    } else {
+      setValue('subscriptionPrice', 0);
+      setValue('coupon', undefined);
+      setValue('manualDiscount', 0);
+      setValue('netPrice', 0);
     }
-  };
+  }, [selectedSubscriptionType, setValue]);
 
-  const deleteTimeSlot = (index: number) => {
-    setTimeSlots(timeSlots.filter((_, i) => i !== index));
-  };
-
-  const subscriptionTypes = [
-    { id: '1', name: 'Staples' },
-    { id: '2', name: 'Regular Veggie' },
-    { id: '3', name: 'Exotics Veggies' }
-  ];
+  useEffect(() => {
+    let netPrice = subscriptionPrice;
+    if (selectedCoupon) {
+      netPrice -= selectedCoupon.discountPrice;
+    }
+    if (manualDiscount) {
+      netPrice -= manualDiscount;
+    }
+    setValue('netPrice', netPrice);
+  }, [selectedCoupon, subscriptionPrice, manualDiscount, setValue]);
 
   return (
     <>
@@ -227,12 +275,94 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="subscriptionPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subscription Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        placeholder="Subscription Price"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Controller
+                control={form.control}
+                name="coupon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Coupon</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        isClearable
+                        isSearchable
+                        options={subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.coupons || []}
+                        getOptionLabel={(option) => option?.code || ''}
+                        getOptionValue={(option) => option?.id || ''}
+                        isDisabled={loading}
+                        onChange={(selected) => field.onChange(selected || undefined)}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="manualDiscount"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Manual Discount</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Manual Discount"
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value ? parseFloat(e.target.value) : 0;
+                          field.onChange(value);
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage>{errors.manualDiscount?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="netPrice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Net Price</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        placeholder="Net Price"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="deliveryStartDate"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Subscription Start Date</FormLabel>
+                    <FormLabel>Delivery Start Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -268,46 +398,6 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
-              {/* <FormField
-                control={form.control}
-                name="deliveryTimeSlot"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center justify-between">
-                      <FormLabel>Delivery Time Slot</FormLabel>
-                      <Edit
-                        onClick={() => setIsTimeSlotModalOpen(true)}
-                        className="cursor-pointer text-red-500"
-                        height={15}
-                        width={15}
-                      />
-                    </div>
-                    <Select
-                      disabled={loading}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue
-                            defaultValue={field.value}
-                            placeholder="Select Delivery Time Slot"
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {timeSlots.map((slot, index) => (
-                          <SelectItem key={index} value={slot}>
-                            {slot}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage>{errors.deliveryTimeSlot?.message}</FormMessage>
-                  </FormItem>
-                )}
-              /> */}
 
               <FormField
                 control={form.control}
@@ -339,68 +429,67 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
-             
 
-             <FormField
-              control={form.control}
-              name="paymentType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Payment Type</FormLabel>
-                  <Controller
-                    control={control}
-                    name="paymentType"
-                    render={({ field }) => (
-                      <ReactSelect
-                        isClearable
-                        isSearchable
-                        options={[
-                          { id: 'Upi', name: 'UPI' },
-                          { id: 'Netbanking', name: 'Net Banking' },
-                          { id: 'Credit/Debit', name: 'Credit/Debit' }
-                        ]}
-                        getOptionLabel={(option) => option.name}
-                        getOptionValue={(option) => option.id}
-                        isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={[
-                          { id: 'Upi', name: 'UPI' },
-                          { id: 'Netbanking', name: 'Net Banking' },
-                          { id: 'Credit/Debit', name: 'Credit/Debit' }
-                        ].find(option => option.id === field.value)}
-                      />
-                    )}
-                  />
-                  <FormMessage>{errors.paymentType?.message}</FormMessage>
-                </FormItem>
-              )}
-            /> 
-
-            </>
-          </div>
-          <FormField
+              <FormField
                 control={form.control}
-                name="specialInstructions"
+                name="paymentType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Special Instructions</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        disabled={loading}
-                        rows={5}
-                        placeholder="Enter Special Instructions"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
+                    <FormLabel>Payment Type</FormLabel>
+                    <Controller
+                      control={control}
+                      name="paymentType"
+                      render={({ field }) => (
+                        <ReactSelect
+                          isClearable
+                          isSearchable
+                          options={[
+                            { id: 'Upi', name: 'UPI' },
+                            { id: 'Netbanking', name: 'Net Banking' },
+                            { id: 'Credit/Debit', name: 'Credit/Debit' }
+                          ]}
+                          getOptionLabel={(option) => option.name}
+                          getOptionValue={(option) => option.id}
+                          isDisabled={loading}
+                          onChange={(selected) => field.onChange(selected ? selected.id : '')}
+                          value={[
+                            { id: 'Upi', name: 'UPI' },
+                            { id: 'Netbanking', name: 'Net Banking' },
+                            { id: 'Credit/Debit', name: 'Credit/Debit' }
+                          ].find(option => option.id === field.value)}
+                        />
+                      )}
+                    />
+                    <FormMessage>{errors.paymentType?.message}</FormMessage>
                   </FormItem>
                 )}
               />
+            </>
+          </div>
+
+          <FormField
+            control={form.control}
+            name="specialInstructions"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Special Instructions</FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={loading}
+                    rows={5}
+                    placeholder="Enter Special Instructions"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <div className="mt-8 flex justify-between">
             <Button
               type="submit"
               disabled={loading}
-              // variant="primary"
               className="w-full"
             >
               {action}
@@ -426,46 +515,6 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
           </div>
         </div>
       )}
-
-      <Dialog open={isTimeSlotModalOpen} onOpenChange={(open) => !open && setIsTimeSlotModalOpen(false)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Delivery Time Slots</DialogTitle>
-            <DialogDescription>Add or remove delivery time slots</DialogDescription>
-          </DialogHeader>
-          <div>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time Slot</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {timeSlots.map((slot, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{slot}</td>
-                    <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteTimeSlot(index)} className="cursor-pointer text-red-500" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex mt-4">
-              <Input
-                type="text"
-                placeholder="Add new time slot"
-                value={newTimeSlot}
-                onChange={(e) => setNewTimeSlot(e.target.value)}
-              />
-              <Button onClick={addTimeSlot} className="ml-2">
-                Add
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 };
