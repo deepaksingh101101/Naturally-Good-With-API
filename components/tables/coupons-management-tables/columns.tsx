@@ -37,6 +37,15 @@ export const columns: ColumnDef<CouponManagement>[] = [
     header: 'Coupon Code'
   },
   {
+    accessorKey: 'image',
+    header: 'Image',
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <Image src={row.original.image} alt={row.original.code} width={50} height={50} />
+      </div>
+    )
+  },
+  {
     accessorKey: 'discountPrice',
     header: 'Discount Price',
     cell: ({ row }) => `₹${row.original.discountPrice}`
@@ -97,6 +106,7 @@ export const columns: ColumnDef<CouponManagement>[] = [
       </div>
     )
   },
+
   {
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />

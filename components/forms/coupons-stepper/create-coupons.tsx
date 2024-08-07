@@ -15,7 +15,7 @@ import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import ReactSelect from 'react-select';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon} from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from 'date-fns';
 
 interface CouponFormProps {
@@ -33,7 +33,9 @@ const couponFormSchema = z.object({
   subscriptionPrice: z.number().optional(),
   netPrice: z.number().optional(),
   startDate: z.date().nullable(),
-  endDate: z.date().nullable()
+  endDate: z.date().nullable(),
+  description: z.string().min(1, 'Description is required'),
+  image: z.instanceof(File).nullable()
 });
 
 const subscriptionTypes = [
@@ -62,7 +64,9 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       subscriptionPrice: 0,
       netPrice: 0,
       startDate: null,
-      endDate: null
+      endDate: null,
+      description: '',
+      image: null
     }
   });
 
@@ -325,6 +329,45 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                     </PopoverContent>
                   </Popover>
                   <FormMessage>{errors.endDate?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Description"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.description?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coupon Image</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="file"
+                      disabled={form.formState.isSubmitting}
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files.length > 0) {
+                          field.onChange(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.image?.message}</FormMessage>
                 </FormItem>
               )}
             />
