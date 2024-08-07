@@ -9,6 +9,7 @@ import Select from 'react-select';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Trash, Edit } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea'; // Import Textarea component
 
 interface BagItem {
   itemName: string;
@@ -32,6 +33,7 @@ interface FormValues {
   city: string;
   route: string;
   deliveryTimeSlot: string;
+  description: string; // Add description field to form values
 }
 
 const order = {
@@ -108,6 +110,7 @@ export const ModifyDelivery: React.FC = () => {
       city: '',
       route: '',
       deliveryTimeSlot: '',
+      description: '', // Initialize description field
     }
   });
 
@@ -434,6 +437,9 @@ export const ModifyDelivery: React.FC = () => {
               <p className="text-red-600">The total added item weight cannot be greater than 5000 g (Add More Items Through Add-ons)</p>
             </div>
           )}
+
+        
+
           <div className="flex justify-end mt-4">
             <Button type="submit" disabled={totalWeight > order.totalWeight}>
               Save Changes
@@ -553,7 +559,7 @@ export const ModifyDelivery: React.FC = () => {
         </form>
       )}
       <Separator className="my-4" />
-      <Heading title="Assign Routes/Employees" description="Assign routes to this order" />
+      <Heading title="Assign Routes" description="Assign routes to this order" />
       <div className="grid grid-cols-2 gap-4">
         <Controller
           control={control}
@@ -593,7 +599,7 @@ export const ModifyDelivery: React.FC = () => {
         />
       </div>
 
-      <Separator className="my-4 " />
+      <Separator className="mt-4 " />
       <Heading title="Delivery Time Slot" description="Select or add delivery time slots" />
       <Controller
         control={control}
@@ -619,6 +625,23 @@ export const ModifyDelivery: React.FC = () => {
           </div>
         )}
       />
+
+<div className="flex flex-col ">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+            <Controller
+              control={control}
+              name="description"
+              render={({ field }) => (
+                <Textarea
+                  rows={5}
+                  placeholder="Enter Description"
+                  {...field}
+                />
+              )}
+            />
+          </div>
+
+      
       
       <Dialog open={isTimeSlotModalOpen} onOpenChange={(open) => !open && setIsTimeSlotModalOpen(false)}>
         <DialogContent className="max-w-lg">
