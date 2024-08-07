@@ -54,7 +54,11 @@ const order = {
       assignedRoutes: "Route 1"
     },
   ],
-  bagOrdered: [{ itemName: 'Regular Veggie Bag', itemPrice: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5, requiredUnits: 1 }],
+  bagOrdered: [
+    { itemName: 'Carrot', itemPrice: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5, requiredUnits: 0 },
+    { itemName: 'Cucumber', itemPrice: 100, unitQuantity: 300, minimumQuantity: 2, maximumQuantity: 5, requiredUnits: 0 },
+    { itemName: 'Ladyfinger', itemPrice: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 3, requiredUnits: 0 },
+  ],
   totalWeight: 5000, // Maximum weight in grams
   totalPrice: 779,
   paymentStatus: 'Paid',
@@ -93,7 +97,7 @@ export const ModifyDelivery: React.FC = () => {
     }
   });
 
-  const { control, handleSubmit, watch, setValue } = methods;
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = methods;
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'bagItems'
@@ -157,26 +161,26 @@ export const ModifyDelivery: React.FC = () => {
         <Heading title="Order Details" description="View Order Details" />
       </div>
       <Separator />
-     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg mt-4 shadow-lg">
-  <div className="grid grid-cols-2 gap-4">
-    <div>
-      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Order ID:</p>
-      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.orderId}</p>
-    </div>
-    <div>
-      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Customer Name:</p>
-      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.customerName}</p>
-    </div>
-    <div>
-      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Subscription Type:</p>
-      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.subscriptionType}</p>
-    </div>
-    <div>
-      <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total Maximum Weight (g):</p>
-      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.totalWeight}</p>
-    </div>
-  </div>
-</div>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg mt-4 shadow-lg">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Order ID:</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.orderId}</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Customer Name:</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.customerName}</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Subscription Type:</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.subscriptionType}</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total Maximum Weight (g):</p>
+            <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.totalWeight}</p>
+          </div>
+        </div>
+      </div>
 
       <Separator className="my-4" />
       <Button onClick={handleAddNewItem} className="mb-4 bg-green-600">
@@ -269,18 +273,33 @@ export const ModifyDelivery: React.FC = () => {
                       control={control}
                       name={`bagItems.${index}.requiredUnits` as const}
                       render={({ field }) => (
-                        <Input
-                          type="number"
-                          value={field.value}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value, 10);
-                            if (value >= watch(`bagItems.${index}.minimumQuantity`) && value <= watch(`bagItems.${index}.maximumQuantity`)) {
-                              field.onChange(value);
-                              setValue(`bagItems.${index}.requiredUnits`, value);
-                            }
-                          }}
-                        />
+                        <>
+                          <Input
+                            type="number"
+                            value={field.value}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value, 10);
+                              if (value >= watch(`bagItems.${index}.minimumQuantity`) && value <= watch(`bagItems.${index}.maximumQuantity`)) {
+                                field.onChange(value);
+                                setValue(`bagItems.${index}.requiredUnits`, value);
+                              }
+                            }}
+                          />
+                          {errors.bagItems && errors.bagItems[index]?.requiredUnits && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.bagItems[index].requiredUnits.message}
+                            </p>
+                          )}
+                        </>
                       )}
+                      rules={{
+                        required: 'Required Units is required',
+                        validate: value => {
+                          const min = watch(`bagItems.${index}.minimumQuantity`);
+                          const max = watch(`bagItems.${index}.maximumQuantity`);
+                          return value >= min && value <= max || `Required Units must be between ${min} and ${max}`;
+                        }
+                      }}
                     />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -310,7 +329,7 @@ export const ModifyDelivery: React.FC = () => {
             </div>
           )}
           <div className="flex justify-end mt-4">
-            <Button type="submit"  disabled={totalWeight > order.totalWeight}>
+            <Button type="submit" disabled={totalWeight > order.totalWeight}>
               Save Changes
             </Button>
           </div>
@@ -318,7 +337,7 @@ export const ModifyDelivery: React.FC = () => {
       )}
       <Separator className="my-4" />
       <Heading title="Add-ons" description="Add more items to the Bag" />
-      <Button  onClick={handleAddNewAddOn} className="mb-4 mt-2 bg-green-600">
+      <Button onClick={handleAddNewAddOn} className="mb-4 mt-2 bg-green-600">
         Add New Add-on
       </Button>
       {addOnFields.length > 0 && (
