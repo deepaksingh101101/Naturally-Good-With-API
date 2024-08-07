@@ -5,6 +5,10 @@ import { OrderManagement } from '@/constants/order-management-data';
 import { CellAction } from './cell-action';
 import { Check, Edit, X } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'; // Adjust the import path as necessary
+import upi from '@/public/assets/icons/upi.png';
+import credit from '@/public/assets/icons/credit.png';
+import net from '@/public/assets/icons/net.png';
+import Image from 'next/image';
 
 export const columns: ColumnDef<OrderManagement>[] = [
   {
@@ -130,6 +134,18 @@ export const columns: ColumnDef<OrderManagement>[] = [
     cell: ({ row }) => (
       <div className="flex justify-center">
         <span className='text-center'>{row.original.totalPrice}</span>
+      </div>
+    ),
+  },
+    {
+    accessorKey: 'paymentType',
+    header: 'Payment Type',
+    cell: ({ row }) => (
+      <div className="flex items-center me-9">
+        {row.original.paymentType === 'UPI' && <Image src={upi.src} alt="UPI" width={20} height={20} />}
+        {row.original.paymentType === 'Credit Card' && <Image src={credit.src} alt="Credit Card" width={20} height={20} />}
+        {row.original.paymentType === 'Net Banking' && <Image src={net.src} alt="Net Banking" width={20} height={20} />}
+        <span className="ml-2">{row.original.paymentType}</span>
       </div>
     ),
   },

@@ -74,7 +74,7 @@ export const BagClient: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="bagName"
+        searchKeys={['bagName']}
         columns={columns}
         data={data}
         onSearch={handleSearch}

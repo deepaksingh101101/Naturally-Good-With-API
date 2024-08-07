@@ -10,7 +10,6 @@ import { Separator } from '@/components/ui/separator';
 import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { columns } from './columns';
-import { ComplaintManagement, ComplaintManagementData } from '@/constants/complaint-management-data';
 import { EmployeeManagement, EmployeeManagementData } from '@/constants/employee-management-data';
 
 export const EmployeeManagementClient: React.FC = () => {
@@ -20,29 +19,20 @@ export const EmployeeManagementClient: React.FC = () => {
 
   const handleSearch = (searchValue: string) => {
     const filteredData = initialData.filter(item =>
-      item.firstName.toLowerCase().includes(searchValue.toLowerCase())
+      item.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+      item.contactInformation.phone.toLowerCase().includes(searchValue.toLowerCase())
     );
     setData(filteredData);
   };
 
-  const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
-    // Example: Sorting by first name
-    const sortedData = [...data].sort((a, b) => {
-      if (sortOrder === 'asc') {
-        return a.firstName.localeCompare(b.firstName);
-      } else {
-        return b.firstName.localeCompare(a.firstName);
-      }
-    });
-    setData(sortedData);
-  };
   const filters = [
     {
-      label: 'Role ',
-      subOptions: ['Manager', 'Support Staff','Technician','Customer Service'],
-    }
-  
+      label: 'Role',
+      subOptions: ['Manager', 'Support Staff', 'Technician', 'Customer Service'],
+    },
   ];
+
   return (
     <>
       <div className="flex items-start justify-between">
@@ -59,12 +49,11 @@ export const EmployeeManagementClient: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="fullName"
+        searchKeys={['firstName', 'lastName', 'phone']}
         columns={columns}
         data={data}
-        onSearch={handleSearch} 
+        onSearch={handleSearch}
         filters={filters}
-        // onSort={handleSort} 
       />
     </>
   );

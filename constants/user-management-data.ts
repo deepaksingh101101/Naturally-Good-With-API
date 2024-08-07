@@ -21,7 +21,7 @@ export type UserManagement = {
   assignedRoutes?: string[]; // Array of assigned routes
   subscriptionType: string;
   deliveryFrequency: string;
-  paymentType: string;
+  // paymentType: string;
   subscriptionStartDate: string;
   subscriptionEndDate: string;
   accountStatus: 'Active' | 'Inactive';
@@ -55,7 +55,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 1'],
     subscriptionType: 'Weekly',
     deliveryFrequency: 'Biweekly',
-    paymentType: 'Credit Card',
+    // paymentType: 'Credit Card',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -83,7 +83,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 3'],
     subscriptionType: 'Quarterly',
     deliveryFrequency: 'Weekly',
-    paymentType: 'Net Banking',
+    // paymentType: 'Net Banking',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',
@@ -111,7 +111,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 4'],
     subscriptionType: 'Semi Annual',
     deliveryFrequency: 'Monthly',
-    paymentType: 'UPI',
+    // paymentType: 'UPI',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -139,7 +139,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Annual',
     deliveryFrequency: 'Fortnightly',
-    paymentType: 'Net Banking',
+    // paymentType: 'Net Banking',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',
@@ -167,7 +167,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Trial',
     deliveryFrequency: 'Biweekly',
-    paymentType: 'Credit Card',
+    // paymentType: 'Credit Card',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -195,7 +195,7 @@ export const userManagementData: UserManagement[] = [
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Quarterly',
     deliveryFrequency: 'Daily',
-    paymentType: 'UPI',
+    // paymentType: 'UPI',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',

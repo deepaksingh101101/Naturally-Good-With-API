@@ -58,7 +58,7 @@ export const OrderManagementClient: React.FC = () => {
 <CalendarDateRangePicker />
 </div>
       <DataTable
-        searchKey="customerName"
+        searchKeys={["customerName"]}
         columns={columns}
         data={data}
         filters={filters}

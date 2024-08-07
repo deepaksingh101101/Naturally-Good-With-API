@@ -67,7 +67,7 @@ export const ComplaintManagementClient: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="complaintType"
+        searchKeys={["complaintType"]}
         columns={columns}
         data={data}
         onSearch={handleSearch} 

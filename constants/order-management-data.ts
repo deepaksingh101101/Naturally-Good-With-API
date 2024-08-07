@@ -11,6 +11,7 @@ export interface OrderManagement {
   empId?: number;
   customerName: string;
   employeeName?: string;
+  paymentType: string;
   deliveries: DeliveryInfo[];
   bagOrdered?: string[]; // Array of product names or IDs
   subscriptionType?: string; // Array of product names or IDs
@@ -26,6 +27,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 101,
     empId: 1022,
     customerName: "Deepak Singh",
+   paymentType: 'Credit Card',
+
     deliveries: [
      
       {
@@ -68,6 +71,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 102,
     empId: 10332,
     customerName: "Kartik Kumar",
+        paymentType: 'Net Banking',
+
     deliveries: [
       {
         deliveryDate: '2023-07-20',
@@ -90,6 +95,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 103,
     empId: 1332,
     customerName: "Shivam Kumar",
+        paymentType: 'UPI',
+
     deliveries: [
       {
         deliveryDate: '2023-07-22',
@@ -113,6 +120,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 104,
     empId: 1032,
     customerName: "Ridhi Mishra",
+        paymentType: 'Net Banking',
+
     deliveries: [
       {
         deliveryDate: '2023-07-25',
@@ -145,6 +154,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1022,
     customerName: "Arya Singh",
     subscriptionType: 'Mini Veggie Bag',
+        paymentType: 'Credit Card',
+
     deliveries: [
       {
         deliveryDate: '2023-07-27',

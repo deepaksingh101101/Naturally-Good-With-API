@@ -66,7 +66,7 @@ export const UserManagementClient: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="firstName"
+        searchKeys={["firstName","lastName","phoneNumber"]}
         columns={columns}
         data={data}
         onSearch={handleSearch} 

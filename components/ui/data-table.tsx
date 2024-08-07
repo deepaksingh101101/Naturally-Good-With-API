@@ -7,7 +7,6 @@ import {
   getFilteredRowModel,
   useReactTable,
   getSortedRowModel,
-  Table,
 } from '@tanstack/react-table';
 
 import { Table as UiTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -26,7 +25,7 @@ interface FilterOption {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  searchKey?: string;
+  searchKeys?: string[];
   onSearch?: (value: string) => void;
   filters?: FilterOption[];
   meta?: {
@@ -38,7 +37,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchKey,
+  searchKeys = [],
   onSearch,
   filters,
   meta,
@@ -70,13 +69,12 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="flex justify-end">
-      <Input
-  value={filterInput}
-  onChange={handleSearchChange}
-  placeholder={`Search by ${(searchKey || 'defaultSearchKey').charAt(0).toUpperCase() + (searchKey || 'defaultSearchKey').slice(1)}`}
-  className="mb-4 max-w-64"
-/>
-
+        <Input
+          value={filterInput}
+          onChange={handleSearchChange}
+          placeholder={`Search by ${searchKeys.join(', ') || 'defaultSearchKey'}`}
+          className="mb-4 max-w-64"
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button style={{ background: "#04894d", color: 'white' }} className="text-xs md:text-sm ms-4">
@@ -87,7 +85,7 @@ export function DataTable<TData, TValue>({
             {filters?.map((filter) => (
               <DropdownMenuSub key={filter.label}>
                 <DropdownMenuSubTrigger>
-                  {filter.label} 
+                  {filter.label}
                 </DropdownMenuSubTrigger>
                 <DropdownMenuSubContent className="w-48">
                   {filter.subOptions.map((subOption) => (
@@ -101,7 +99,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       <ScrollArea className="rounded-md border min-h-[70vh]">
-      <UiTable className="relative">
+        <UiTable className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

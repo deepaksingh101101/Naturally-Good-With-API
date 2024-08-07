@@ -64,7 +64,7 @@ export const ProductManagementClient: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="itemName"
+        searchKeys={["itemName"]}
         columns={columns}
         data={data}
         onSearch={handleSearch} 

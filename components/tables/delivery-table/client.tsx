@@ -55,7 +55,7 @@ export const DeliveryClient: React.FC = () => {
         <CalendarDateRangePicker />
       </div>
       <DataTable
-        searchKey="customerName"
+        searchKeys={["customerName"]}
         columns={columns}
         data={data}
         filters={filters}

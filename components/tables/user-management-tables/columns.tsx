@@ -142,7 +142,10 @@ export const columns: ColumnDef<UserManagement>[] = [
     accessorKey: 'subscriptionType',
     header: 'Subscription Type',
   },
-
+  {
+    accessorKey: 'deliveryFrequency',
+    header: 'Delivery Frequency',
+  },
   // {
   //   accessorKey: 'address',
   //   header: 'Address',
@@ -154,18 +157,18 @@ export const columns: ColumnDef<UserManagement>[] = [
   //     </div>
   //   ),
   // },
-  {
-    accessorKey: 'paymentType',
-    header: 'Payment Type',
-    cell: ({ row }) => (
-      <div className="flex items-center me-9">
-        {row.original.paymentType === 'UPI' && <Image src={upi.src} alt="UPI" width={20} height={20} />}
-        {row.original.paymentType === 'Credit Card' && <Image src={credit.src} alt="Credit Card" width={20} height={20} />}
-        {row.original.paymentType === 'Net Banking' && <Image src={net.src} alt="Net Banking" width={20} height={20} />}
-        <span className="ml-2">{row.original.paymentType}</span>
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: 'paymentType',
+  //   header: 'Payment Type',
+  //   cell: ({ row }) => (
+  //     <div className="flex items-center me-9">
+  //       {row.original.paymentType === 'UPI' && <Image src={upi.src} alt="UPI" width={20} height={20} />}
+  //       {row.original.paymentType === 'Credit Card' && <Image src={credit.src} alt="Credit Card" width={20} height={20} />}
+  //       {row.original.paymentType === 'Net Banking' && <Image src={net.src} alt="Net Banking" width={20} height={20} />}
+  //       <span className="ml-2">{row.original.paymentType}</span>
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: 'accountStatus',
     header: 'Account Status',
@@ -200,10 +203,7 @@ export const columns: ColumnDef<UserManagement>[] = [
       <div className="text-center">{row.original.employeeName}</div>
     ),
   },
-  {
-    accessorKey: 'deliveryFrequency',
-    header: 'Delivery Frequency',
-  },
+
   {
     accessorKey: 'lastUpdateDate',
     header: 'Last Profile Update',

@@ -60,7 +60,7 @@ const ComplaintManagementUserPage: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKey="description"
+        searchKeys={["description","name","complaintType"]}
         columns={columns}
         data={data}
         onSearch={handleSearch} 
