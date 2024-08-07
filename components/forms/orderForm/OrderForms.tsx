@@ -14,7 +14,9 @@ export const OrderData: OrderManagement[] = [
     orderId: 101,
     empId: 1022,
     employeeName: "Shivam Singh",
-    customerName: "Deepak Singh",
+    customerName: "Deepak Singh", 
+       paymentType: 'Credit Card',
+
     deliveries: [
       {
         deliveryDate: '2023-07-17',
