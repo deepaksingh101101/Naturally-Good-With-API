@@ -55,15 +55,29 @@ const order = {
     },
   ],
   bagOrdered: [
-    { itemName: 'Carrot', itemPrice: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5, requiredUnits: 0 },
-    { itemName: 'Cucumber', itemPrice: 100, unitQuantity: 300, minimumQuantity: 2, maximumQuantity: 5, requiredUnits: 0 },
-    { itemName: 'Ladyfinger', itemPrice: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 3, requiredUnits: 0 },
+    { itemName: 'Carrot', itemPrice: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5, requiredUnits: 1 },
+    { itemName: 'Cucumber', itemPrice: 100, unitQuantity: 300, minimumQuantity: 2, maximumQuantity: 5, requiredUnits: 2 },
+    { itemName: 'Ladyfinger', itemPrice: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 3, requiredUnits: 1 },
   ],
   totalWeight: 5000, // Maximum weight in grams
   totalPrice: 779,
   paymentStatus: 'Paid',
   subscriptionType: 'Regular Veggie Bag',
   specialInstructions: 'Leave the package at the front door.'
+};
+
+const previousDelivery = {
+  deliveryDate: '2023-07-17',
+  items: [
+    { itemName: 'Carrot', unitQuantity: 500, requiredUnits: 1 },
+    { itemName: 'Cucumber', unitQuantity: 300, requiredUnits: 2 },
+    { itemName: 'Ladyfinger', unitQuantity: 1000, requiredUnits: 1 },
+  ],
+  addons: [
+    { itemName: 'Arva', unitQuantity: 500, requiredUnits: 1 },
+    { itemName: 'Cucumber', unitQuantity: 300, requiredUnits: 2 },
+    { itemName: 'Ladyfinger', unitQuantity: 1000, requiredUnits: 1 },
+  ]
 };
 
 const dummyItems = [
@@ -180,6 +194,98 @@ export const ModifyDelivery: React.FC = () => {
             <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.totalWeight}</p>
           </div>
         </div>
+      </div>
+
+      <Separator className="my-4" />
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg mt-4 shadow-lg">
+        <Heading title="Previous Delivery Details" description="Last Delivery Information" />
+        <table className="min-w-full divide-y divide-gray-200 mt-4">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Delivery Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Items Ordered
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Addons
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            <tr>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {previousDelivery.deliveryDate}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+  <table className="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Item Name
+        </th>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Ordered Units
+        </th>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Unit Quantity (g)
+        </th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {previousDelivery.items.map((item, idx) => (
+        <tr key={idx}>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.itemName}
+          </td>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.requiredUnits}
+          </td>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.unitQuantity}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</td>
+
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <table className="min-w-full divide-y divide-gray-200">
+    <thead>
+      <tr>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Item Name
+        </th>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Ordered Units
+        </th>
+        <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+          Unit Quantity (g)
+        </th>
+      </tr>
+    </thead>
+    <tbody className="bg-white divide-y divide-gray-200">
+      {previousDelivery.addons.map((item, idx) => (
+        <tr key={idx}>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.itemName}
+          </td>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.requiredUnits}
+          </td>
+          <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">
+            {item.unitQuantity}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <Separator className="my-4" />
