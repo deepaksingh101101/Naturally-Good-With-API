@@ -44,6 +44,7 @@ const FormSchema = z.object({
   alterNateContact: z.string().optional(),
   address2: z.string().optional(),
   alterNateAddress: z.string().optional(),
+  allergies: z.string().optional(),
   assignedEmployee: z.string().min(1, "Assigned Employee is required"),
   subscriptionType: z.string().min(1, "Subscription Type is required"),
   subscriptionStartDate: z.date({
@@ -446,6 +447,23 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     />
                   </FormControl>
                   <FormMessage>{errors.alterNateContact?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="allergies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Allergies</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter any allergies"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.allergies?.message}</FormMessage>
                 </FormItem>
               )}
             />
