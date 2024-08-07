@@ -10,6 +10,7 @@ import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Trash, Edit } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea'; // Import Textarea component
+import { FormControl, FormField, FormLabel } from '@/components/ui/form';
 
 interface BagItem {
   itemName: string;
@@ -57,10 +58,88 @@ const order = {
     },
   ],
   bagOrdered: [
-    { itemName: 'Carrot', itemPrice: 200, unitQuantity: 500, minimumQuantity: 1, maximumQuantity: 5, requiredUnits: 1 },
-    { itemName: 'Cucumber', itemPrice: 100, unitQuantity: 300, minimumQuantity: 2, maximumQuantity: 5, requiredUnits: 2 },
-    { itemName: 'Ladyfinger', itemPrice: 300, unitQuantity: 1000, minimumQuantity: 1, maximumQuantity: 3, requiredUnits: 1 },
-  ],
+    {
+      "itemName": "Potato",
+      "itemPrice": 30,
+      "unitQuantity": 1000,
+      "minimumQuantity": 1,
+      "maximumQuantity": 30,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Onions",
+      "itemPrice": 25,
+      "unitQuantity": 500,
+      "minimumQuantity": 1,
+      "maximumQuantity": 50,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Tomatoes",
+      "itemPrice": 50,
+      "unitQuantity": 1000,
+      "minimumQuantity": 3,
+      "maximumQuantity": 10,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Garlic",
+      "itemPrice": 300,
+      "unitQuantity": 1000,
+      "minimumQuantity": 1,
+      "maximumQuantity": 4,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Ginger",
+      "itemPrice": 200,
+      "unitQuantity": 200,
+      "minimumQuantity": 1,
+      "maximumQuantity": 3,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Coriander",
+      "itemPrice": 30,
+      "unitQuantity": 100,
+      "minimumQuantity": 1,
+      "maximumQuantity": 3,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Mint",
+      "itemPrice": 300,
+      "unitQuantity": 200,
+      "minimumQuantity": 1,
+      "maximumQuantity": 3,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Lemons",
+      "itemPrice": 30,
+      "unitQuantity": 100,
+      "minimumQuantity": 1,
+      "maximumQuantity": 3,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Chillies",
+      "itemPrice": 300,
+      "unitQuantity": 1000,
+      "minimumQuantity": 2,
+      "maximumQuantity": 30,
+      "requiredUnits": 1
+    },
+    {
+      "itemName": "Amla",
+      "itemPrice": 300,
+      "unitQuantity": 100,
+      "minimumQuantity": 2,
+      "maximumQuantity": 5,
+      "requiredUnits": 1
+    }
+  ]
+  ,
   totalWeight: 5000, // Maximum weight in grams
   totalPrice: 779,
   paymentStatus: 'Paid',
@@ -292,9 +371,9 @@ export const ModifyDelivery: React.FC = () => {
       </div>
 
       <Separator className="my-4" />
-      <Button onClick={handleAddNewItem} className="mb-4 bg-green-600">
+      {/* <Button onClick={handleAddNewItem} className="mb-4 bg-green-600">
         Add New Item
-      </Button>
+      </Button> */}
       {fields.length > 0 && (
         <form onSubmit={handleSubmit(handleSaveChanges)}>
           <table className="min-w-full divide-y divide-gray-200">
@@ -326,44 +405,9 @@ export const ModifyDelivery: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {fields.map((item, index) => (
                 <tr key={index}>
-                  <td className="px-6 textWidth py-4 whitespace-nowrap text-sm text-gray-500">
-                    <Controller
-                      control={control}
-                      name={`bagItems.${index}.itemName` as const}
-                      render={({ field }) => (
-                        <Select
-                          isClearable
-                          isSearchable
-                          options={dummyItems.map(item => ({
-                            value: item.value,
-                            label: item.label,
-                            price: item.price,
-                            unitQuantity: item.unitQuantity,
-                            minimumQuantity: item.minimumQuantity,
-                            maximumQuantity: item.maximumQuantity
-                          }))}
-                          formatOptionLabel={({ label, price }) => (
-                            <div className="flex justify-between w-full">
-                              <span>{label}</span>
-                              <span>₹{price}</span>
-                            </div>
-                          )}
-                          isDisabled={false}
-                          onChange={(selected) => {
-                            field.onChange(selected?.value);
-                            const selectedItem = dummyItems.find(item => item.value === selected?.value);
-                            if (selectedItem) {
-                              setValue(`bagItems.${index}.itemPrice`, selectedItem.price);
-                              setValue(`bagItems.${index}.unitQuantity`, selectedItem.unitQuantity);
-                              setValue(`bagItems.${index}.maximumQuantity`, selectedItem.maximumQuantity);
-                              setValue(`bagItems.${index}.minimumQuantity`, selectedItem.minimumQuantity);
-                              setValue(`bagItems.${index}.requiredUnits`, 1); // Reset requiredUnits when item changes
-                            }
-                          }}
-                          value={dummyItems.find((option) => option.value === field.value)}
-                        />
-                      )}
-                    />
+        
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {watch(`bagItems.${index}.itemName`)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     ₹{watch(`bagItems.${index}.itemPrice`)}

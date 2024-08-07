@@ -26,6 +26,7 @@ const couponFormSchema = z.object({
   code: z.string().min(1, 'Coupon Code is required'),
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
   visibility: z.enum(['global', 'subscription']),
+  cvisibility: z.enum(['Admin', 'Public']),
   subscriptionType: z.object({
     id: z.string(),
     name: z.string()
@@ -60,6 +61,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       code: '',
       discountPrice: 0,
       visibility: 'global',
+      cvisibility: 'Admin',
       subscriptionType: undefined,
       subscriptionPrice: 0,
       netPrice: 0,
@@ -333,6 +335,27 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
+<FormField
+              control={form.control}
+              name="cvisibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coupons Visibility</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Visibility" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Admin">Admin Only</SelectItem>
+                        <SelectItem value="Public">Public</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.cvisibility?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="description"
