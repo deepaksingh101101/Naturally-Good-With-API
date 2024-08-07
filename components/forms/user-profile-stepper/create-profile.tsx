@@ -56,7 +56,7 @@ const FormSchema = z.object({
   zipcode: z.string().min(1, 'Zipcode is required'),
   houseNumber: z.string().min(1, 'House and Floor Number is required'),
   society: z.string().min(1, 'Society/Locality is required'),
-  age: z.number().optional(),
+  // age: z.number().optional(),
   numberOfFamilyMembers: z.number().optional(),
   dob: z.date().optional(),
   gender: z.string().optional(),
@@ -487,7 +487,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               )}
             />
 
-            <FormField
+            {/* <FormField
               control={form.control}
               name="age"
               render={({ field }) => (
@@ -506,7 +506,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormMessage>{errors.age?.message}</FormMessage>
                 </FormItem>
               )}
-            />
+            /> */}
             <FormField
               control={form.control}
               name="email"

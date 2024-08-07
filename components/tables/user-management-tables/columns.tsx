@@ -1,16 +1,11 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { CellAction } from './cell-action';
-import { UserManagement, userManagementData } from '@/constants/user-management-data';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Check, X, Mail, Phone, MapPin } from 'lucide-react';
-import upi from '@/public/assets/icons/upi.png';
-import credit from '@/public/assets/icons/credit.png';
-import net from '@/public/assets/icons/net.png';
-import Image from 'next/image';
-import AssignedRoutesCell from '@/components/AssignedRoutesCell';
+import { UserManagement, userManagementData } from '@/constants/user-management-data';
 import { DataTable } from '@/components/ui/data-table';
+import { CellAction } from './cell-action';
 
 // Function to generate a random color in hex format
 const getRandomColor = () => {
@@ -89,21 +84,18 @@ export const columns: ColumnDef<UserManagement>[] = [
       </div>
     ),
   },
-  {
-    accessorKey: 'dob',
-    header: 'DATE OF BIRTH',
-  },
-  
-  {
-    accessorKey: 'gender',
-    header: 'Gender',
-  },
+
+ 
+
+
+
+
   {
     accessorKey: 'houseNumber',
-    header: 'House Number',
+    header: 'House & Floor Number',
   },
   {
-    accessorKey: 'society',
+    accessorKey: 'society/Locality',
     header: 'Society',
     cell: ({ row }) => (
       <div className="flex items-center mt-1 me-4">
@@ -117,27 +109,37 @@ export const columns: ColumnDef<UserManagement>[] = [
     header: 'Sector',
   },
   {
+    accessorKey: 'zipcode',
+    header: 'Zipcode',
+  },
+  {
     accessorKey: 'city',
     header: 'City',
   },
+  {
+    accessorKey: 'state',
+    header: 'State',
+  },
+  {
+    accessorKey: 'numberOfFamilyMembers',
+    header: 'Family Members',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="px-1" style={{ borderRadius: '50%' }}>
+          {row.original.numberOfFamilyMembers}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'dob',
+    header: 'DATE OF BIRTH',
+  },
+  {
+    accessorKey: 'gender',
+    header: 'Gender',
+  },
 
-  
- 
-
-
-
-  // {
-  //   accessorKey: 'assignedRoutes',
-  //   header: 'Assigned Routes',
-  //   cell: ({ row }) => (
-  //     <AssignedRoutesCell
-  //       routes={row.original.assignedRoutes || []}
-  //       onSave={(newRoutes) => {
-  //         row.original.assignedRoutes = newRoutes;
-  //       }}
-  //     />
-  //   ),
-  // },
   {
     accessorKey: 'subscriptionType',
     header: 'Subscription Type',
@@ -146,29 +148,24 @@ export const columns: ColumnDef<UserManagement>[] = [
     accessorKey: 'deliveryFrequency',
     header: 'Delivery Frequency',
   },
-  // {
-  //   accessorKey: 'address',
-  //   header: 'Address',
-  //   cell: ({ row }) => (
-  //     <div className="flex items-center mt-1 me-4">
-  //       <MapPin className="text-red-500 mr-2" width={16} height={16} />
-  //       {row.original.address.houseNumber}, {row.original.address.addressLine1},{' '}
-  //       {row.original.address.addressLine2}
-  //     </div>
-  //   ),
-  // },
-  // {
-  //   accessorKey: 'paymentType',
-  //   header: 'Payment Type',
-  //   cell: ({ row }) => (
-  //     <div className="flex items-center me-9">
-  //       {row.original.paymentType === 'UPI' && <Image src={upi.src} alt="UPI" width={20} height={20} />}
-  //       {row.original.paymentType === 'Credit Card' && <Image src={credit.src} alt="Credit Card" width={20} height={20} />}
-  //       {row.original.paymentType === 'Net Banking' && <Image src={net.src} alt="Net Banking" width={20} height={20} />}
-  //       <span className="ml-2">{row.original.paymentType}</span>
-  //     </div>
-  //   ),
-  // },
+  {
+    accessorKey: 'employeeName',
+    header: 'Associated Employee',
+    cell: ({ row }) => (
+      <div className="text-center">{row.original.employeeName}</div>
+    ),
+  },
+  {
+    accessorKey: 'assignedRoutes',
+    header: 'Assigned Routes',
+    cell: ({ row }) => (
+      <div>
+        {row.original.assignedRoutes?.map(route => (
+          <div key={route}>{route}</div>
+        ))}
+      </div>
+    ),
+  },
   {
     accessorKey: 'accountStatus',
     header: 'Account Status',
@@ -196,14 +193,15 @@ export const columns: ColumnDef<UserManagement>[] = [
     accessorKey: 'subscriptionEndDate',
     header: 'Subscription End Date',
   },
-  {
-    accessorKey: 'employeeName',
-    header: 'Associated Employee ',
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.employeeName}</div>
-    ),
-  },
 
+  {
+    accessorKey: 'alterNateContact',
+    header: 'Alternate Contact',
+  },
+  {
+    accessorKey: 'alterNateAddress',
+    header: 'Alternate Address',
+  },
   {
     accessorKey: 'lastUpdateDate',
     header: 'Last Profile Update',

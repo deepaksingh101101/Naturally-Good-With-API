@@ -7,21 +7,20 @@ export type UserManagement = {
   lastName: string;
   email: string;
   phoneNumber: string;
+  alterNateContact?: string;
+  alterNateAddress?: string;
+  zipcode?: string;
+  numberOfFamilyMembers?: string;
+  state?: string;
   city?: string;
   sector?: string;
-  society?:string;
+  society?: string;
   houseNumber?: string;
-  dob?:string;
-  gender?:string;
-  address: {
-    houseNumber: string;
-    addressLine1: string;
-    addressLine2?: string;
-  };
+  dob?: string;
+  gender?: string;
   assignedRoutes?: string[]; // Array of assigned routes
   subscriptionType: string;
   deliveryFrequency: string;
-  // paymentType: string;
   subscriptionStartDate: string;
   subscriptionEndDate: string;
   accountStatus: 'Active' | 'Inactive';
@@ -34,6 +33,7 @@ export type UserManagement = {
 const formatDate = (dateString: string) => {
   return format(parseISO(dateString), 'dd MMM yyyy');
 };
+
 export const userManagementData: UserManagement[] = [
   {
     sno: 1,
@@ -41,21 +41,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Doe',
     email: 'john.doe@example.com',
     phoneNumber: '123-456-7890',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '098-765-4321',
+    alterNateAddress: '123 Secondary St, Apt 456',
+    zipcode: '110001',
+    numberOfFamilyMembers: '4',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Male',
     assignedRoutes: ['Route 1'],
     subscriptionType: 'Weekly',
     deliveryFrequency: 'Biweekly',
-    // paymentType: 'Credit Card',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -69,21 +68,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Mishra',
     email: 'ridhi.mishra@example.com',
     phoneNumber: '11111111',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '22222222',
+    alterNateAddress: '456 Secondary St, Apt 789',
+    zipcode: '110002',
+    numberOfFamilyMembers: '3',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Female',
     assignedRoutes: ['Route 3'],
     subscriptionType: 'Quarterly',
     deliveryFrequency: 'Weekly',
-    // paymentType: 'Net Banking',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',
@@ -97,21 +95,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Singh',
     email: 'deepak.singh@example.com',
     phoneNumber: '123-456-7890',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '098-765-4321',
+    alterNateAddress: '789 Secondary St, Apt 123',
+    zipcode: '110003',
+    numberOfFamilyMembers: '5',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Male',
     assignedRoutes: ['Route 4'],
     subscriptionType: 'Semi Annual',
     deliveryFrequency: 'Monthly',
-    // paymentType: 'UPI',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -125,21 +122,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Kumar',
     email: 'shivam.kumar@example.com',
     phoneNumber: '123-456-7890',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '098-765-4321',
+    alterNateAddress: '321 Secondary St, Apt 654',
+    zipcode: '110004',
+    numberOfFamilyMembers: '2',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Male',
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Annual',
     deliveryFrequency: 'Fortnightly',
-    // paymentType: 'Net Banking',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',
@@ -153,21 +149,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Singh',
     email: 'vikash.singh@example.com',
     phoneNumber: '123-456-7890',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '098-765-4321',
+    alterNateAddress: '654 Secondary St, Apt 987',
+    zipcode: '110005',
+    numberOfFamilyMembers: '6',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Male',
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Trial',
     deliveryFrequency: 'Biweekly',
-    // paymentType: 'Credit Card',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Active',
@@ -181,21 +176,20 @@ export const userManagementData: UserManagement[] = [
     lastName: 'Singh',
     email: 'prashant.singh@example.com',
     phoneNumber: '123-456-7890',
-    city: "Delhi",
-    sector: "sector 68",
-    society:"m3m Marina",
-    houseNumber: "s4 1404",
-    dob:"11/JUL/2024",
-    gender:"Male",
-    address: {
-      houseNumber: '123',
-      addressLine1: 'Main St',
-      addressLine2: 'Apt 4B',
-    },
+    alterNateContact: '098-765-4321',
+    alterNateAddress: '987 Secondary St, Apt 321',
+    zipcode: '110006',
+    numberOfFamilyMembers: '7',
+    state: 'Delhi',
+    city: 'Delhi',
+    sector: 'sector 68',
+    society: 'm3m Marina',
+    houseNumber: 's4 1404',
+    dob: '11/JUL/2024',
+    gender: 'Male',
     assignedRoutes: ['Route 6'],
     subscriptionType: 'Quarterly',
     deliveryFrequency: 'Daily',
-    // paymentType: 'UPI',
     subscriptionStartDate: formatDate('2023-01-01'),
     subscriptionEndDate: formatDate('2023-12-31'),
     accountStatus: 'Inactive',
