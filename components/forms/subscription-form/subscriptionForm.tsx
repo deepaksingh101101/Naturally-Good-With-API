@@ -48,7 +48,7 @@ const subscriptionFormSchema = z.object({
   bagName: z.array(z.string()).min(1, 'Bag Name is required'),
   subscriptionStatus: z.enum(['Active', 'Inactive']),
   price: z.number().positive('Price must be greater than zero'),
-  netPrice: z.any(),
+  netPrice: z.number().positive('Net Price must be greater than zero'),
   offers: z.number()
 }).refine((data) => data.totalDelivery % subscriptionTypeNumbers[data.subscriptionType] === 0, {
   message: 'Total bags must be a multiple of the associated subscription type',
@@ -539,12 +539,15 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                   <FormControl>
                     <Input
                       type="number"
-                      disabled
                       placeholder="Net Price"
                       {...field}
-                      readOnly
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        field.onChange(value ? Number(value) : '');
+                      }}
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

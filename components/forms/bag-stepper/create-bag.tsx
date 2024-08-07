@@ -36,7 +36,7 @@ export interface Bag {
   visibility?: string;
   bagImage?: StaticImageData;
   description: string;
-  totalWeight:number
+  totalWeight:number;
 }
 
 const dummyItems = [
@@ -63,7 +63,7 @@ const bagFormSchema = z.object({
   totalPrice: z.number().nonnegative(),
   updatedDate: z.string().optional(),
   status: z.enum(['Active', 'Inactive']),
-  totalWeight: z.number().nonnegative().min(1, 'Total weight is required'), // Added field
+  totalWeight: z.number().min(1, 'Total weight is required'), // Added field
 });
 
 export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
@@ -80,6 +80,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
       totalPrice: 0,
       createdDate: '',
       status: 'Active',
+      totalWeight:0
     },
   });
 
