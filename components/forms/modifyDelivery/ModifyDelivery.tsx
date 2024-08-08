@@ -80,7 +80,7 @@ const order = {
       "unitQuantity": 1000,
       "minimumQuantity": 3,
       "maximumQuantity": 10,
-      "requiredUnits": 1
+      "requiredUnits": 3
     },
     {
       "itemName": "Garlic",
@@ -128,7 +128,7 @@ const order = {
       "unitQuantity": 1000,
       "minimumQuantity": 2,
       "maximumQuantity": 30,
-      "requiredUnits": 1
+      "requiredUnits": 2
     },
     {
       "itemName": "Amla",
@@ -136,7 +136,7 @@ const order = {
       "unitQuantity": 100,
       "minimumQuantity": 2,
       "maximumQuantity": 5,
-      "requiredUnits": 1
+      "requiredUnits": 2
     }
   ]
   ,
@@ -371,9 +371,6 @@ export const ModifyDelivery: React.FC = () => {
       </div>
 
       <Separator className="my-4" />
-      {/* <Button onClick={handleAddNewItem} className="mb-4 bg-green-600">
-        Add New Item
-      </Button> */}
       {fields.length > 0 && (
         <form onSubmit={handleSubmit(handleSaveChanges)}>
           <table className="min-w-full divide-y divide-gray-200">
@@ -405,7 +402,6 @@ export const ModifyDelivery: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {fields.map((item, index) => (
                 <tr key={index}>
-        
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {watch(`bagItems.${index}.itemName`)}
                   </td>
@@ -438,11 +434,11 @@ export const ModifyDelivery: React.FC = () => {
                               }
                             }}
                           />
-                          {/* {errors?.bagItems && errors?.bagItems[index]?.requiredUnits && (
+                          {errors.bagItems?.[index]?.requiredUnits && (
                             <p className="text-red-500 text-xs mt-1">
-                              {errors?.bagItems[index].requiredUnits.message}
+                              {errors.bagItems?.[index]?.requiredUnits?.message}
                             </p>
-                          )} */}
+                          )}
                         </>
                       )}
                       rules={{
@@ -481,8 +477,6 @@ export const ModifyDelivery: React.FC = () => {
               <p className="text-red-600">The total added item weight cannot be greater than 5000 g (Add More Items Through Add-ons)</p>
             </div>
           )}
-
-        
 
           <div className="flex justify-end mt-4">
             <Button type="submit" disabled={totalWeight > order.totalWeight}>
@@ -550,7 +544,7 @@ export const ModifyDelivery: React.FC = () => {
                             if (selectedItem) {
                               setValue(`addOns.${index}.itemPrice`, selectedItem.price);
                               setValue(`addOns.${index}.unitQuantity`, selectedItem.unitQuantity);
-                              setValue(`addOns.${index}.requiredUnits`, 1); // Reset requiredUnits when item changes
+                              setValue(`addOns.${index}.requiredUnits`, selectedItem.minimumQuantity); // Initialize requiredUnits with minimumQuantity
                             }
                           }}
                           value={dummyItems.find((option) => option.value === field.value)}
@@ -670,23 +664,21 @@ export const ModifyDelivery: React.FC = () => {
         )}
       />
 
-<div className="flex flex-col ">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-            <Controller
-              control={control}
-              name="description"
-              render={({ field }) => (
-                <Textarea
-                  rows={5}
-                  placeholder="Enter Description"
-                  {...field}
-                />
-              )}
+      <div className="flex flex-col ">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <Textarea
+              rows={5}
+              placeholder="Enter Description"
+              {...field}
             />
-          </div>
+          )}
+        />
+      </div>
 
-      
-      
       <Dialog open={isTimeSlotModalOpen} onOpenChange={(open) => !open && setIsTimeSlotModalOpen(false)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>

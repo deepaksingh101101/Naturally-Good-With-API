@@ -163,7 +163,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
 
   const selectedCustomer = watch('customerName');
   const selectedSubscriptionType = watch('subscriptionType');
-  const selectedCoupon = watch('coupon');
+  const selectedCoupon = watch('coupon') as Coupon | undefined;
   const subscriptionPrice = watch('subscriptionPrice');
   const manualDiscount = watch('manualDiscount');
 
