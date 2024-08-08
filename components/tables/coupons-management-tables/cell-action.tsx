@@ -55,6 +55,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem onClick={handleEditCoupon}>
             <Edit className="mr-2 h-4 w-4" /> Edit Coupon Details
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleEditCoupon}>
+            <Edit className="mr-2 h-4 w-4" /> Assign Customers
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={updateCouponVisibility}>
             <UserCheck className="mr-2 h-4 w-4" /> Update Coupon Visibility
           </DropdownMenuItem>
