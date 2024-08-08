@@ -25,8 +25,8 @@ interface CouponFormProps {
 const couponFormSchema = z.object({
   code: z.string().min(1, 'Coupon Code is required'),
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
-  visibility: z.enum(['global', 'subscription']),
-  cvisibility: z.enum(['Admin', 'Public']),
+  couponType: z.enum(['global', 'subscription']),
+  visibility: z.enum(['Admin', 'Public']),
   subscriptionType: z.object({
     id: z.string(),
     name: z.string()
@@ -60,23 +60,23 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
     resolver: zodResolver(couponFormSchema),
     mode: 'onChange',
     defaultValues: {
-      code: '',
-      discountPrice: 0,
-      visibility: 'global',
-      cvisibility: 'Admin',
-      subscriptionType: undefined,
-      subscriptionPrice: 0,
-      netPrice: 0,
-      startDate: undefined,
-      endDate: undefined,
-      description: '',
+      code: initialData?.code || '',
+      discountPrice: initialData?.discountPrice || 0,
+      visibility: initialData?.visibility || 'Admin',
+      couponType: initialData?.couponType || 'global',
+      subscriptionType: initialData?.subscriptionType || undefined,
+      subscriptionPrice: initialData?.subscriptionPrice || 0,
+      netPrice: initialData?.netPrice || 0,
+      startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
+      endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
+      description: initialData?.description || '',
       image: undefined
     }
   });
 
   const { control, handleSubmit, setValue, watch, formState: { errors } } = form;
 
-  const selectedVisibility = watch('visibility');
+  const selectedCouponType = watch('couponType');
   const selectedSubscriptionType = watch('subscriptionType');
   const discountPrice = watch('discountPrice');
 
@@ -105,6 +105,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       // router.refresh();
       // router.push(`/dashboard/coupons`);
     } catch (error: any) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
@@ -117,6 +118,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       // router.refresh();
       // router.push(`/dashboard/coupons`);
     } catch (error: any) {
+      console.error(error);
     } finally {
       setLoading(false);
       setOpen(false);
@@ -147,14 +149,14 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
           <div className="w-full gap-8 md:grid md:grid-cols-3">
             <FormField
               control={form.control}
-              name="visibility"
+              name="couponType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Coupon Visibility</FormLabel>
+                  <FormLabel>Coupon Type</FormLabel>
                   <FormControl>
                     <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select Visibility" />
+                        <SelectValue placeholder="Select Coupon Type" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="global">Global</SelectItem>
@@ -162,12 +164,12 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.visibility?.message}</FormMessage>
+                  <FormMessage>{errors.couponType?.message}</FormMessage>
                 </FormItem>
               )}
             />
 
-            {selectedVisibility === 'subscription' && (
+            {selectedCouponType === 'subscription' && (
               <>
                 <FormField
                   control={form.control}
@@ -294,7 +296,6 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        // disabled={(date) => date > new Date() || date < new Date('1900-01-01')}
                         initialFocus
                       />
                     </PopoverContent>
@@ -327,7 +328,6 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        // disabled={(date) => date > new Date() || date > new Date('1900-01-01')}
                         initialFocus
                       />
                     </PopoverContent>
@@ -339,7 +339,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
 
             <FormField
               control={form.control}
-              name="cvisibility"
+              name="visibility"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Coupons Visibility</FormLabel>
@@ -354,10 +354,11 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.cvisibility?.message}</FormMessage>
+                  <FormMessage>{errors.visibility?.message}</FormMessage>
                 </FormItem>
               )}
             />
+
             <FormField
               control={form.control}
               name="description"
@@ -392,7 +393,6 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                       }}
                     />
                   </FormControl>
-                  {/* <FormMessage>{errors.image?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
