@@ -36,7 +36,7 @@ const couponFormSchema = z.object({
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   description: z.string().min(1, 'Description is required'),
-  image: z.instanceof(File).optional()
+  image: z.any(),
 });
 
 type CouponFormSchema = z.infer<typeof couponFormSchema>;
@@ -392,7 +392,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                       }}
                     />
                   </FormControl>
-                  <FormMessage>{errors.image?.message}</FormMessage>
+                  {/* <FormMessage>{errors.image?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
