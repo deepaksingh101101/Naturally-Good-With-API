@@ -11,15 +11,15 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({ children, onClick }) => (
-  <button onClick={onClick} className="bg-gray-800 text-gray-400 p-2 rounded-md">
+  <button onClick={onClick} className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-700 transition duration-300">
     {children}
   </button>
 );
 
 export const ProductStock: React.FC = () => {
   return (
-    <>
-      <div className="flex items-start justify-between">
+    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-300">
+      <div className="flex items-start justify-between p-6">
         <Heading
           title="Product Stock"
           description="Detailed product stock report"
@@ -31,15 +31,15 @@ export const ProductStock: React.FC = () => {
         </div>
       </div>
       <Separator />
-      <div className="mt-6">
+      <div className="mt-6 p-6">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
-            <select id="entriesPerPage" className="bg-gray-800 text-gray-400 text-sm border border-gray-700 rounded-md px-2 py-1">
+            <select id="entriesPerPage" className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-300 text-sm border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1">
               <option value="10">10</option>
               <option value="20">20</option>
               {/* Add more options if needed */}
             </select>
-            <label htmlFor="entriesPerPage" className="ml-2 text-sm font-medium text-gray-400">
+            <label htmlFor="entriesPerPage" className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-400">
               entries per page
             </label>
           </div>
@@ -47,12 +47,12 @@ export const ProductStock: React.FC = () => {
             <input
               type="text"
               placeholder="Search..."
-              className="bg-gray-800 text-gray-400 text-sm border border-gray-700 rounded-md px-2 py-1"
+              className="bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-300 text-sm border border-gray-300 dark:border-gray-700 rounded-md px-2 py-1"
             />
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-gray-900 text-gray-400">
+          <table className="min-w-full bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-300">
             <thead>
               <tr>
                 <th className="px-4 py-2">DATE</th>
@@ -70,6 +70,6 @@ export const ProductStock: React.FC = () => {
           </table>
         </div>
       </div>
-    </>
+    </div>
   );
 };

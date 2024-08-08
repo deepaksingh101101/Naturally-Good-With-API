@@ -28,13 +28,13 @@ export const SalesReport: React.FC = () => {
       <Separator />
       <div className="flex space-x-4 my-4">
         <Button
-          className={activeTab === 'item' ? 'bg-yellow-500 text-black' : ''}
+          className={activeTab === 'item' ? 'bg-yellow-500  hover:text-white hover:bg-yellow-500' : ''}
           onClick={() => setActiveTab('item')}
         >
           Sales by Item
         </Button>
         <Button
-          className={activeTab === 'customer' ? 'bg-yellow-500 text-black' : ''}
+          className={activeTab === 'customer' ? 'bg-yellow-500  hover:text-white  hover:bg-yellow-500' : ''}
           onClick={() => setActiveTab('customer')}
         >
           Sales by Customer

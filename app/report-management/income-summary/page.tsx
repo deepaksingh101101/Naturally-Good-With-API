@@ -1,6 +1,6 @@
 // app/dashboard/user-management/income-summary/page.tsx
-import BreadCrumb from '@/components/breadcrumb';
 import { IncomeSummary } from '@/components/analytics/IncomeSummary';
+import BreadCrumb from '@/components/breadcrumb';
 import MainLayout from '@/components/layout/main-layout';
 import { ScrollArea } from '@/components/ui/scroll-area';
 const breadcrumbItems = [
