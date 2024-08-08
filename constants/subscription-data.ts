@@ -2,13 +2,20 @@ import subscriptionImage1 from '@/public/assets/strawberry_13643533.png';
 import subscriptionImage2 from '@/public/assets/vegetables_862860.png';
 import { StaticImageData } from 'next/image';
 
+export interface Coupon {
+  code: string;
+  discountPrice: number;
+  startDate: string;
+  endDate: string;
+}
+
 export interface Subscription {
   subscriptionType: string;
   customerName: string;
   frequency: string;
   price: number;
   offers: string; 
-  totalDelivery?:number;
+  totalDelivery?: number;
   deliveryDays: string[];
   subscriptionStartDate: string;
   subscriptionEndDate: string;
@@ -19,6 +26,7 @@ export interface Subscription {
   visibility?: string;
   image?: StaticImageData;
   description?: string;
+  coupons?: Coupon[]; // Adding coupons field
 }
 
 export const SubscriptionData: Subscription[] = [
@@ -35,10 +43,14 @@ export const SubscriptionData: Subscription[] = [
     paymentStatus: 'Paid',
     bagName: "Regular Veggie Bag",
     netPrice: 15323,
-    totalDelivery:24,
+    totalDelivery: 24,
     visibility: 'Admin',
     image: subscriptionImage1,
-    description: 'This is an annual subscription with biweekly deliveries and a 25% discount.'
+    description: 'This is an annual subscription with biweekly deliveries and a 25% discount.',
+    coupons: [
+      { code: "NEWTY", discountPrice: 200, startDate: '2023-MAR-01', endDate: '2023-JUN-30' },
+      { code: "TYPESIS", discountPrice: 400, startDate: '2023-APR-01', endDate: '2023-JUL-30' }
+    ]
   },
   {
     subscriptionType: 'Monthly',
@@ -53,10 +65,14 @@ export const SubscriptionData: Subscription[] = [
     paymentStatus: 'Unpaid',
     bagName: "Mini Veggie Bag",
     netPrice: 15323,
-    totalDelivery:4,
+    totalDelivery: 4,
     visibility: 'Admin',
     image: subscriptionImage2,
-    description: 'This is a monthly subscription with fortnightly deliveries and a 31% discount.'
+    description: 'This is a monthly subscription with fortnightly deliveries and a 31% discount.',
+    coupons: [
+      { code: "NEWTY", discountPrice: 200, startDate: '2023-MAR-01', endDate: '2023-JUN-30' },
+      { code: "TYPESIS", discountPrice: 400, startDate: '2023-APR-01', endDate: '2023-JUL-30' }
+    ]
   },
   {
     subscriptionType: 'Quarterly',
@@ -72,8 +88,12 @@ export const SubscriptionData: Subscription[] = [
     bagName: "Regular Veggie Bag",
     netPrice: 15323,
     visibility: 'Admin',
-    totalDelivery:24,
+    totalDelivery: 24,
     image: subscriptionImage1,
-    description: 'This is a quarterly subscription with biweekly deliveries and a 44% discount.'
+    description: 'This is a quarterly subscription with biweekly deliveries and a 44% discount.',
+    coupons: [
+      { code: "NEWTY", discountPrice: 200, startDate: '2023-MAR-01', endDate: '2023-JUN-30' },
+      { code: "TYPESIS", discountPrice: 400, startDate: '2023-APR-01', endDate: '2023-JUL-30' }
+    ]
   }
 ];

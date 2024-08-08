@@ -109,8 +109,6 @@ export const columns: ColumnDef<Subscription>[] = [
       </ul>
     )
   },
-
- 
   {
     accessorKey: 'price',
     header: 'Price',
@@ -153,6 +151,34 @@ export const columns: ColumnDef<Subscription>[] = [
       </div>
     ),
   },
+  {
+    accessorKey: 'coupons',
+    header: 'Coupons',
+    cell: ({ row }) => (
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr className="bg-red-100">
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Discount Price (₹)</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {row.original.coupons?.map((coupon, index) => (
+            <tr key={index} className={index % 2 === 0 ? 'bg-blue-100' : 'bg-blue-200'}>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.code}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.discountPrice}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.startDate}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.endDate}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ),
+  }
+  
+,  
   {
     id: 'actions',
     cell: ({ row }) => <SubscriptionCellAction data={row.original} />,
