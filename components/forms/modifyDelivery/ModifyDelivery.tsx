@@ -438,11 +438,11 @@ export const ModifyDelivery: React.FC = () => {
                               }
                             }}
                           />
-                          {errors?.bagItems && errors?.bagItems[index]?.requiredUnits && (
+                          {/* {errors?.bagItems && errors?.bagItems[index]?.requiredUnits && (
                             <p className="text-red-500 text-xs mt-1">
                               {errors?.bagItems[index].requiredUnits.message}
                             </p>
-                          )}
+                          )} */}
                         </>
                       )}
                       rules={{
