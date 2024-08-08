@@ -33,11 +33,13 @@ const couponFormSchema = z.object({
   }).optional(),
   subscriptionPrice: z.number().optional(),
   netPrice: z.number().optional(),
-  startDate: z.date().nullable(),
-  endDate: z.date().nullable(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
   description: z.string().min(1, 'Description is required'),
-  image: z.instanceof(File).nullable()
+  image: z.instanceof(File).optional()
 });
+
+type CouponFormSchema = z.infer<typeof couponFormSchema>;
 
 const subscriptionTypes = [
   { id: '1', name: 'Staples', subscriptionPrice: 1000 },
@@ -54,7 +56,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
   const toastMessage = initialData ? 'Coupon updated.' : 'Coupon created.';
   const action = initialData ? 'Save changes' : 'Create';
 
-  const form = useForm({
+  const form = useForm<CouponFormSchema>({
     resolver: zodResolver(couponFormSchema),
     mode: 'onChange',
     defaultValues: {
@@ -65,10 +67,10 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       subscriptionType: undefined,
       subscriptionPrice: 0,
       netPrice: 0,
-      startDate: null,
-      endDate: null,
+      startDate: undefined,
+      endDate: undefined,
       description: '',
-      image: null
+      image: undefined
     }
   });
 
@@ -92,7 +94,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
     }
   }, [selectedSubscriptionType, discountPrice, setValue]);
 
-  const onSubmit: SubmitHandler<typeof couponFormSchema._type> = async (data) => {
+  const onSubmit: SubmitHandler<CouponFormSchema> = async (data) => {
     try {
       setLoading(true);
       if (initialData) {
@@ -335,7 +337,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
-<FormField
+            <FormField
               control={form.control}
               name="cvisibility"
               render={({ field }) => (
