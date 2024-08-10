@@ -13,7 +13,7 @@ import ReactSelect from 'react-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Edit } from 'lucide-react';
+import { CalendarIcon, Edit, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -32,6 +32,7 @@ const employeeFormSchema = z.object({
     email: z.string().email('Invalid email format').min(1, 'Email is required'),
     phone: z.string().min(1, 'Phone is required'),
   }),
+  password: z.string().min(6, 'Password must be at least 6 characters long'),
   city: z.string().min(1, 'City is required'),
   state: z.string().min(1, 'State is required'),
   address: z.string().min(1, 'Address is required'),
@@ -44,6 +45,7 @@ const employeeFormSchema = z.object({
 
 export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, userOptions }) => {
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: initialData || {
@@ -55,6 +57,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
         email: '',
         phone: '',
       },
+      password: '',
       dob: new Date(),
       assignedUsers: [],
     },
@@ -107,10 +110,17 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
       setNewRole('');
     }
   };
+
   const deleteRole = (roleToDelete: string) => {
     setRole(role.filter(r => r.value !== roleToDelete));
   };
+
   const [roleModalOpen, setRoleModalOpen] = useState(false);
+
+  const generatePassword = () => {
+    const generatedPassword = Math.random().toString(36).slice(-8);
+    form.setValue('password', generatedPassword);
+  };
 
   return (
     <>
@@ -204,7 +214,40 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
                   </FormItem>
                 )}
               />
-             
+              <FormField
+                control={control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <div className="flex justify-between items-center">
+                    <FormControl>
+                      <div className="relative w-full me-3">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          disabled={loading}
+                          placeholder="Enter Password"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                        >
+                          {showPassword ? <EyeOff /> : <Eye />}
+                        </button>
+                      </div>
+                    </FormControl>
+                    <Button type="button" className="bg-green-500 hover:bg-green-600" onClick={generatePassword}>
+                     <KeyRound height={16} width={16} className='me-2 animate-bounce mt-1' />  Generate
+                    </Button>
+                                          
+                    </div>
+                    <FormMessage>{renderErrorMessage(errors.password)}</FormMessage>
+                   
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={control}
                 name="gender"
@@ -290,7 +333,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
                   </FormItem>
                 )}
               />
-               <FormField
+              <FormField
                 control={control}
                 name="dob"
                 render={({ field }) => (
