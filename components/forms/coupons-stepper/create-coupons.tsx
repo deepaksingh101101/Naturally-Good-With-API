@@ -27,12 +27,10 @@ const couponFormSchema = z.object({
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
   couponType: z.enum(['global', 'subscription']),
   visibility: z.enum(['Admin', 'Public']),
-  subscriptionType: z.object({
+  subscriptionType: z.array(z.object({
     id: z.string(),
     name: z.string()
-  }).optional(),
-  subscriptionPrice: z.number().optional(),
-  netPrice: z.number().optional(),
+  })).optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   description: z.string().min(1, 'Description is required'),
@@ -42,8 +40,14 @@ const couponFormSchema = z.object({
 type CouponFormSchema = z.infer<typeof couponFormSchema>;
 
 const subscriptionTypes = [
-  { id: '1', name: 'Staples', subscriptionPrice: 1000 },
-  { id: '2', name: 'Monthly Mini Veggies', subscriptionPrice: 1200 }
+  { id: '1', name: 'Staples' },
+  { id: '2', name: 'Monthly Mini Veggies' },
+  { id: '3', name: 'Monthly Mini Veggies' },
+  { id: '4', name: 'Monthly Mini Veggies' },
+  { id: '5', name: 'Monthly Mini Veggies' },
+  { id: '6', name: 'Monthly Mini Veggies' },
+  { id: '7', name: 'Monthly Mini Veggies' },
+  { id: '8', name: 'Monthly Mini Veggies' },
 ];
 
 export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
@@ -64,9 +68,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       discountPrice: initialData?.discountPrice || 0,
       visibility: initialData?.visibility || 'Admin',
       couponType: initialData?.couponType || 'global',
-      subscriptionType: initialData?.subscriptionType || undefined,
-      subscriptionPrice: initialData?.subscriptionPrice || 0,
-      netPrice: initialData?.netPrice || 0,
+      subscriptionType: initialData?.subscriptionType || [],
       startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
       endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
       description: initialData?.description || '',
@@ -81,18 +83,10 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
   const discountPrice = watch('discountPrice');
 
   useEffect(() => {
-    if (selectedSubscriptionType) {
-      const subscription = subscriptionTypes.find(sub => sub.id === selectedSubscriptionType.id);
-      if (subscription) {
-        setValue('subscriptionPrice', subscription.subscriptionPrice);
-        const netPrice = subscription.subscriptionPrice - discountPrice;
-        setValue('netPrice', netPrice > 0 ? netPrice : 0);
-      }
-    } else {
-      setValue('subscriptionPrice', 0);
-      setValue('netPrice', 0);
+    if (selectedCouponType === 'global') {
+      setValue('subscriptionType', []);
     }
-  }, [selectedSubscriptionType, discountPrice, setValue]);
+  }, [selectedCouponType, setValue]);
 
   const onSubmit: SubmitHandler<CouponFormSchema> = async (data) => {
     try {
@@ -169,73 +163,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
-            {selectedCouponType === 'subscription' && (
-              <>
-                <FormField
-                  control={form.control}
-                  name="subscriptionType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subscription Type</FormLabel>
-                      <FormControl>
-                        <Controller
-                          control={form.control}
-                          name="subscriptionType"
-                          render={({ field: { onChange, value } }) => (
-                            <ReactSelect
-                              isClearable
-                              isSearchable
-                              options={subscriptionTypes}
-                              getOptionLabel={(option) => option.name}
-                              getOptionValue={(option) => option.id}
-                              onChange={(selected) => onChange(selected ? { id: selected.id, name: selected.name } : undefined)}
-                              value={subscriptionTypes.find(option => option.id === value?.id)}
-                            />
-                          )}
-                        />
-                      </FormControl>
-                      <FormMessage>{errors.subscriptionType?.message}</FormMessage>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="subscriptionPrice"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Subscription Price</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          value={watch('subscriptionPrice')}
-                          readOnly
-                          disabled
-                          placeholder="Subscription Price"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="netPrice"
-                  render={() => (
-                    <FormItem>
-                      <FormLabel>Net Price</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          value={watch('netPrice')}
-                          readOnly
-                          disabled
-                          placeholder="Net Price"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
+            
 
             <FormField
               control={form.control}
@@ -396,8 +324,38 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                 </FormItem>
               )}
             />
+            
           </div>
-
+          {selectedCouponType === 'subscription' && (
+              <FormField
+                control={form.control}
+                name="subscriptionType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subscription Type</FormLabel>
+                    <FormControl>
+                      <Controller
+                        control={form.control}
+                        name="subscriptionType"
+                        render={({ field: { onChange, value } }) => (
+                          <ReactSelect
+                            isClearable
+                            isSearchable
+                            isMulti
+                            options={subscriptionTypes}
+                            getOptionLabel={(option) => option.name}
+                            getOptionValue={(option) => option.id}
+                            onChange={(selected) => onChange(selected ? selected.map(s => ({ id: s.id, name: s.name })) : [])}
+                            value={subscriptionTypes.filter(option => value?.some((v: any) => v.id === option.id))}
+                          />
+                        )}
+                      />
+                    </FormControl>
+                    <FormMessage>{errors.subscriptionType?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+            )}
           <div className="mt-8 flex justify-between">
             <Button
               type="submit"
