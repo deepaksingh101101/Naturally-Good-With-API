@@ -61,6 +61,9 @@ const FormSchema = z.object({
   numberOfFamilyMembers: z.number().optional(),
   dob: z.date().optional(),
   gender: z.string().optional(),
+  weight: z.number().optional(),
+  preferences: z.string().optional(),
+  extraNotes: z.string().optional(),
 });
 
 export const CreateProfileOne: React.FC<ProfileFormType> = ({
@@ -490,7 +493,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               name="numberOfFamilyMembers"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Number Of Family Numbers</FormLabel>
+                  <FormLabel>Number Of Family Members</FormLabel>
                   <FormControl>
                     <Input
                     type="number"
@@ -601,6 +604,64 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
+         <FormField
+  control={form.control}
+  name="weight"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Weight</FormLabel>
+      <FormControl>
+        <Input
+          type="number"
+          placeholder="Enter weight"
+          disabled={loading}
+          {...field}
+          onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+          value={field.value || ''}
+        />
+      </FormControl>
+      <FormMessage>{errors.weight?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
+
+<FormField
+  control={form.control}
+  name="preferences"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Preferences</FormLabel>
+      <FormControl>
+        <Input
+          placeholder="Enter preferences"
+          disabled={loading}
+          {...field}
+        />
+      </FormControl>
+      <FormMessage>{errors.preferences?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
+<FormField
+  control={form.control}
+  name="extraNotes"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Extra Notes</FormLabel>
+      <FormControl>
+        <Input
+          placeholder="Enter any extra notes"
+          disabled={loading}
+          {...field}
+        />
+      </FormControl>
+      <FormMessage>{errors.extraNotes?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
           </div>
           <div className="mt-8 pt-5">
             <div className="flex justify-end">

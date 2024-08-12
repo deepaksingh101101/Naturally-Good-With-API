@@ -203,6 +203,25 @@ export const columns: ColumnDef<UserManagement>[] = [
     header: 'Alternate Address',
   },
   {
+    accessorKey: 'customerWeight',
+    header: 'Customer Weight',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="px-1" style={{ borderRadius: '50%' }}>
+          {row.original.customerWeight}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'preferences',
+    header: 'Preferences',
+  },
+  {
+    accessorKey: 'notes',
+    header: 'Notes',
+  },
+  {
     accessorKey: 'lastUpdateDate',
     header: 'Last Profile Update',
   },

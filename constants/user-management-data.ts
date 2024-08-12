@@ -1,5 +1,6 @@
 import { format, parseISO } from 'date-fns';
 import { NavItem } from '@/types';
+import { string } from 'zod';
 
 export type UserManagement = {
   sno: number;
@@ -27,6 +28,9 @@ export type UserManagement = {
   employeeName: string;
   lastUpdateDate: string;
   createdDate: string;
+  customerWeight?:number;
+  preferences?:string;
+  notes?:string;
 };
 
 // Helper function to format dates
@@ -61,6 +65,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Deepak Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
   {
     sno: 2,
@@ -88,6 +95,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Amar Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
   {
     sno: 3,
@@ -115,6 +125,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Aman Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
   {
     sno: 4,
@@ -142,6 +155,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Roshan Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
   {
     sno: 5,
@@ -169,6 +185,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Vikash Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
   {
     sno: 6,
@@ -196,6 +215,9 @@ export const userManagementData: UserManagement[] = [
     employeeName: 'Prashant Singh',
     lastUpdateDate: formatDate('2023-07-01'),
     createdDate: formatDate('2023-01-01'),
+    customerWeight:55,
+    preferences:"potato",
+    notes:"Free after 5pm",
   },
 ];
 
