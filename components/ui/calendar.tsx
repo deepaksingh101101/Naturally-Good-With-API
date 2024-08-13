@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { ChevronLeftIcon, ChevronRightIcon } from '@radix-ui/react-icons';
-import { DayPicker } from 'react-day-picker';
-
+import { DayPicker, DateRange } from 'react-day-picker';
+import { format, getDay, isBefore } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { buttonVariants } from '@/components/ui/button';
 
@@ -57,6 +57,10 @@ function Calendar({
           'aria-selected:bg-accent aria-selected:text-accent-foreground',
         day_hidden: 'invisible',
         ...classNames
+      }}
+      modifiersClassNames={{
+        highlight: 'highlight',
+        disabled: 'day-disabled'
       }}
       components={{
         IconLeft: ({ ...props }) => <ChevronLeftIcon className="h-4 w-4" />,

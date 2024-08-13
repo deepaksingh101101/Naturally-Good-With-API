@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import ReactSelect from 'react-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, isSameDay, isBefore, addDays, getDay } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface Coupon {
@@ -32,6 +32,7 @@ interface SubscriptionType {
   name: string;
   subScriptionPrice: number;
   coupons: Coupon[];
+  allowedDeliveryDays: string[];
 }
 
 interface Customer {
@@ -85,6 +86,19 @@ const dummyBags = [
   { value: 'Large Veggie Bag', label: 'Large Veggie Bag', weight: 5000 },
   { value: 'Veggie Bag', label: 'Veggie Bag', weight: 5000 }
 ];
+
+const getDayIndex = (day: string): number => {
+  switch(day) {
+    case 'SUNDAY': return 0;
+    case 'MONDAY': return 1;
+    case 'TUESDAY': return 2;
+    case 'WEDNESDAY': return 3;
+    case 'THURSDAY': return 4;
+    case 'FRIDAY': return 5;
+    case 'SATURDAY': return 6;
+    default: return -1;
+  }
+};
 
 export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) => {
   const params = useParams();
@@ -170,8 +184,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   ];
 
   const subscriptionTypes: SubscriptionType[] = [
-    { id: '1', name: 'Staples', subScriptionPrice: 1000, coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
-    { id: '2', name: 'Monthly Mini Veggies', subScriptionPrice: 1200, coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
+    { id: '1', name: 'Staples', subScriptionPrice: 1000,allowedDeliveryDays:['MONDAY',"WEDNESDAY"], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
+    { id: '2', name: 'Monthly Mini Veggies', subScriptionPrice: 1200,allowedDeliveryDays:["THURSDAY","TUESDAY"], coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
   ];
 
   const selectedCustomer = watch('customerName');
@@ -180,6 +194,20 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const subscriptionPrice = watch('subscriptionPrice');
   const manualDiscount = watch('manualDiscount');
   const netPrice = watch('netPrice'); // Watch netPrice
+
+  const isAllowedDeliveryDate = (date: Date, allowedDays: string[]) => {
+    const today = new Date();
+    if (isBefore(date, today)) {
+      return false;
+    }
+    const dayIndex = getDay(date);
+    return allowedDays.some(day => getDayIndex(day) === dayIndex);
+  };
+
+  const highlightDeliveryDate = (date: Date, allowedDays: string[]) => {
+    const dayIndex = getDay(date);
+    return allowedDays.some(day => getDayIndex(day) === dayIndex);
+  };
 
   useEffect(() => {
     const customer = customerOptions.find(option => option.name === selectedCustomer);
@@ -225,6 +253,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       setManualDiscountPercentage(0);
     }
   }, [netPrice, subscriptionPrice]);
+
+  const allowedDeliveryDays = subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.allowedDeliveryDays || [];
 
   return (
     <>
@@ -342,28 +372,6 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              {/* <FormField
-                control={form.control}
-                name="manualDiscount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Manual Discount</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Manual Discount"
-                        value={field.value} // Corrected
-                        onChange={(e) => {
-                          const value = e.target.value ? parseFloat(e.target.value) : 0;
-                          field.onChange(value);
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage>{errors.manualDiscount?.message}</FormMessage>
-                  </FormItem>
-                )}
-              /> */}
-
               <FormField
                 control={form.control}
                 name="netPrice"
@@ -476,8 +484,11 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
+                            isBefore(date, new Date(new Date().setHours(0, 0, 0, 0)))
                           }
+                          modifiers={{
+                            highlight: (date) => highlightDeliveryDate(date, allowedDeliveryDays)
+                          }}
                           initialFocus
                         />
                       </PopoverContent>
@@ -594,7 +605,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              {/* <FormField
+              <FormField
                 control={form.control}
                 name="orderStatus"
                 render={({ field }) => (
@@ -623,7 +634,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                     <FormMessage />
                   </FormItem>
                 )}
-              /> */}
+              />
             </>
           </div>
 

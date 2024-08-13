@@ -105,3 +105,20 @@
 .textWidth .css-b62m3t-container{
   width: 180px;
 }
+
+/* Add this CSS to your styles */
+
+/* Add this CSS to your styles */
+.highlight {
+  background-color: green ;
+  color: white !important;
+}
+
+.highlight:hover{
+  background: green !important;
+}
+
+.day-disabled {
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+}
