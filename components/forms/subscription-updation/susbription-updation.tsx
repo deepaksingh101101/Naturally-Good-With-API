@@ -144,6 +144,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       totalDeliveries: 0,
       orignalPrice: 0,
       remainingAmount: 6000,
+      amountPaid: 12000,
     }
   });
 
