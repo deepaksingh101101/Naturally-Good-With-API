@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
@@ -35,6 +35,7 @@ interface FormValues {
   route: string;
   deliveryTimeSlot: string;
   description: string; // Add description field to form values
+  netPrice: number; // Add netPrice to form values
 }
 
 const order = {
@@ -190,6 +191,7 @@ export const ModifyDelivery: React.FC = () => {
       route: '',
       deliveryTimeSlot: '',
       description: '', // Initialize description field
+      netPrice: 0, // Initialize netPrice
     }
   });
 
@@ -221,6 +223,10 @@ export const ModifyDelivery: React.FC = () => {
 
   const totalAddOnAmount = watch('addOns').reduce((total, item) => total + (item.itemPrice * item.requiredUnits), 0);
   const totalAddOnWeight = watch('addOns').reduce((total, item) => total + (item.unitQuantity * item.requiredUnits), 0);
+
+  useEffect(() => {
+    setValue('netPrice', totalAddOnAmount);
+  }, [totalAddOnAmount, setValue]);
 
   const handleAddNewItem = () => {
     if (totalWeight < order.totalWeight) {
@@ -594,6 +600,25 @@ export const ModifyDelivery: React.FC = () => {
           <div className="flex justify-end mt-4">
             <p className="text-lg font-semibold text-gray-700">Total Add-on Weight: {totalAddOnWeight} g</p>
           </div>
+          <div className="flex justify-end mt-4">
+         <div className="">
+         <label className="block my-2 text-sm font-medium text-gray-700 dark:text-gray-300">Net Price</label>
+            <Controller
+              control={control}
+              name="netPrice"
+              render={({ field }) => (
+                <Input
+                  type="number"
+                  value={field.value}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value, 10);
+                    field.onChange(value);
+                  }}
+                />
+              )}
+            />
+         </div>
+          </div>
         </form>
       )}
       <Separator className="my-4" />
@@ -677,6 +702,9 @@ export const ModifyDelivery: React.FC = () => {
             />
           )}
         />
+        <Button className='my-3' type="submit" >
+              Save Changes
+            </Button>
       </div>
 
       <Dialog open={isTimeSlotModalOpen} onOpenChange={(open) => !open && setIsTimeSlotModalOpen(false)}>
