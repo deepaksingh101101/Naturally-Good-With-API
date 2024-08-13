@@ -605,7 +605,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="orderStatus"
                 render={({ field }) => (
@@ -634,7 +634,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </>
           </div>
 

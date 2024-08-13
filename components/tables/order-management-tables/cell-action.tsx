@@ -34,6 +34,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const updateDeliveryStatus = () => {
     router.push(`/subscription-management/edit/${data.orderId}`); 
   };
+  const updateSubscription = () => {
+    router.push(`/order/updateSubscription`); 
+  };
 
   const handleViewAndManageOrder = () => {
     router.push(`/subscription-management/view/${data.orderId}`); 
@@ -76,6 +79,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           </DropdownMenuItem> */}
           <DropdownMenuItem onClick={updateDeliveryStatus}>
             <Edit className="mr-2 h-4 w-4" /> Update Delivery Status
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={updateSubscription}>
+            <Edit className="mr-2 h-4 w-4" /> Upgrade Subscription 
           </DropdownMenuItem>
           {/* <DropdownMenuItem onClick={handleViewAndManageOrder}>
             <Eye className="mr-2 h-4 w-4" /> Manage Order
