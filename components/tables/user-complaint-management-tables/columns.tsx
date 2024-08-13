@@ -38,6 +38,10 @@ export const columns: ColumnDef<ComplaintManagementUser>[] = [
     header: 'Complaint Type'
   },
   {
+    accessorKey: 'phone',
+    header: 'Phone Number'
+  },
+  {
     accessorKey: 'description',
     header: 'Description'
   },

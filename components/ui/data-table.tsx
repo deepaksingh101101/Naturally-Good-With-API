@@ -7,6 +7,8 @@ import {
   getFilteredRowModel,
   useReactTable,
   getSortedRowModel,
+  FilterFn,
+  Table,
 } from '@tanstack/react-table';
 
 import { Table as UiTable, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -44,6 +46,16 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [filterInput, setFilterInput] = useState('');
 
+  const filterFunction: FilterFn<TData> = (row, columnId, filterValue) => {
+    if (!searchKeys || searchKeys.length === 0) {
+      return true;
+    }
+    return searchKeys.some((key) => {
+      const cellValue = row.getValue(key);
+      return String(cellValue).toLowerCase().includes(String(filterValue).toLowerCase());
+    });
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -54,6 +66,7 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    globalFilterFn: filterFunction,
     manualSorting: true,
     meta,
   });

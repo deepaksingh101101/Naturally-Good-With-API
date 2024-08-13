@@ -16,8 +16,11 @@ const ComplaintManagementUserPage: React.FC = () => {
   const [data, setData] = useState<ComplaintManagementUser[]>(initialData);
 
   const handleSearch = (searchValue: string) => {
+    const lowercasedValue = searchValue.toLowerCase();
     const filteredData = initialData.filter(item =>
-      item.description.toLowerCase().includes(searchValue.toLowerCase())
+      Object.keys(item).some(key => 
+        (item as any)[key].toString().toLowerCase().includes(lowercasedValue)
+      )
     );
     setData(filteredData);
   };
@@ -60,7 +63,7 @@ const ComplaintManagementUserPage: React.FC = () => {
       </div>
       <Separator />
       <DataTable
-        searchKeys={["description","name","complaintType"]}
+        searchKeys={["phone","name", "description", "complaintType"]}
         columns={columns}
         data={data}
         onSearch={handleSearch} 
