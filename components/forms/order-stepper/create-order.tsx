@@ -59,9 +59,16 @@ const orderFormSchema = z.object({
     discountPrice: z.number()
   }).optional(),
   manualDiscount: z.number().min(0, 'Manual Discount cannot be negative').default(0),
+  manualDiscountPercentage: z.number().default(0),
   netPrice: z.number().positive('Net Price must be greater than zero'),
   deliveryStartDate: z.date({
     required_error: "Delivery Date is required.",
+  }),
+  bookingDate: z.date({
+    required_error: "Booking Date is required.",
+  }),
+  paymentDate: z.date({
+    required_error: "Payment Date is required.",
   }),
   deliveryStatus: z.string(),
   bagOrdered: z.array(z.string()).min(1, 'Products Ordered is required'),
@@ -69,6 +76,7 @@ const orderFormSchema = z.object({
   paymentStatus: z.string(),
   paymentType: z.string(),
   specialInstructions: z.string().optional(),
+  orderStatus: z.string()  // New field for order status
 });
 
 const dummyBags = [
@@ -83,6 +91,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [manualDiscountPercentage, setManualDiscountPercentage] = useState(0); // New state for manual discount percentage
   const title = initialData ? 'Edit Order' : 'Create New Order';
   const description = initialData ? 'Edit the Order details.' : 'To create a new Order, fill in the required information.';
   const toastMessage = initialData ? 'Order updated.' : 'Order created.';
@@ -98,14 +107,18 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       subscriptionPrice: 0,
       coupon: undefined,
       manualDiscount: 0,
+      manualDiscountPercentage: 0,
       netPrice: 0,
       deliveryStartDate: new Date(),
+      bookingDate: new Date(),
+      paymentDate: new Date(),
       deliveryStatus: 'Pending',
       bagOrdered: [] as string[],
       totalWeight: 0,
       paymentStatus: 'Pending',
       paymentType: '',
-      specialInstructions: ''
+      specialInstructions: '',
+      orderStatus: 'Pending'  // New default value for order status
     }
   });
 
@@ -166,6 +179,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const selectedCoupon = watch('coupon') as Coupon | undefined;
   const subscriptionPrice = watch('subscriptionPrice');
   const manualDiscount = watch('manualDiscount');
+  const netPrice = watch('netPrice'); // Watch netPrice
 
   useEffect(() => {
     const customer = customerOptions.find(option => option.name === selectedCustomer);
@@ -201,6 +215,16 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     }
     setValue('netPrice', netPrice);
   }, [selectedCoupon, subscriptionPrice, manualDiscount, setValue]);
+
+  // Update manual discount percentage when net price or subscription price changes
+  useEffect(() => {
+    if (subscriptionPrice > 0) {
+      const discountPercentage = ((subscriptionPrice - netPrice) / subscriptionPrice) * 100;
+      setManualDiscountPercentage(discountPercentage);
+    } else {
+      setManualDiscountPercentage(0);
+    }
+  }, [netPrice, subscriptionPrice]);
 
   return (
     <>
@@ -286,7 +310,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                       <Input
                         disabled
                         placeholder="Subscription Price"
-                        {...field}
+                        value={field.value} // Corrected
+                        onChange={field.onChange} // Corrected
                       />
                     </FormControl>
                     <FormMessage />
@@ -317,7 +342,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="manualDiscount"
                 render={({ field }) => (
@@ -327,7 +352,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                       <Input
                         type="number"
                         placeholder="Manual Discount"
-                        {...field}
+                        value={field.value} // Corrected
                         onChange={(e) => {
                           const value = e.target.value ? parseFloat(e.target.value) : 0;
                           field.onChange(value);
@@ -337,7 +362,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                     <FormMessage>{errors.manualDiscount?.message}</FormMessage>
                   </FormItem>
                 )}
-              />
+              /> */}
 
               <FormField
                 control={form.control}
@@ -347,11 +372,74 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                     <FormLabel>Net Price</FormLabel>
                     <FormControl>
                       <Input
-                        disabled
+                        type="number"
                         placeholder="Net Price"
-                        {...field}
+                        value={field.value} // Corrected
+                        onChange={(e) => {
+                          const value = e.target.value ? parseFloat(e.target.value) : undefined;
+                          field.onChange(value);
+                        }}
                       />
                     </FormControl>
+                    <FormMessage>{errors.netPrice?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="manualDiscountPercentage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Manual Discount Percentage</FormLabel>
+                    <FormControl>
+                      <Input
+                        disabled
+                        value={manualDiscountPercentage.toFixed(2) + '%'}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="bookingDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Booking Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "dd MMM yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -363,6 +451,48 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Delivery Start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "dd MMM yyyy")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="paymentDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Payment Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -414,7 +544,6 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue
-                            defaultValue={field.value}
                             placeholder="Select Payment Status"
                           />
                         </SelectTrigger>
@@ -464,6 +593,37 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
+
+              {/* <FormField
+                control={form.control}
+                name="orderStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Order Status</FormLabel>
+                    <Select
+                      disabled={loading}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue
+                            placeholder="Select Order Status"
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Processing">Processing</SelectItem>
+                        <SelectItem value="Shipped">Shipped</SelectItem>
+                        <SelectItem value="Delivered">Delivered</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
             </>
           </div>
 

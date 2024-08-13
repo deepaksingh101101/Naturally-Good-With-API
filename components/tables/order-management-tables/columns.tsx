@@ -31,6 +31,15 @@ export const columns: ColumnDef<OrderManagement>[] = [
     header: 'Subscription Type',
   },
   {
+    accessorKey: 'bookingDate',
+    header: 'Booking Date',
+  },
+  {
+    accessorKey: 'paymentDate',
+    header: 'Payment Date',
+  },
+
+  {
     accessorKey: 'coupons',
     header: 'Coupons Code',
   },

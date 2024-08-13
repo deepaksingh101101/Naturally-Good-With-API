@@ -23,6 +23,8 @@ export interface OrderManagement {
   discount?: number; // Discount amount
   netPrice?: number; // Net price
   coupons?: string; // Coupon code
+  bookingDate?: string; 
+  paymentDate?: string; 
 }
 
 export const OrderManagementData: OrderManagement[] = [
@@ -31,6 +33,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1022,
     customerName: "Deepak Singh",
     paymentType: 'Credit Card',
+    bookingDate: "11/MAR/2024", 
+    paymentDate: "11/MAR/2024",
     deliveries: [
       {
         deliveryDate: '2023-07-17',
@@ -75,6 +79,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 10332,
     customerName: "Kartik Kumar",
     paymentType: 'Net Banking',
+    bookingDate: "11/MAR/2024", 
+    paymentDate: "11/MAR/2024",
     deliveries: [
       {
         deliveryDate: '2023-07-20',
@@ -100,6 +106,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1332,
     customerName: "Shivam Kumar",
     paymentType: 'UPI',
+    bookingDate: "11/MAR/2024", 
+    paymentDate: "11/MAR/2024",
     deliveries: [
       {
         deliveryDate: '2023-07-22',
@@ -125,6 +133,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1032,
     customerName: "Ridhi Mishra",
     paymentType: 'Net Banking',
+    bookingDate: "11/MAR/2024", 
+    paymentDate: "11/MAR/2024",
     deliveries: [
       {
         deliveryDate: '2023-07-25',
@@ -158,6 +168,8 @@ export const OrderManagementData: OrderManagement[] = [
     customerName: "Arya Singh",
     subscriptionType: 'Mini Veggie Bag',
     paymentType: 'Credit Card',
+    bookingDate: "11/MAR/2024", 
+    paymentDate: "11/MAR/2024",
     deliveries: [
       {
         deliveryDate: '2023-07-27',
