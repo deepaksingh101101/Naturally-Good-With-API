@@ -4,6 +4,7 @@ export interface DeliveryInfo {
   assignedEmployee?: string;
   assignedRoutes?: string;
   deliveryStatus: 'Pending' | 'Delivered' | 'Cancelled'; // Delivery status options
+  deliveryCharges?:number
 }
 
 export interface OrderManagement {

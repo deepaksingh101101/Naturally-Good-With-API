@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import Select from 'react-select';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { getDay, format, isBefore } from 'date-fns';
 
 export const OrderData: OrderManagement[] = [
   {
@@ -15,22 +18,23 @@ export const OrderData: OrderManagement[] = [
     empId: 1022,
     employeeName: "Shivam Singh",
     customerName: "Deepak Singh", 
-       paymentType: 'Credit Card',
-
+    paymentType: 'Credit Card',
     deliveries: [
       {
         deliveryDate: '2023-07-17',
         deliveryTimeSlot: '10am - 12pm',
         deliveryStatus: 'Delivered',
         assignedEmployee: "Shivam Singh",
-        assignedRoutes: "Route 1"
+        assignedRoutes: "Route 1",
+        deliveryCharges: 200 // Example delivery charge
       },
       {
         deliveryDate: '2023-07-18',
         deliveryTimeSlot: '9am - 11am',
         deliveryStatus: 'Pending',
         assignedEmployee: "Shivam Singh",
-        assignedRoutes: "Route 1"
+        assignedRoutes: "Route 1",
+        deliveryCharges: 0 // Example delivery charge
       },
       // Add more deliveries as needed
     ],
@@ -67,14 +71,36 @@ const routes = [
   { value: 'Route 3', label: 'Route 3' },
 ];
 
+const getDayIndex = (day: string): number => {
+  switch(day) {
+    case 'SUNDAY': return 0;
+    case 'MONDAY': return 1;
+    case 'TUESDAY': return 2;
+    case 'WEDNESDAY': return 3;
+    case 'THURSDAY': return 4;
+    case 'FRIDAY': return 5;
+    case 'SATURDAY': return 6;
+    default: return -1;
+  }
+};
+
+const highlightDeliveryDate = (date: Date, allowedDays: string[]) => {
+  const dayIndex = getDay(date);
+  return allowedDays.some(day => getDayIndex(day) === dayIndex);
+};
+
 export const OrderView: React.FC = () => {
   const order = OrderData[0];
   const [darkMode, setDarkMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<any>(null);
+  const [extraCharges, setExtraCharges] = useState<number | undefined>(undefined);
+
+  const allowedDeliveryDays = ['MONDAY', 'WEDNESDAY']; // Example allowed days
 
   const handleEditClick = (delivery: any) => {
     setSelectedDelivery(delivery);
+    setExtraCharges(undefined); // Reset extra charges
     setIsModalOpen(true);
   };
 
@@ -85,6 +111,7 @@ export const OrderView: React.FC = () => {
 
   const handleSaveChanges = () => {
     // Save changes logic here
+    console.log('Updated delivery:', selectedDelivery, 'Extra charges:', extraCharges);
     setIsModalOpen(false);
   };
 
@@ -161,6 +188,9 @@ export const OrderView: React.FC = () => {
                 Assigned Route
               </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
+                Delivery Charges (₹)
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                 Action
               </th>
             </tr>
@@ -183,6 +213,7 @@ export const OrderView: React.FC = () => {
                 </td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedEmployee}</td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedRoutes}</td>
+                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryCharges}</td>
                 <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                   <Button variant="outline" size="sm" onClick={() => handleEditClick(delivery)}>
                     Edit
@@ -204,12 +235,49 @@ export const OrderView: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Delivery Date</label>
-                <Input
-                  type="date"
-                  value={selectedDelivery?.deliveryDate}
-                  onChange={(e) => setSelectedDelivery({ ...selectedDelivery, deliveryDate: e.target.value })}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Input
+                      type="text"
+                      readOnly
+                      value={selectedDelivery?.deliveryDate || ''}
+                      onClick={() => {}}
+                    />
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDelivery?.deliveryDate ? new Date(selectedDelivery.deliveryDate) : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const formattedDate = format(date, 'yyyy-MM-dd');
+                          setSelectedDelivery({ ...selectedDelivery, deliveryDate: formattedDate });
+                          if (!highlightDeliveryDate(date, allowedDeliveryDays)) {
+                            setExtraCharges(200); // Example extra charge
+                          } else {
+                            setExtraCharges(undefined);
+                          }
+                        }
+                      }}
+                      disabled={(date) => isBefore(date, new Date(new Date().setHours(0, 0, 0, 0)))}
+                      modifiers={{
+                        highlight: (date) => highlightDeliveryDate(date, allowedDeliveryDays)
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+              {extraCharges !== undefined && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Extra Delivery Charges (₹)</label>
+                  <Input
+                    type="number"
+                    value={extraCharges}
+                    onChange={(e) => setExtraCharges(Number(e.target.value))}
+                  />
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Time Slot</label>
                 <Select
