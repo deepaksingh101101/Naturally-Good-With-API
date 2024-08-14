@@ -1,6 +1,6 @@
 // app/dashboard/user-management/page.tsx
 import BreadCrumb from '@/components/breadcrumb';
-import { SettingForm } from '@/components/forms/settingsForm/SettingForms';
+import NotificationSettingForm from '@/components/forms/settingsForm/NotificationForms';
 import MainLayout from '@/components/layout/main-layout';
 
 const breadcrumbItems = [
@@ -15,7 +15,7 @@ export default function NotificationSettings() {
     <MainLayout meta={{ title: 'Notifications Settings' }}>
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
-        <SettingForm/>
+        <NotificationSettingForm/>
       </div>
     </MainLayout>
   );
