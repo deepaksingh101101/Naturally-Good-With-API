@@ -1,4 +1,3 @@
-// columns/NotificationColumns.tsx
 'use client';
 
 import React from 'react';
@@ -63,7 +62,15 @@ export const Columns: ColumnDef<Notification>[] = [
   },
   {
     accessorKey: 'type',
-    header: 'Type',
+    header: 'Notification Type',
+  },
+  {
+    accessorKey: 'scheduleType',
+    header: 'Schedule Type',
+  },
+  {
+    accessorKey: 'scheduledTime',
+    header: 'Scheduled Time',
   },
   {
     accessorKey: 'description',

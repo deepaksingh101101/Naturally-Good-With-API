@@ -8,12 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 const breadcrumbItems = [{ title: 'Notifications', link: '/notification' }];
 export default function page() {
   // Example structure of user options
- const UserOptions = [
-  { id: '1', name: 'Deepak singh',phoneNo:"8102224005" },
-  { id: '2', name: 'Kartik singh' ,phoneNo:"8284459245"},
-  { id: '3', name: 'Shivam kumar' ,phoneNo:"123456789"},
-  { id: '4', name: 'Arya singh',phoneNo:"8438344658" },
-];
+
 
   return (
     <MainLayout meta={{ title: 'Create Notification' }}>
