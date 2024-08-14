@@ -353,7 +353,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                       <FormItem>
                         <FormLabel>Schedule Time</FormLabel>
                         <FormControl>
-                          <Input type="datetime-local" disabled={loading} {...field} />
+                          <Input type="time" disabled={loading} {...field} />
                         </FormControl>
                         <FormMessage>{renderErrorMessage(errors.scheduleTime)}</FormMessage>
                       </FormItem>
