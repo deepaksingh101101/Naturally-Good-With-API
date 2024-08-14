@@ -33,6 +33,7 @@ interface SubscriptionType {
   subScriptionPrice: number;
   coupons: Coupon[];
   allowedDeliveryDays: string[];
+  totalBags: number;
 }
 
 interface Customer {
@@ -82,6 +83,7 @@ const orderFormSchema = z.object({
   specialInstructions: z.string().optional(),
   remainingAmount: z.number().optional(),
   amountPaid: z.number().optional(),
+  remainingBags: z.number().positive('Remaining Bags must be greater than zero')
 });
 
 const dummyBags = [
@@ -145,6 +147,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       orignalPrice: 0,
       remainingAmount: 6000,
       amountPaid: 12000,
+      remainingBags: 0
     }
   });
 
@@ -196,8 +199,8 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
   ];
 
   const subscriptionTypes: SubscriptionType[] = [
-    { id: '1', name: 'Staples', subScriptionPrice: 2000, allowedDeliveryDays: ['MONDAY', 'WEDNESDAY'], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
-    { id: '2', name: 'Monthly Mini Veggies', subScriptionPrice: 12000, allowedDeliveryDays: ['THURSDAY', 'TUESDAY'], coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
+    { id: '1', name: 'Staples',totalBags:4, subScriptionPrice: 2000, allowedDeliveryDays: ['MONDAY', 'WEDNESDAY'], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
+    { id: '2', name: 'Monthly Mini Veggies',totalBags:24, subScriptionPrice: 12000, allowedDeliveryDays: ['THURSDAY', 'TUESDAY'], coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
   ];
 
   const selectedCustomer = watch('customerName');
@@ -207,6 +210,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
   const manualDiscount = watch('manualDiscount');
   const netPrice = watch('netPrice');
   const remainingAmount = watch('remainingAmount');
+  const remainingBags = watch('remainingBags');
 
   const isAllowedDeliveryDate = (date: Date, allowedDays: string[]) => {
     const today = new Date();
@@ -239,10 +243,12 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       setValue('coupon', undefined);
       setValue('manualDiscount', 0);
       let remaining = remainingAmount || 0;
-      const r=6000;
+      const r = 6000;
       let netPrice = subscription.subScriptionPrice - r;
 
       if (r > subscription.subScriptionPrice) {
+        // setValue('remainingAmount',subscription.totalBags>6? r - subscription.subScriptionPrice:r);
+
         setValue('remainingAmount', r - subscription.subScriptionPrice);
         netPrice = 0;
       } else {
@@ -250,6 +256,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       }
 
       setValue('netPrice', netPrice);
+      setValue('remainingBags', subscription.totalBags>6?subscription.totalBags-6:subscription.totalBags);//6 is the remaining bags
     } else {
       setValue('subscriptionPrice', 0);
       setValue('orignalPrice', 0);
@@ -257,10 +264,10 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       setValue('manualDiscount', 0);
       setValue('netPrice', 0);
       setValue('remainingAmount', 6000);
+      setValue('remainingBags', 0);
     }
-  }, [selectedSubscriptionType, setValue,]);
+  }, [selectedSubscriptionType, setValue]);
 
- 
   useEffect(() => {
     if (subscriptionPrice > 0) {
       const discountPercentage = ((subscriptionPrice - netPrice) / subscriptionPrice) * 100;
@@ -395,16 +402,13 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                   </FormItem>
                 )}
               />
-
-            
             </>
           </div>
-        
         </form>
       </Form>
       <div className="mt-8 pt-5 border-gray-200">
         <Heading
-          title="Update Subscription"
+          title="Upgrade/Downgrade Subscription"
           description="Edit the Subscription details."
         />
         <Form {...form}>
@@ -425,7 +429,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                           isClearable
                           isSearchable
                           options={subscriptionTypes}
-                          getOptionLabel={(option) => option.name}
+                          getOptionLabel={(option) => `${option.name} - ${option.totalBags} bags`}
                           getOptionValue={(option) => option.id}
                           isDisabled={loading}
                           onChange={(selected) => field.onChange(selected ? selected.name : '')}
@@ -518,24 +522,24 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                   />
                 )}
 
-<FormField
-                control={form.control}
-                name="remainingAmount"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Amount Remaining</FormLabel>
-                    <FormControl>
-                      <Input
-                        // disabled
-                        placeholder="Remaining Amount"
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="remainingAmount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount Remaining</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Remaining Amount"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="deliveryStartDate"
@@ -726,6 +730,24 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                         )}
                       />
                       <FormMessage>{errors.paymentType?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="remainingBags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Remaining Bags</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Remaining Bags"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage>{errors.remainingBags?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
