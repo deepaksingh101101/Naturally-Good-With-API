@@ -8,9 +8,10 @@ import { Input } from '@/components/ui/input';
 import Select from 'react-select';
 import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Trash, Edit } from 'lucide-react';
+import { Trash, Edit, Eye } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea'; // Import Textarea component
 import { FormControl, FormField, FormLabel } from '@/components/ui/form';
+import { useRouter } from 'next/navigation';
 
 interface BagItem {
   itemName: string;
@@ -176,7 +177,10 @@ const cityRoutes = [
 
 const timeSlotsDefault = ['9:00 AM - 11:00 AM', '12:00 PM - 2:00 PM', '3:00 PM - 5:00 PM'];
 
+
 export const ModifyDelivery: React.FC = () => {
+  const router = useRouter();
+
   const [darkMode, setDarkMode] = useState(false);
   const [selectedCity, setSelectedCity] = useState<{ value: string; label: string } | null>(null);
   const [isTimeSlotModalOpen, setIsTimeSlotModalOpen] = useState(false);
@@ -257,6 +261,14 @@ export const ModifyDelivery: React.FC = () => {
     setTimeSlots(timeSlots.filter((_, i) => i !== index));
   };
 
+  // const router =useRouter()
+
+  const handleComplainView = () => {
+  //  router.push("/viewComplains/23")
+  router.push(`/complaint-management/23`);
+
+  };
+
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       <div className="flex items-start justify-between">
@@ -281,6 +293,14 @@ export const ModifyDelivery: React.FC = () => {
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Total Maximum Weight (g):</p>
             <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-1">{order.totalWeight}</p>
           </div>
+          <div  >
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Complained In Last Delivery</p>
+            <p className="text-lg flex items-center font-semibold text-red-600 animate-bounce	mt-2 dark:text-red-600 mt-1"><span>Delayed</span><Eye className='text-red-500 ms-2 ' /></p>
+          </div>
+          <div  >
+            <Button onClick={handleComplainView} >View Complains</Button>
+          </div>
+         
         </div>
       </div>
 
