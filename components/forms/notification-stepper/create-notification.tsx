@@ -296,7 +296,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center">
-                      <FormLabel>Type</FormLabel>
+                      <FormLabel>Category</FormLabel>
                       <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setTypeModalOpen(true)} />
                     </div>
                     <FormControl>
