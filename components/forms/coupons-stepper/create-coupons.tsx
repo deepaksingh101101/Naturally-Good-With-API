@@ -224,6 +224,9 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
+                        }
                         initialFocus
                       />
                     </PopoverContent>
@@ -257,6 +260,9 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
+                        disabled={(date) =>
+                          date < new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
+                        }
                       />
                     </PopoverContent>
                   </Popover>
