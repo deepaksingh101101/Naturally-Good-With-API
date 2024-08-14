@@ -644,7 +644,10 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   )}
 />
 
-<FormField
+
+
+          </div>
+          <FormField
   control={form.control}
   name="extraNotes"
   render={({ field }) => (
@@ -661,8 +664,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     </FormItem>
   )}
 />
-
-          </div>
           <div className="mt-8 pt-5">
             <div className="flex justify-end">
               <Button

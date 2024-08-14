@@ -371,6 +371,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                   >
                     Add Item
                   </Button>
+                  {/* Give here a checkbox if its a addon bag */}
                 </div>
               </>
             )}
