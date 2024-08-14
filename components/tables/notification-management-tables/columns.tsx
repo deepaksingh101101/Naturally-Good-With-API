@@ -62,6 +62,10 @@ export const Columns: ColumnDef<Notification>[] = [
   },
   {
     accessorKey: 'type',
+    header: 'Category',
+  },
+  {
+    accessorKey: 'notificationType',
     header: 'Notification Type',
   },
   {
@@ -69,7 +73,7 @@ export const Columns: ColumnDef<Notification>[] = [
     header: 'Schedule Type',
   },
   {
-    accessorKey: 'scheduledTime',
+    accessorKey: 'scheduleTime',
     header: 'Scheduled Time',
   },
   {

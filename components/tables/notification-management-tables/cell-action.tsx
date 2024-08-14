@@ -52,16 +52,19 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          
-          {/* <DropdownMenuItem onClick={viewNotificationDetails}>
-            <Eye className="mr-2 h-4 w-4" /> View Notification
-          </DropdownMenuItem> */}
+          <DropdownMenuItem onClick={viewNotificationDetails}>
+            <Eye className="mr-2 h-4 w-4" /> View Details 
+          </DropdownMenuItem>
+         
           <DropdownMenuItem onClick={editNotificationDetails}>
             <Edit className="mr-2 h-4 w-4" /> Edit Notification
           </DropdownMenuItem>
           
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="mr-2 h-4 w-4" /> Delete Notification
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={viewNotificationDetails}>
+            <Eye className="mr-2 h-4 w-4" /> Broadcast Now 
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

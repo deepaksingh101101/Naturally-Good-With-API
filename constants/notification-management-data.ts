@@ -1,5 +1,5 @@
 import { StaticImageData } from "next/image";
-import image1 from '@/public/assets/offerr1.png'
+import image1 from '@/public/assets/offerr1.png';
 
 // Define the Notification interface
 export interface Notification {
@@ -8,8 +8,15 @@ export interface Notification {
   heading: string;
   description: string;
   type: string;
+  scheduleTime?: string;
   scheduleType?: string;
-  scheduledTime?: string;
+  notificationType?: string;
+  frequency?: string;
+  customers?: {
+    label: string;
+    value: string;
+    phone: string;
+  }[];
 }
 
 // Sample data for the notification system
@@ -21,7 +28,10 @@ export const NotificationData: Notification[] = [
     description: 'The system will be down for maintenance on 24th March 2024 from 12:00 AM to 4:00 AM.',
     type: "System",
     scheduleType: "Global",
-    scheduledTime: "12:30 AM"
+    scheduleTime: "12:30 AM",
+    notificationType: "Automatic",
+    frequency: "One Time",
+    customers: []
   },
   {
     id: 2,
@@ -30,7 +40,10 @@ export const NotificationData: Notification[] = [
     description: 'We are excited to announce a new feature in our platform. Check it out now!',
     type: "Feature",
     scheduleType: "Global",
-    scheduledTime: "13:30 AM"
+    scheduleTime: "13:30 AM",
+    notificationType: "Manual",
+    frequency: "One Time",
+    customers: []
   },
   {
     id: 4,
@@ -39,7 +52,13 @@ export const NotificationData: Notification[] = [
     description: 'Special offer only for you, get discount up to 2000',
     type: "Offers",
     scheduleType: "Non Global",
-    scheduledTime: "14:30 AM"
+    scheduleTime: "14:30 AM",
+    notificationType: "Automatic",
+    frequency: "Daily",
+    customers: [
+      { label: 'John Doe', value: '1', phone: '1234567890' },
+      { label: 'Jane Smith', value: '2', phone: '0987654321' }
+    ]
   },
   {
     id: 5,
@@ -48,6 +67,12 @@ export const NotificationData: Notification[] = [
     description: 'A security alert was triggered. Please verify your account activity.',
     type: "Alert",
     scheduleType: "Non Global",
-    scheduledTime: "18:30 AM"
+    scheduleTime: "18:30 AM",
+    notificationType: "Manual",
+    frequency: "One Time",
+    customers: [
+      { label: 'John Doe', value: '1', phone: '1234567890' },
+      { label: 'Jane Smith', value: '2', phone: '0987654321' }
+    ]
   }
 ];
