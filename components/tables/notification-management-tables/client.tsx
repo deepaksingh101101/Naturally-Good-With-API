@@ -39,7 +39,7 @@ export const NotificationManagementClient: React.FC = () => {
         />
         <Button
           className="text-xs md:text-sm"
-          onClick={() => router.push(`/notification`)}
+          onClick={() => router.push(`/settings-management/notifications/createNotification`)}
         >
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
