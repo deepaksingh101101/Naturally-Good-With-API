@@ -47,9 +47,9 @@ const notificationFormSchema = z.object({
     value: z.string(),
     phone: z.string()
   })).optional(),
-  dates: z.date({
-    required_error: 'Start Date is  required.',
-  }),
+  dates: z.array(z.date({
+    required_error: 'Start Date is required.',
+  })).optional(),
 });
 
 type NotificationFormInputs = z.infer<typeof notificationFormSchema>;
@@ -392,44 +392,46 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                       </FormItem>
                     )}
                   />
-                    <FormField
-                control={control}
-                name="dates"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Schedule start Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-[240px] pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-  mode="single"
-  selected={field.value}
-  onSelect={field.onChange}
-  disabled={(date) =>
-    date < new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
-  }
-  initialFocus
+     <FormField
+  control={control}
+  name="dates"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>Dates</FormLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              'w-full pl-3 text-left font-normal',
+              !(field.value && field.value.length) && 'text-muted-foreground'
+            )}
+          >
+            {(field.value && field.value.length) ? (
+              field.value.map((date) => format(date, 'PPP')).join(', ')
+            ) : (
+              <span>Pick dates</span>
+            )}
+            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            selected={Array.isArray(field.value) ? field.value : []}
+            onSelect={(dates) => {
+              const selectedDates = Array.isArray(dates) ? dates : [dates];
+              field.onChange(selectedDates);
+            }}
+            mode="multiple"
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <FormMessage>{renderErrorMessage(errors.dates)}</FormMessage>
+    </FormItem>
+  )}
 />
 
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage>{renderErrorMessage(errors.dates)}</FormMessage>
-                  </FormItem>
-                )}
-              />
 
 
               
