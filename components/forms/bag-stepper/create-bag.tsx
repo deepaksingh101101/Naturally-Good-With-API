@@ -16,6 +16,8 @@ import { useRouter } from 'next/navigation';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 import { Textarea } from '@/components/ui/textarea';
 import { StaticImageData } from 'next/image';
+import { Label } from 'recharts';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export interface BagItem {
   itemName: string;
@@ -362,7 +364,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
             )}
             {currentStep === 1 && (
               <>
-                <div className="mt-4">
+                <div className="mt-4 flex justify-between">
                   <Button
                     type="button"
                     onClick={handleAddItem}
@@ -371,6 +373,10 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                   >
                     Add Item
                   </Button>
+                  {/* <div className="flex items-center">
+                    <Checkbox  />
+                    <p className='text-black dark:text-white mx-2' >Mark If Its a Addon Bag</p>
+                  </div> */}
                   {/* Give here a checkbox if its a addon bag */}
                 </div>
               </>

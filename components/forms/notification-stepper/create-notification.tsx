@@ -11,7 +11,11 @@ import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import ReactSelect, { SingleValue, MultiValue } from 'react-select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Edit } from 'lucide-react';
+import { CalendarIcon, Edit } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
 interface Notification {
   id: number;
@@ -42,7 +46,10 @@ const notificationFormSchema = z.object({
     label: z.string(),
     value: z.string(),
     phone: z.string()
-  })).optional()
+  })).optional(),
+  dates: z.date({
+    required_error: 'Start Date is  required.',
+  }),
 });
 
 type NotificationFormInputs = z.infer<typeof notificationFormSchema>;
@@ -217,6 +224,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                 onChange={(e) => setNewFrequency({ ...newFrequency, number: parseInt(e.target.value) })}
                 className="ml-2"
               />
+              
               <Button className='ms-3' onClick={addFrequency}>Add</Button>
             </div>
             <div className="space-y-2">
@@ -359,6 +367,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                       </FormItem>
                     )}
                   />
+                   
                   <FormField
                     control={control}
                     name="frequency"
@@ -383,6 +392,47 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                       </FormItem>
                     )}
                   />
+                    <FormField
+                control={control}
+                name="dates"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Schedule start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-[240px] pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+  mode="single"
+  selected={field.value}
+  onSelect={field.onChange}
+  disabled={(date) =>
+    date < new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
+  }
+  initialFocus
+/>
+
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage>{renderErrorMessage(errors.dates)}</FormMessage>
+                  </FormItem>
+                )}
+              />
+
+
+              
                 </>
               )}
               <FormField
