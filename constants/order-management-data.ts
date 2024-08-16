@@ -4,7 +4,7 @@ export interface DeliveryInfo {
   assignedEmployee?: string;
   assignedRoutes?: string;
   deliveryStatus: 'Pending' | 'Delivered' | 'Cancelled'; // Delivery status options
-  deliveryCharges?:number
+  deliveryCharges?:number,
 }
 
 export interface OrderManagement {
@@ -28,6 +28,7 @@ export interface OrderManagement {
   paymentDate?: string; 
   amountReceived?:number;
   amountDue?:number;
+  playOrPaused: 'Playing' | 'Paused' ; 
 }
 
 export const OrderManagementData: OrderManagement[] = [
@@ -38,6 +39,7 @@ export const OrderManagementData: OrderManagement[] = [
     paymentType: 'Credit Card',
     bookingDate: "11/MAR/2024", 
     paymentDate: "11/MAR/2024",
+    playOrPaused:"Playing",
     deliveries: [
       {
         deliveryDate: '2023-07-17',
@@ -83,6 +85,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 102,
     empId: 10332,
     customerName: "Kartik Kumar",
+    playOrPaused:"Paused",
+
     paymentType: 'Net Banking',
     bookingDate: "11/MAR/2024", 
     paymentDate: "11/MAR/2024",
@@ -113,6 +117,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1332,
     customerName: "Shivam Kumar",
     paymentType: 'UPI',
+    playOrPaused:"Playing",
+
     bookingDate: "11/MAR/2024", 
     paymentDate: "11/MAR/2024",
     deliveries: [
@@ -142,6 +148,8 @@ export const OrderManagementData: OrderManagement[] = [
     empId: 1032,
     customerName: "Ridhi Mishra",
     paymentType: 'Net Banking',
+    playOrPaused:"Playing",
+
     bookingDate: "11/MAR/2024", 
     paymentDate: "11/MAR/2024",
     deliveries: [
@@ -177,6 +185,8 @@ export const OrderManagementData: OrderManagement[] = [
     orderId: 105,
     empId: 1022,
     customerName: "Arya Singh",
+    playOrPaused:"Playing",
+
     subscriptionType: 'Mini Veggie Bag',
     paymentType: 'Credit Card',
     bookingDate: "11/MAR/2024", 

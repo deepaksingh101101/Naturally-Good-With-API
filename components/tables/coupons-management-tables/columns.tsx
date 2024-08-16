@@ -48,7 +48,37 @@ export const columns: ColumnDef<CouponManagement>[] = [
   {
     accessorKey: 'discountPrice',
     header: 'Discount Price',
-    cell: ({ row }) => `₹${row.original.discountPrice}`
+    cell: ({ row }) => {
+      const discount = row.original.discountPrice;
+      return discount ? `₹ ${discount}` : 'N/A';
+    }
+  },
+  {
+    accessorKey: 'discountPercentage',
+    header: 'Discount Percentage',
+    cell: ({ row }) => {
+      const discount = row.original.discountPercentage;
+      return discount ? `${discount}%` : 'N/A';
+    }
+  }
+,  
+  {
+    accessorKey: 'couponType',
+    header: 'Coupon Type',
+    cell: ({ row }) => (
+      <div
+        style={{ borderRadius: "20px" }}
+        className={`flex items-center px-2 py-1 ${
+          row.original.couponType === 'global' ? 'bg-green-400' :
+          row.original.couponType === 'subscription' ? 'bg-blue-400' :
+          'bg-red-400'
+        }`}
+      >
+        <span className='text-black bold'>
+          {row.original.couponType === 'global' ? "Global" : "Subscription"}
+        </span>
+      </div>
+    )
   },
   {
     accessorKey: 'visibility',
@@ -57,13 +87,13 @@ export const columns: ColumnDef<CouponManagement>[] = [
       <div
         style={{ borderRadius: "20px" }}
         className={`flex items-center px-2 py-1 ${
-          row.original.visibility === 'global' ? 'bg-green-400' :
-          row.original.visibility === 'subscription' ? 'bg-blue-400' :
+          row.original.visibility === 'public' ? 'bg-green-400' :
+          row.original.visibility === 'admin' ? 'bg-blue-400' :
           'bg-red-400'
         }`}
       >
         <span className='text-black bold'>
-          {row.original.visibility === 'global' ? "Global" : "Subscription"}
+          {row.original.visibility === 'admin' ? "Admin" : "Public"}
         </span>
       </div>
     )
@@ -76,16 +106,6 @@ export const columns: ColumnDef<CouponManagement>[] = [
         {row.original.subscriptionType ? row.original.subscriptionType.name : 'N/A'}
       </div>
     )
-  },
-  {
-    accessorKey: 'subscriptionPrice',
-    header: 'Subscription Price',
-    cell: ({ row }) => row.original.subscriptionPrice ? `₹${row.original.subscriptionPrice}` : 'N/A'
-  },
-  {
-    accessorKey: 'netPrice',
-    header: 'Net Price',
-    cell: ({ row }) => row.original.netPrice ? `₹${row.original.netPrice}` : 'N/A'
   },
   {
     accessorKey: 'startDate',

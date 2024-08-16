@@ -11,6 +11,7 @@ import Select from 'react-select';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { getDay, format, isBefore } from 'date-fns';
+import { CalendarDateRangePicker } from '@/components/date-range-picker';
 
 export const OrderData: OrderManagement[] = [
   {
@@ -43,6 +44,7 @@ export const OrderData: OrderManagement[] = [
     totalPrice: 779,
     addons: ['Lemons'],
     paymentStatus: 'Paid',
+    playOrPaused: 'Paused',
     specialInstructions: 'Leave the package at the front door.'
   }
 ];
@@ -122,6 +124,19 @@ export const OrderView: React.FC = () => {
     </div>
   );
 
+  const [isPaused, setIsPaused] = useState(true)
+  const [showDatePicker, setShowDatePicker] = useState(false)
+  const handleClick=()=>{
+setIsPaused(false)
+  }
+  const handlePlayClick=()=>{
+setShowDatePicker(true)
+  }
+  const handlePause=()=>{
+setShowDatePicker(false)
+setIsPaused(true)
+  }
+
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
       <div className="flex items-start justify-between">
@@ -161,6 +176,27 @@ export const OrderView: React.FC = () => {
               {order.paymentStatus}
             </p>
           </div>
+         
+          {isPaused && <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Order Status</p>
+            <p >
+              <span onClick={handleClick} className={`text-lg my-2 cursor-pointer hover:scale-105 text-white px-2 py-1 bg-red-600 `}>Paused</span>
+            </p>
+          </div>}
+          {!isPaused && <div>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Order Status</p>
+            <p >
+              <span onClick={handlePlayClick} className={`text-lg my-2 cursor-pointer hover:scale-105 text-white px-2 py-1 bg-green-600`} >Playing</span>
+            </p>
+          </div>}
+          {showDatePicker && <div className="">
+          <p className="text-sm my-1  font-semibold text-gray-700 dark:text-gray-300">Select Range</p>
+          <div className="flex items-center justify-between">
+
+            <CalendarDateRangePicker/>
+            <button  onClick={handlePause} className='bg-red-600 px-4 py-2 ms-3 w-full text-white font-bold ' >Pause</button>
+          </div>
+          </div>}
           <div className="col-span-2">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Special Instructions:</p>
             <p className="text-lg text-gray-900 dark:text-gray-100">{order.specialInstructions}</p>
