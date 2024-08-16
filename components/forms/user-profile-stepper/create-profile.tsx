@@ -435,6 +435,12 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               )}
             />
 
+
+
+
+          </div>
+          <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
+     
             <FormField
               control={form.control}
               name="alterNateContact"
@@ -508,26 +514,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               )}
             />
 
-            {/* <FormField
-              control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled={loading}
-                      placeholder="Enter Age"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                   
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.age?.message}</FormMessage>
-                </FormItem>
-              )}
-            /> */}
+        
             <FormField
               control={form.control}
               name="email"
@@ -643,8 +630,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     </FormItem>
   )}
 />
-
-
 
           </div>
           <FormField
