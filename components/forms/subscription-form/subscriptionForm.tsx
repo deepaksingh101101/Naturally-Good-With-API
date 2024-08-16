@@ -45,7 +45,7 @@ const subscriptionFormSchema = z.object({
   deliveryDays: z.array(z.string()).min(1, 'Delivery Days is required'),
   subscriptionStartDate: z.string().min(1, 'Subscription Start Date is required'),
   subscriptionEndDate: z.string().min(1, 'Subscription End Date is required'),
-  bagName: z.array(z.string()).min(1, 'Bag Name is required'),
+  bagName: z.string().min(1, 'Bag Name is required'),
   subscriptionStatus: z.enum(['Active', 'Inactive']),
   price: z.number().positive('Price must be greater than zero'),
   netPrice: z.number().positive('Net Price must be greater than zero'),
@@ -441,12 +441,12 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                 </FormItem>
               )}
             />
-                  <Controller
+      <Controller
   control={form.control}
   name="bagName"
   render={({ field }) => (
     <FormItem>
-      <FormLabel>Select Bags</FormLabel>
+      <FormLabel>Select Bag</FormLabel>
       <FormControl>
         <ReactSelect
           isClearable
@@ -459,16 +459,16 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             </div>
           )}
           onChange={(selected) => {
-            field.onChange(selected ? selected.map(option => option.value) : []);
+            field.onChange(selected ? selected.value : null);
           }}
-          value={dummyBags.filter(option => field.value.includes(option.value))}
-          isMulti
+          value={dummyBags.find(option => option.value === field.value) || null}
         />
       </FormControl>
       <FormMessage />
     </FormItem>
   )}
 />
+
             <Controller
               control={form.control}
               name="deliveryDays"
