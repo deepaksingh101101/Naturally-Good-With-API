@@ -67,7 +67,20 @@ export const Columns: ColumnDef<Notification>[] = [
   {
     accessorKey: 'notificationType',
     header: 'Notification Type',
-  },
+    cell: ({ row }) => {
+      const notificationType = row.original.notificationType;
+      const bgColorClass = notificationType === 'Automatic' ? 'bg-green-200' : 'bg-red-200';
+      const textColorClass = notificationType === 'Automatic' ? 'text-green-800' : 'text-red-800';
+      
+      return (
+        <div className={`${bgColorClass} ${textColorClass} px-2 py-1 rounded`}>
+          {notificationType}
+        </div>
+      );
+    }
+  }
+,  
+  
   {
     accessorKey: 'scheduleType',
     header: 'Schedule Type',
@@ -75,6 +88,10 @@ export const Columns: ColumnDef<Notification>[] = [
   {
     accessorKey: 'scheduleTime',
     header: 'Scheduled Time',
+  },
+  {
+    accessorKey: 'frequency',
+    header: 'Frequency',
   },
   {
     accessorKey: 'description',

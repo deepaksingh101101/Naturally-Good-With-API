@@ -40,9 +40,7 @@ export const NotificationData: Notification[] = [
     description: 'We are excited to announce a new feature in our platform. Check it out now!',
     type: "Feature",
     scheduleType: "Global",
-    scheduleTime: "13:30 AM",
     notificationType: "Manual",
-    frequency: "One Time",
     customers: []
   },
   {
@@ -67,9 +65,7 @@ export const NotificationData: Notification[] = [
     description: 'A security alert was triggered. Please verify your account activity.',
     type: "Alert",
     scheduleType: "Non Global",
-    scheduleTime: "18:30 AM",
     notificationType: "Manual",
-    frequency: "One Time",
     customers: [
       { label: 'John Doe', value: '1', phone: '1234567890' },
       { label: 'Jane Smith', value: '2', phone: '0987654321' }
