@@ -201,7 +201,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
   ];
 
   const subscriptionTypes: SubscriptionType[] = [
-    { id: '1', name: 'Staples',totalBags:4, subScriptionPrice: 2000, allowedDeliveryDays: ['MONDAY', 'WEDNESDAY'], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
+    { id: '1', name: 'Monthly Veggies',totalBags:4, subScriptionPrice: 2000, allowedDeliveryDays: ['MONDAY', 'WEDNESDAY'], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
     { id: '2', name: 'Semi Annual Veggies',totalBags:24, subScriptionPrice: 12000, allowedDeliveryDays: ['THURSDAY', 'TUESDAY'], coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
   ];
 
