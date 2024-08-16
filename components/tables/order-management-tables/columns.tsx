@@ -111,6 +111,24 @@ export const columns: ColumnDef<OrderManagement>[] = [
     ),
   },
   {
+    accessorKey: 'amountReceived',
+    header: 'Amount Received (₹)',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className='text-center'>{row.original.amountReceived}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'amountDue',
+    header: 'Amount Dues (₹)',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className='text-center'>{row.original.amountReceived}</span>
+      </div>
+    ),
+  },
+  {
     accessorKey: 'deliveries',
     header: 'Deliveries',
     cell: ({ row }) => (

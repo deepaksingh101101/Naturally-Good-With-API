@@ -26,6 +26,8 @@ export interface OrderManagement {
   coupons?: string; // Coupon code
   bookingDate?: string; 
   paymentDate?: string; 
+  amountReceived?:number;
+  amountDue?:number;
 }
 
 export const OrderManagementData: OrderManagement[] = [
@@ -70,6 +72,8 @@ export const OrderManagementData: OrderManagement[] = [
     totalPrice: 779,
     discount: 200,
     netPrice: 579,
+    amountReceived:200,
+    amountDue:500,
     addons: ['Lemons'],
     paymentStatus: 'Paid',
     specialInstructions: 'Leave the package at the front door.',
@@ -97,6 +101,8 @@ export const OrderManagementData: OrderManagement[] = [
     totalPrice: 733,
     discount: 200,
     netPrice: 533,
+    amountReceived:200,
+    amountDue:500,
     addons: ['Lady Finger'],
     paymentStatus: 'Unpaid',
     specialInstructions: 'Call on arrival.',
@@ -124,6 +130,8 @@ export const OrderManagementData: OrderManagement[] = [
     totalPrice: 567,
     discount: 200,
     netPrice: 367,
+    amountReceived:200,
+    amountDue:500,
     addons: [],
     paymentStatus: 'Unpaid',
     specialInstructions: 'Deliver to the back gate.',
@@ -158,6 +166,8 @@ export const OrderManagementData: OrderManagement[] = [
     totalPrice: 986,
     discount: 200,
     netPrice: 786,
+    amountReceived:200,
+    amountDue:500,
     addons: ['Tomato', 'Potato'],
     paymentStatus: 'Paid',
     specialInstructions: 'Ring the bell twice.',
