@@ -83,7 +83,8 @@ const orderFormSchema = z.object({
   specialInstructions: z.string().optional(),
   remainingAmount: z.number().optional(),
   amountPaid: z.number().optional(),
-  remainingBags: z.number().positive('Remaining Bags must be greater than zero')
+  remainingBags: z.number().positive('Remaining Bags must be greater than zero'),
+  additionalBags: z.number().positive('Additional Bags must be greater than zero')
 });
 
 const dummyBags = [
@@ -147,7 +148,8 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
       orignalPrice: 0,
       remainingAmount: 6000,
       amountPaid: 12000,
-      remainingBags: 0
+      remainingBags: 0,
+      additionalBags: 0,
     }
   });
 
@@ -211,6 +213,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
   const netPrice = watch('netPrice');
   const remainingAmount = watch('remainingAmount');
   const remainingBags = watch('remainingBags');
+  const additionalBags = watch('additionalBags');
 
   const isAllowedDeliveryDate = (date: Date, allowedDays: string[]) => {
     const today = new Date();
@@ -257,6 +260,8 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
 
       setValue('netPrice', netPrice);
       setValue('remainingBags', subscription.totalBags>6?subscription.totalBags-6:subscription.totalBags);//6 is the remaining bags
+      setValue('additionalBags',subscription.totalBags>6?subscription.totalBags-12:0 );//12 is the taken bags
+
     } else {
       setValue('subscriptionPrice', 0);
       setValue('orignalPrice', 0);
@@ -733,7 +738,23 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                     </FormItem>
                   )}
                 />
-
+  <FormField
+                  control={form.control}
+                  name="additionalBags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Bags</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Additional Bags"
+                          value={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage>{errors.additionalBags?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="remainingBags"
@@ -751,6 +772,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                     </FormItem>
                   )}
                 />
+              
               </>
             </div>
 
