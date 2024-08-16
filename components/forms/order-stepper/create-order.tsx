@@ -382,7 +382,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                       <Input
                         type="number"
                         placeholder="Net Price"
-                        value={field.value} // Corrected
+                        value={field.value || ''} // Corrected
                         onChange={(e) => {
                           const value = e.target.value ? parseFloat(e.target.value) : undefined;
                           field.onChange(value);
