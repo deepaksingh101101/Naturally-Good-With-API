@@ -509,7 +509,7 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                         <FormControl>
                           <Input
                             placeholder="Net Price"
-                            value={netPrice}
+                            value={netPrice || 0}
                             onChange={(e) => {
                               const value = e.target.value ? parseFloat(e.target.value) : 0;
                               setValue('netPrice', value);
@@ -531,8 +531,8 @@ export const SubscriptionUpdate: React.FC<OrderManagementFormType> = ({ initialD
                       <FormControl>
                         <Input
                           placeholder="Remaining Amount"
-                          value={field.value}
-                          onChange={field.onChange}
+                          onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || 0}
                         />
                       </FormControl>
                       <FormMessage />
