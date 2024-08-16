@@ -33,7 +33,7 @@ const couponFormSchema = z.object({
   })).optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
-  description: z.string().min(1, 'Description is required'),
+  description: z.string().optional(),
   image: z.any(),
 });
 
