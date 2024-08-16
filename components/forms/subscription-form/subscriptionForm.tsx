@@ -38,7 +38,7 @@ import { Textarea } from '@/components/ui/textarea';
 const subscriptionFormSchema = z.object({
   subscriptionType: z.string(),
   SubscriptionImage: z.object({}).optional(),
-  description: z.string(),
+  description: z.string().optional(),
   visibility: z.string().min(1, 'Visibility is required'),
   totalDelivery: z.number().positive('Total bags must be greater than zero'),
   frequency: z.string(),
@@ -367,7 +367,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
               )}
             />
             <FormField
-              control={control}
+              control={form.control}
               name="totalDelivery"
               render={({ field }) => (
                 <FormItem>
@@ -379,7 +379,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                       className='mt-0'
                       min={1}
                       {...field}
-                      value={field.value}
+                      value={field.value || ''}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
                   </FormControl>
@@ -498,7 +498,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                     <Input
                       type="number"
                       placeholder="Enter Price"
-                      {...field}
+                      value={field.value || ''}
                       onChange={(e) => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
@@ -519,7 +519,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                     <Input
                       type="number"
                       placeholder="Enter Offer in Percentage"
-                      {...field}
+                      value={field.value || ''}
                       onChange={(e) => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
@@ -540,7 +540,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                     <Input
                       type="number"
                       placeholder="Net Price"
-                      {...field}
+                      value={field.value || ''}
                       onChange={(e) => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
