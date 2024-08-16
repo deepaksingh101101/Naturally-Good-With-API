@@ -91,7 +91,7 @@ const coupons = [
 
 const addonBags = [
   { value: 'BAG1', label: 'Extra Veggie Bag' },
-  { value: 'BAG2', label: 'Fruit Bag' }
+  { value: 'BAG2', label: 'Addon Bag' }
 ];
 
 export const ComplaintView: React.FC = () => {

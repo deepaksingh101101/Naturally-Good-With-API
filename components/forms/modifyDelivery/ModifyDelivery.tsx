@@ -688,7 +688,7 @@ export const ModifyDelivery: React.FC = () => {
         control={control}
         name="deliveryTimeSlot"
         render={({ field }) => (
-          <div className=" mb-56">
+          <div className=" mb-16">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-medium my-2 text-gray-700 dark:text-gray-300">Delivery Time Slot</label>
               <Edit
@@ -710,14 +710,14 @@ export const ModifyDelivery: React.FC = () => {
       />
 
       <div className="flex flex-col ">
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Note</label>
         <Controller
           control={control}
           name="description"
           render={({ field }) => (
             <Textarea
               rows={5}
-              placeholder="Enter Description"
+              placeholder="Enter any Notes"
               {...field}
             />
           )}
