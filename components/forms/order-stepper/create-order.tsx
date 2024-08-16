@@ -60,6 +60,8 @@ const orderFormSchema = z.object({
     discountPrice: z.number()
   }).optional(),
   manualDiscount: z.number().min(0, 'Manual Discount cannot be negative').default(0),
+  amountReceived: z.number().min(0, 'Amount Received cannot be negative').default(0),
+  amountDue: z.number().min(0, 'Amount Due cannot be negative').default(0),
   manualDiscountPercentage: z.number().default(0),
   netPrice: z.number().positive('Net Price must be greater than zero'),
   deliveryStartDate: z.date({
@@ -129,6 +131,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       deliveryStatus: 'Pending',
       bagOrdered: [] as string[],
       totalWeight: 0,
+      amountReceived: 0,
+      amountDue: 0,
       paymentStatus: 'Pending',
       paymentType: '',
       specialInstructions: '',
@@ -194,6 +198,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const subscriptionPrice = watch('subscriptionPrice');
   const manualDiscount = watch('manualDiscount');
   const netPrice = watch('netPrice'); // Watch netPrice
+  const amountReceived = watch('amountReceived'); // Watch netPrice
+  const amountDue = watch('amountDue'); // Watch netPrice
 
   const isAllowedDeliveryDate = (date: Date, allowedDays: string[]) => {
     const today = new Date();
@@ -349,28 +355,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              <Controller
-                control={form.control}
-                name="coupon"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Coupon</FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        isClearable
-                        isSearchable
-                        options={subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.coupons || []}
-                        getOptionLabel={(option) => option?.code || ''}
-                        getOptionValue={(option) => option?.id || ''}
-                        isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected || undefined)}
-                        value={field.value}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+             
 
               <FormField
                 control={form.control}
@@ -393,7 +378,28 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
-
+ <Controller
+                control={form.control}
+                name="coupon"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Coupon</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        isClearable
+                        isSearchable
+                        options={subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.coupons || []}
+                        getOptionLabel={(option) => option?.code || ''}
+                        getOptionValue={(option) => option?.id || ''}
+                        isDisabled={loading}
+                        onChange={(selected) => field.onChange(selected || undefined)}
+                        value={field.value}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="manualDiscountPercentage"
@@ -410,6 +416,44 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
+              <FormField
+              control={form.control}
+              name="amountReceived"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount Received</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter Amount Received"
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+              <FormField
+              control={form.control}
+              name="amountDue"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount Dues</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled
+                      placeholder="Enter Amount Dues"
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || netPrice-amountReceived}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
               <FormField
                 control={form.control}
