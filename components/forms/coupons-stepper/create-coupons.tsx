@@ -27,7 +27,7 @@ const couponFormSchema = z.object({
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
   couponType: z.enum(['global', 'subscription','freeDelivery']),
   discountType: z.enum(['price', 'percentage']),
-  visibility: z.enum(['Admin', 'Public']),
+  visibility: z.enum(['Admin', 'Public','Private']),
   subscriptionType: z.array(z.object({
     id: z.string(),
     name: z.string()
