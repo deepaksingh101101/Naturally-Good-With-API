@@ -29,7 +29,7 @@ export const columns: ColumnDef<DeliveryManagement>[] = [
       <div>
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
-            <tr className='bg-red-100'>
+            <tr className="bg-red-100">
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
               <th className="px-10 py-2 text-left text-xs font-medium text-gray-500 uppercase">Time Slot</th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -39,30 +39,37 @@ export const columns: ColumnDef<DeliveryManagement>[] = [
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            <tr className='bg-blue-100'>
-              <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{row.original.delivery.deliveryDate}</td>
-              <td className="ps-10 pe-8 py-2 whitespace-nowrap text-sm text-gray-900">{row.original.delivery.deliveryTimeSlot}</td>
-              <td className="px-1 py-2 whitespace-nowrap text-sm text-gray-900">
-                <div 
-                  style={{ borderRadius: "20px" }}
-                  className={`flex items-center ps-3 pe-2 py-1 ${
-                    row.original.delivery.deliveryStatus === 'Delivered' ? 'bg-green-400' :
-                    row.original.delivery.deliveryStatus === 'Pending' ? 'bg-yellow-400' :
-                    'bg-red-400'
-                  }`}
-                >
-                  <span className='text-black bold pe-7'>{row.original.delivery.deliveryStatus}</span>
-                </div>
-              </td>
-              <td className="px-8 py-2 whitespace-nowrap text-sm text-gray-900">{row.original.delivery.assignedEmployee}</td>
-              <td className="px-12 py-2 whitespace-nowrap text-sm text-gray-900">{row.original.delivery.assignedRoutes}</td>
-              <td className="px-4 py-2 cursor-pointer whitespace-nowrap text-sm text-red-600"><Link href='/order/assignOrder/'><Edit height="16" width="16" /></Link></td>
-            </tr>
+            {row.original.delivery.map((deliveryItem, index) => (
+              <tr key={index} className="bg-blue-100">
+                <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">{deliveryItem.deliveryDate}</td>
+                <td className="ps-10 pe-8 py-2 whitespace-nowrap text-sm text-gray-900">{deliveryItem.deliveryTimeSlot}</td>
+                <td className="px-1 py-2 whitespace-nowrap text-sm text-gray-900">
+                  <div 
+                    style={{ borderRadius: "20px" }}
+                    className={`flex items-center ps-3 pe-2 py-1 ${
+                      deliveryItem.deliveryStatus === 'Delivered' ? 'bg-green-400' :
+                      deliveryItem.deliveryStatus === 'Pending' ? 'bg-yellow-400' :
+                      'bg-red-400'
+                    }`}
+                  >
+                    <span className="text-black font-bold pe-7">{deliveryItem.deliveryStatus}</span>
+                  </div>
+                </td>
+                <td className="px-8 py-2 whitespace-nowrap text-sm text-gray-900">{deliveryItem.assignedEmployee}</td>
+                <td className="px-12 py-2 whitespace-nowrap text-sm text-gray-900">{deliveryItem.assignedRoutes}</td>
+                <td className="px-4 py-2 cursor-pointer whitespace-nowrap text-sm text-red-600">
+                  <Link href={`/order/assignOrder`}>
+                    <Edit height="16" width="16" />
+                  </Link>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     ),
   },
+  
   {
     accessorKey: 'subscriptionType',
     header: 'Subscription Type',

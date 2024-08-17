@@ -12,6 +12,8 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { getDay, format, isBefore } from 'date-fns';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Edit } from 'lucide-react';
 
 export const OrderData: OrderManagement[] = [
   {
@@ -31,6 +33,22 @@ export const OrderData: OrderManagement[] = [
       },
       {
         deliveryDate: '2023-07-18',
+        deliveryTimeSlot: '9am - 11am',
+        deliveryStatus: 'Pending',
+        assignedEmployee: "Shivam Singh",
+        assignedRoutes: "Route 1",
+        deliveryCharges: 0 // Example delivery charge
+      },
+      {
+        deliveryDate: '2023-07-23',
+        deliveryTimeSlot: '9am - 11am',
+        deliveryStatus: 'Pending',
+        assignedEmployee: "Shivam Singh",
+        assignedRoutes: "Route 1",
+        deliveryCharges: 0 // Example delivery charge
+      },
+      {
+        deliveryDate: '2023-07-27',
         deliveryTimeSlot: '9am - 11am',
         deliveryStatus: 'Pending',
         assignedEmployee: "Shivam Singh",
@@ -100,7 +118,7 @@ export const OrderView: React.FC = () => {
 
   const allowedDeliveryDays = ['MONDAY', 'WEDNESDAY']; // Example allowed days
 
-  const handleEditClick = (delivery: any) => {
+  const handleEditClick = (delivery?: any) => {
     setSelectedDelivery(delivery);
     setExtraCharges(undefined); // Reset extra charges
     setIsModalOpen(true);
@@ -127,7 +145,8 @@ export const OrderView: React.FC = () => {
   const [isPaused, setIsPaused] = useState(true)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const handleClick=()=>{
-setIsPaused(false)
+    setShowDatePicker(true)
+// setIsPaused(false)
   }
   const handlePlayClick=()=>{
 setShowDatePicker(true)
@@ -136,6 +155,28 @@ setShowDatePicker(true)
 setShowDatePicker(false)
 setIsPaused(true)
   }
+  const handlePlay=()=>{
+setShowDatePicker(false)
+setIsPaused(false)
+  }
+
+  const [selectedDeliveries, setSelectedDeliveries] = useState<string[]>([]);
+
+  const handleCheckboxChange = (deliveryDate: string) => {
+    setSelectedDeliveries(prevSelected =>
+      prevSelected.includes(deliveryDate)
+        ? prevSelected.filter(date => date !== deliveryDate)
+        : [...prevSelected, deliveryDate]
+    );
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectedDeliveries.length === order.deliveries.length) {
+      setSelectedDeliveries([]);
+    } else {
+      setSelectedDeliveries(order.deliveries.map(delivery => delivery.deliveryDate));
+    }
+  };
 
   return (
     <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
@@ -194,8 +235,10 @@ setIsPaused(true)
           <div className="flex items-center justify-between">
 
             <CalendarDateRangePicker/>
-            <button  onClick={handlePause} className='bg-red-600 px-4 py-2 ms-3 w-full text-white font-bold ' >Pause</button>
-          </div>
+{      !isPaused &&      <button  onClick={handlePause} className='bg-red-600 px-4 py-2 ms-3 w-full text-white font-bold ' >Pause</button>
+}           
+{isPaused && <button  onClick={handlePlay} className='bg-green-600 px-4 py-2 ms-3 w-full text-white font-bold ' >play</button>
+}          </div>
           </div>}
           <div className="col-span-2">
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Special Instructions:</p>
@@ -205,9 +248,15 @@ setIsPaused(true)
       </div>
       <Separator className="my-4" />
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead>
-            <tr className="bg-red-100 dark:bg-red-900">
+        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 position-relative">
+          <thead className='relative' >
+            <tr className="bg-red-100 relative dark:bg-red-900">
+            <th className=" py-2">
+              <Checkbox
+                checked={selectedDeliveries.length === order.deliveries.length}
+                onCheckedChange={handleSelectAllChange}
+              />
+            </th>
               <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">
                 Delivery Date
               </th>
@@ -230,38 +279,52 @@ setIsPaused(true)
                 Action
               </th>
             </tr>
-          </thead>
+{selectedDeliveries?.length>0 &&  <Edit onClick={() => handleEditClick({
+        deliveryDate: '2023-07-27',
+        deliveryTimeSlot: '9am - 11am',
+        deliveryStatus: 'Pending',
+        assignedEmployee: "Shivam Singh",
+        assignedRoutes: "Route 1",
+        deliveryCharges: 0 // Example delivery charge
+      })} className="cursor-pointer text-red-500 text-[20px] absolute top-0 end-0" />
+}          </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            {order.deliveries.map((delivery, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-blue-100 dark:bg-blue-900' : 'bg-blue-200 dark:bg-blue-800'}>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryDate}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryTimeSlot}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                  <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      delivery.deliveryStatus === 'Delivered'
-                        ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                        : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
-                    }`}
-                  >
-                    {delivery.deliveryStatus}
-                  </span>
-                </td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedEmployee}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedRoutes}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryCharges}</td>
-                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                  <Button variant="outline" size="sm" onClick={() => handleEditClick(delivery)}>
-                    Edit
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+          {order.deliveries.map((delivery, index) => (
+            <tr key={index} className={index % 2 === 0 ? 'bg-blue-100 dark:bg-blue-900' : 'bg-blue-200 dark:bg-blue-800'}>
+              <td className=" ps-6 pe-4 py-2">
+                <Checkbox
+                  checked={selectedDeliveries.includes(delivery.deliveryDate)}
+                  onCheckedChange={() => handleCheckboxChange(delivery.deliveryDate)}
+                />
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryDate}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryTimeSlot}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <span
+                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    delivery.deliveryStatus === 'Delivered'
+                      ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                      : 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                  }`}
+                >
+                  {delivery.deliveryStatus}
+                </span>
+              </td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedEmployee}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.assignedRoutes}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{delivery.deliveryCharges}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                <Button  onClick={() => handleEditClick(delivery)}>
+                  Edit
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
         </table>
       </div>
 
-      {selectedDelivery && (
+      {isModalOpen && (
         <Dialog open={isModalOpen} onOpenChange={handleCloseModal}>
           <DialogContent className="max-w-lg">
             <DialogHeader>

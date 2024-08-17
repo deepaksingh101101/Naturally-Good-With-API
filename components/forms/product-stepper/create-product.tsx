@@ -45,6 +45,7 @@ const productFormSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   productImage: z.object({}).optional(),
   visibility: z.string().min(1, 'Visibility is required'),
+  unitType: z.string().min(1, 'Unit Type is required'),
   minUnit: z.number().min(1, 'Minimum Quantity is required'),
   maxUnit: z.number().min(1, 'Maximum Quantity is required'),
   available: z.string().min(1, 'Please Enter availability'),
@@ -104,6 +105,11 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
     { value: 'Trial', label: 'Trial' },
     { value: 'Inactive', label: 'Inactive' },
   ]);
+  const [unitTypes, setUnitTypes] = useState([
+    { value: 'grams', label: 'Grams' },
+    { value: 'pieces', label: 'Pieces' },
+  ]);
+
   const [newType, setNewType] = useState('');
   const [newSubtype, setNewSubtype] = useState('');
   const [newSeason, setNewSeason] = useState('');
@@ -125,8 +131,11 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
     control,
     formState: { errors },
     handleSubmit,
+    watch,
     setValue,
   } = form;
+
+  const selectedUnitType=watch('unitType')
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
@@ -482,6 +491,27 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
+             {/* <FormField
+              control={control}
+              name="unitType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unit Type</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Unit Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="grams">Grams</SelectItem>
+                        <SelectItem value="pieces">Pieces</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.available?.message}</FormMessage>
+                </FormItem>
+              )}
+            /> */}
 
 <FormField
               control={form.control}
@@ -502,6 +532,25 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
+{/* <FormField
+              control={form.control}
+              name="pieces"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Unit Quantity (piece)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter Piece "
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
 
 
 
