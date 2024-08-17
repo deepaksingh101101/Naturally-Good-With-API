@@ -397,6 +397,126 @@ export const ModifyDelivery: React.FC = () => {
       </div>
 
       <Separator className="my-4" />
+      {/* Bag 1 */}
+      <Heading title="Bag 1" description="" />
+      {fields.length > 0 && (
+        <form onSubmit={handleSubmit(handleSaveChanges)}>
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className='bg-red-300 text-white'>
+              <tr className='bg-red-300'>
+                <th className="px-6 py-3 text-left text-xs font-bold text-black   uppercase tracking-wider">
+                  Item Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-black   uppercase tracking-wider">
+                  Item Price (₹)
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-bold text-black  uppercase tracking-wider">
+                  Unit Quantity (g)
+                </th>
+                <th className="px-6 py-3  text-left text-xs font-bold text-black  uppercase tracking-wider">
+                  Minimum Units
+                </th>
+                <th className="px-6 py-3  text-left text-xs font-bold text-black  uppercase tracking-wider">
+                  Maximum Units
+                </th>
+                <th className="px-6 py-3  text-left text-xs font-bold text-black  uppercase tracking-wider">
+                  Required Units
+                </th>
+                <th className="px-6 py-3  text-right text-xs font-bold text-black   uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {fields.map((item, index) => (
+                <tr key={index}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {watch(`bagItems.${index}.itemName`)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    ₹{watch(`bagItems.${index}.itemPrice`)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {watch(`bagItems.${index}.unitQuantity`)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {watch(`bagItems.${index}.minimumQuantity`)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {watch(`bagItems.${index}.maximumQuantity`)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <Controller
+                      control={control}
+                      name={`bagItems.${index}.requiredUnits` as const}
+                      render={({ field }) => (
+                        <>
+                          <Input
+                            type="number"
+                            value={field.value}
+                            onChange={(e) => {
+                              const value = parseInt(e.target.value, 10);
+                              if (value >= watch(`bagItems.${index}.minimumQuantity`) && value <= watch(`bagItems.${index}.maximumQuantity`)) {
+                                field.onChange(value);
+                                setValue(`bagItems.${index}.requiredUnits`, value);
+                              }
+                            }}
+                          />
+                          {errors.bagItems?.[index]?.requiredUnits && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {errors.bagItems?.[index]?.requiredUnits?.message}
+                            </p>
+                          )}
+                        </>
+                      )}
+                      rules={{
+                        required: 'Required Units is required',
+                        validate: value => {
+                          const min = watch(`bagItems.${index}.minimumQuantity`);
+                          const max = watch(`bagItems.${index}.maximumQuantity`);
+                          return value >= min && value <= max || `Required Units must be between ${min} and ${max}`;
+                        }
+                      }}
+                    />
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(index)}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-end mt-4">
+            <p className="text-lg font-semibold text-gray-700">Total Price: ₹{totalAmount}</p>
+          </div>
+          <div className="flex justify-end mt-4">
+            <p className={`text-lg font-semibold ${totalWeight > order.totalWeight ? 'text-red-600' : 'text-gray-700'}`}>
+              Total Weight: {totalWeight} g
+            </p>
+          </div>
+          {totalWeight > order.totalWeight && (
+            <div className="flex justify-end mt-2">
+              <p className="text-red-600">The total added item weight cannot be greater than 5000 g (Add More Items Through Add-ons)</p>
+            </div>
+          )}
+
+          <div className="flex justify-end mt-4">
+            <Button type="submit" disabled={totalWeight > order.totalWeight}>
+              Save Changes
+            </Button>
+          </div>
+        </form>
+      )}
+
+<Separator className="my-4" />
+      {/* Bag 2 */}
+      <Heading title="Bag 2" description="" />
       {fields.length > 0 && (
         <form onSubmit={handleSubmit(handleSaveChanges)}>
           <table className="min-w-full divide-y divide-gray-200">
