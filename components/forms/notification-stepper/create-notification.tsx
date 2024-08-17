@@ -8,10 +8,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactSelect, { SingleValue, MultiValue } from 'react-select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CalendarIcon, Edit } from 'lucide-react';
+import { CalendarIcon, ClockIcon, Edit } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -47,27 +47,36 @@ const notificationFormSchema = z.object({
     value: z.string(),
     phone: z.string()
   })).optional(),
-  dates: z.array(z.date({
+  startDate: z.date({
     required_error: 'Start Date is required.',
-  })).optional(),
+  }).optional(),
+  endDate: z.date({
+    required_error: 'End Date is required.',
+  }).optional(),
+  
+
 });
 
 type NotificationFormInputs = z.infer<typeof notificationFormSchema>;
 
 type FrequencyOption = { value: string; label: string; number: number };
+type ScheduledOption = { scheduleDate: ""; scheduleTime: ""};
 type CustomerOption = { value: string; label: string; phone: string };
 
 export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const [notificationType, setNotificationType] = useState(initialData?.notificationType || 'Manual');
   const [frequencyModalOpen, setFrequencyModalOpen] = useState(false);
+  type FrequencyOption = { value: string; label: string; number: number };
   const [frequencies, setFrequencies] = useState<FrequencyOption[]>([
     { value: 'one-time', label: 'One Time', number: 1 },
     { value: 'daily', label: 'Daily', number: 1 },
-    { value: 'weekly', label: 'Weekly', number: 1 },
-    { value: 'monthly', label: 'Monthly', number: 1 },
-    { value: 'yearly', label: 'Yearly', number: 1 },
+    { value: 'daily-2', label: 'Daily 2', number: 2 },
+    { value: 'daily-3', label: 'Daily 3', number: 3 },
+
   ]);
+
+
   const [newFrequency, setNewFrequency] = useState({ name: '', number: 1 });
 
   const [customers, setCustomers] = useState<CustomerOption[]>([
@@ -87,16 +96,45 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
       scheduleType: '',
       notificationType: 'Manual',
       frequency: '',
-      customers: []
+      customers: [],
+      startDate:new Date(),
+      endDate:new Date()
     },
   });
 
-  const { control, handleSubmit, setValue, formState: { errors } } = form;
+  const { control, handleSubmit, setValue,watch, formState: { errors } } = form;
   
+  const [frequencyNumber, setFrequencyNumber] = useState<number>(1);
+  const [scheduledData, setScheduledData] = useState<{ scheduleDate: string; scheduleTime: string }[]>([{ scheduleDate: "", scheduleTime: "" }]);
+
+  // const notificationType = watch('notificationType');
+
   const scheduleType = useWatch({
     control,
     name: 'scheduleType',
   });
+
+
+
+  const frequency = useWatch({
+    control,
+    name: 'frequency',
+  });
+
+  useEffect(() => {
+    if (frequency) {
+      const selectedFrequency = frequencies.find(f => f.value === frequency);
+      if (selectedFrequency) {
+        setFrequencyNumber(selectedFrequency.number);
+      }
+    }
+  }, [frequency]);
+
+  useEffect(() => {
+    const newScheduledData = Array.from({ length: frequencyNumber }, () => ({ scheduleDate: "", scheduleTime: "" }));
+    setScheduledData(newScheduledData);
+  }, [frequencyNumber]);
+
 
   const onSubmit: SubmitHandler<NotificationFormInputs> = async (data) => {
     try {
@@ -354,20 +392,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
               />
               {notificationType === 'Automatic' && (
                 <>
-                  <FormField
-                    control={control}
-                    name="scheduleTime"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Schedule Time</FormLabel>
-                        <FormControl>
-                          <Input type="time" disabled={loading} {...field} />
-                        </FormControl>
-                        <FormMessage>{renderErrorMessage(errors.scheduleTime)}</FormMessage>
-                      </FormItem>
-                    )}
-                  />
-                   
+                
                   <FormField
                     control={control}
                     name="frequency"
@@ -378,59 +403,94 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                           <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setFrequencyModalOpen(true)} />
                         </div>
                         <FormControl>
-                          <ReactSelect
-                            isSearchable
-                            options={frequencies}
-                            getOptionLabel={(option) => `${option.label} - ${option.number}`}
-                            getOptionValue={(option) => option.value}
-                            isDisabled={loading}
-                            onChange={(selected: SingleValue<FrequencyOption>) => field.onChange(selected ? selected.value : '')}
-                            value={frequencies.find(option => option.value === field.value)}
-                          />
+                        <ReactSelect
+        options={frequencies}
+        getOptionLabel={(option) => `${option.label} - ${option.number}`}
+        getOptionValue={(option) => option.value}
+        onChange={(selected: SingleValue<FrequencyOption>) => {
+          if (selected) setValue('frequency', selected.value);
+        }}
+      />
                         </FormControl>
                         <FormMessage>{renderErrorMessage(errors.frequency)}</FormMessage>
                       </FormItem>
                     )}
                   />
-     <FormField
-  control={control}
-  name="dates"
+   {frequency!=="one-time" &&               <>
+   <FormField
+  control={form.control}
+  name="startDate"
   render={({ field }) => (
     <FormItem className="flex flex-col">
-      <FormLabel>Dates</FormLabel>
+      <FormLabel>Start Date</FormLabel>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant="outline"
             className={cn(
               'w-full pl-3 text-left font-normal',
-              !(field.value && field.value.length) && 'text-muted-foreground'
+              !(field.value) && 'text-muted-foreground'
             )}
           >
-            {(field.value && field.value.length) ? (
-              field.value.map((date) => format(date, 'PPP')).join(', ')
-            ) : (
-              <span>Pick dates</span>
+            {field.value ? format(field.value, 'PPP') : (
+              <span>Pick a date</span>
             )}
             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
           <Calendar
-            selected={Array.isArray(field.value) ? field.value : []}
-            onSelect={(dates) => {
-              const selectedDates = Array.isArray(dates) ? dates : [dates];
-              field.onChange(selectedDates);
+            selected={field.value || new Date}
+            onSelect={(date) => {
+              field.onChange(date);
             }}
-            mode="multiple"
+            mode="single"
             initialFocus
           />
         </PopoverContent>
       </Popover>
-      <FormMessage>{renderErrorMessage(errors.dates)}</FormMessage>
+      <FormMessage>{renderErrorMessage(errors.startDate)}</FormMessage>
     </FormItem>
   )}
 />
+   <FormField
+  control={form.control}
+  name="endDate"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>End Date</FormLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              'w-full pl-3 text-left font-normal',
+              !(field.value) && 'text-muted-foreground'
+            )}
+          >
+            {field.value ? format(field.value, 'PPP') : (
+              <span>Pick a date</span>
+            )}
+            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            selected={field.value || new Date}
+            onSelect={(date) => {
+              field.onChange(date);
+            }}
+            mode="single"
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <FormMessage>{renderErrorMessage(errors.endDate)}</FormMessage>
+    </FormItem>
+  )}
+/>
+</>}
+
 
 
 
@@ -490,6 +550,80 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                   )}
                 />
               )}
+               <div className="mt-8">
+            {scheduledData.length>0 && frequency && (  <table className="min-w-full divide-y divide-gray-200">
+               <thead>
+                  <tr>
+                    
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                     Schedule Date
+                    </th>
+                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                     Schedule Time
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                {scheduledData.map((item, index) => (
+        <tr key={index} >
+          <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
+           <FormField
+  control={form.control}
+  name="endDate"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className={cn(
+              'w-full pl-3 text-left font-normal',
+              !(field.value) && 'text-muted-foreground'
+            )}
+          >
+            {field.value ? format(field.value, 'PPP') : (
+              <span>Pick a date</span>
+            )}
+            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            selected={field.value || new Date}
+            onSelect={(date) => {
+              field.onChange(date);
+            }}
+            mode="single"
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <FormMessage>{renderErrorMessage(errors.endDate)}</FormMessage>
+    </FormItem>
+  )}
+/>
+</td>
+
+<td  className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
+<Popover>
+        <PopoverTrigger asChild>
+          <Button variant="outline" className="w-full justify-start text-left font-normal">
+            <ClockIcon className="mr-1 h-4 w-4 -translate-x-1" />
+            <span>Select Time</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <div className="w-full" />
+        </PopoverContent>
+      </Popover>
+          </td>
+          
+        </tr>
+      ))}
+
+</tbody>
+</table>)}
+                  </div>
             <Button type="submit" disabled={loading}>
               {initialData ? 'Save Changes' : 'Create Notification'}
             </Button>
