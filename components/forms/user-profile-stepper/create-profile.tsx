@@ -53,6 +53,7 @@ const FormSchema = z.object({
   paymentType: z.string().min(1, "Payment Type is required"),
   street: z.string().min(1, "Street Address is required"),
   city: z.string().min(1, "City is required"),
+  source: z.string().min(1, "Source of customer is required"),
   state: z.string().min(1, 'State is required'),
   zipcode: z.string().min(1, 'Zipcode is required'),
   houseNumber: z.string().min(1, 'House and Floor Number is required'),
@@ -152,9 +153,15 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     { id: "Ghaziabad", name: "Ghaziabad" },
     { id: "Sahibabad", name: "Sahibabad" },
   ]);
+  const [sourceOptions, setSourceOptions] = useState([
+    { id: "instagram", name: "Instagram" },
+    { id: "facebook", name: "Facebook" }
+  ]);
 
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const [newCity, setNewCity] = useState('');
+  const [newSource, setNewSource] = useState('');
 
   const openCityModal = () => {
     setIsCityModalOpen(true);
@@ -163,6 +170,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const closeCityModal = () => {
     setIsCityModalOpen(false);
   };
+  const openSourceModal = () => {
+    setIsSourceModalOpen(true);
+  };
+
+  const closeSourceModal = () => {
+    setIsSourceModalOpen(false);
+  };
 
   const addCity = () => {
     if (newCity) {
@@ -170,9 +184,18 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       setNewCity('');
     }
   };
+  const addSource = () => {
+    if (newSource) {
+      setSourceOptions([...sourceOptions, { id: newSource.toLowerCase(), name: newSource }]);
+      setNewSource('');
+    }
+  };
 
   const deleteCity = (index: number) => {
     setCityOptions(cityOptions.filter((_, i) => i !== index));
+  };
+  const deleteSource = (index: number) => {
+    setSourceOptions(sourceOptions.filter((_, i) => i !== index));
   };
 
   return (
@@ -236,7 +259,51 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           </div>
         </DialogContent>
       </Dialog>
-
+      <Dialog open={isSourceModalOpen} onOpenChange={(open) => !open && closeSourceModal()}>
+        <DialogContent className="max-w-lg" >
+          <DialogHeader>
+            <DialogTitle>Manage Sources</DialogTitle>
+            <DialogDescription>You can manage customer source.</DialogDescription>
+          </DialogHeader>
+          <div>
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-red-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                    Source
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                {sourceOptions.map((source, sourceIndex) => (
+                  <tr key={sourceIndex}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {source.name}
+                    </td>
+                    <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Trash onClick={() => deleteSource(sourceIndex)} className="cursor-pointer text-red-500" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex mt-4">
+              <Input
+                type="text"
+                placeholder="Add new source"
+                value={newSource}
+                onChange={(e) => setNewSource(e.target.value)}
+              />
+              <Button onClick={addSource} className="ml-2">
+                Add
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(processForm)}
@@ -366,6 +433,35 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     )}
                   />
                   <FormMessage>{errors.city?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="source"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex mt-2">
+                    <FormLabel>Source of Customer</FormLabel>
+                    <Edit onClick={openSourceModal} className="ms-3 cursor-pointer text-red-500" height={15} width={15} />
+                  </div>
+                  <Controller
+                    control={control}
+                    name="source"
+                    render={({ field }) => (
+                      <ReactSelect
+                        isClearable
+                        isSearchable
+                        options={sourceOptions}
+                        getOptionLabel={(option) => option.name}
+                        getOptionValue={(option) => option.id}
+                        isDisabled={loading}
+                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
+                        value={sourceOptions.find(option => option.id === field.value)}
+                      />
+                    )}
+                  />
+                  <FormMessage>{errors.source?.message}</FormMessage>
                 </FormItem>
               )}
             />

@@ -402,8 +402,8 @@ export const ModifyDelivery: React.FC = () => {
       {fields.length > 0 && (
         <form onSubmit={handleSubmit(handleSaveChanges)}>
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className='bg-red-300 text-white'>
-              <tr className='bg-red-300'>
+            <thead className='bg-green-300 text-white'>
+              <tr className='bg-green-300'>
                 <th className="px-6 py-3 text-left text-xs font-bold text-black   uppercase tracking-wider">
                   Item Name
                 </th>
@@ -520,8 +520,8 @@ export const ModifyDelivery: React.FC = () => {
       {fields.length > 0 && (
         <form onSubmit={handleSubmit(handleSaveChanges)}>
           <table className="min-w-full divide-y divide-gray-200">
-            <thead className='bg-red-300 text-white'>
-              <tr className='bg-red-300'>
+            <thead className='bg-green-300 text-white'>
+              <tr className='bg-green-300'>
                 <th className="px-6 py-3 text-left text-xs font-bold text-black   uppercase tracking-wider">
                   Item Name
                 </th>
