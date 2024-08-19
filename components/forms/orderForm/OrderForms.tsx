@@ -142,7 +142,7 @@ export const OrderView: React.FC = () => {
     </div>
   );
 
-  const [isPaused, setIsPaused] = useState(true)
+  const [isPaused, setIsPaused] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
   const handleClick=()=>{
     setShowDatePicker(true)
@@ -227,7 +227,7 @@ setIsPaused(false)
           {!isPaused && <div>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Order Status</p>
             <p >
-              <span onClick={handlePlayClick} className={`text-lg my-2 cursor-pointer hover:scale-105 text-white px-2 py-1 bg-green-600`} >Playing</span>
+              <span onClick={handlePlayClick} className={`text-lg my-2 cursor-pointer hover:scale-105 text-white px-2 py-1 bg-green-600`} >Running</span>
             </p>
           </div>}
           {showDatePicker && <div className="">
