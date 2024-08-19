@@ -36,6 +36,7 @@ const couponFormSchema = z.object({
   endDate: z.date().optional(),
   description: z.string().optional(),
   image: z.any(),
+  times: z.string(),
 });
 
 type CouponFormSchema = z.infer<typeof couponFormSchema>;
@@ -69,6 +70,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
       endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
       description: initialData?.description || '',
+      times: initialData?.times || '',
       image: undefined
     }
   });
@@ -334,6 +336,25 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                     </Select>
                   </FormControl>
                   <FormMessage>{errors.visibility?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="times"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>No of times can be applied</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      disabled={loading}
+                      placeholder="Enter No of times can be applied"
+                      onChange={(e) => field.onChange(e.target.value)}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
