@@ -24,8 +24,10 @@ interface CouponFormProps {
 
 const couponFormSchema = z.object({
   code: z.string().min(1, 'Coupon Code is required'),
+  couponsName: z.string().min(1, 'Coupon Name is required'),
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
-  couponType: z.enum(['global', 'subscription','freeDelivery']),
+  couponType: z.enum(['global', 'subscription','freeDelivery','seasonSpecial']),
+  validityType: z.enum(['dateRange', 'noRange']),
   discountType: z.enum(['price', 'percentage']),
   visibility: z.enum(['Admin', 'Public','Private']),
   subscriptionType: z.array(z.object({
@@ -66,6 +68,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       visibility: initialData?.visibility || 'Admin',
       couponType: initialData?.couponType || 'global',
       discountType: initialData?.discountType || 'price',
+      validityType: initialData?.validityType || 'dateRange',
       subscriptionType: initialData?.subscriptionType || [],
       startDate: initialData?.startDate ? new Date(initialData.startDate) : undefined,
       endDate: initialData?.endDate ? new Date(initialData.endDate) : undefined,
@@ -79,6 +82,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
 
   const selectedCouponType = watch('couponType');
   const selectedDiscountType = watch('discountType');
+  const selectedValidityType = watch('validityType');
   const selectedSubscriptionType = watch('subscriptionType');
   const discountPrice = watch('discountPrice');
 
@@ -156,6 +160,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         <SelectItem value="global">Global</SelectItem>
                         <SelectItem value="subscription">Subscription</SelectItem>
                         <SelectItem value="freeDelivery">Free Delivery</SelectItem>
+                        <SelectItem value="seasonSpecial">Season Special</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -166,6 +171,22 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
 
             
 
+          {selectedCouponType==="seasonSpecial"  &&  <FormField
+              control={form.control}
+              name="couponsName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coupon Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Coupon Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.couponsName?.message}</FormMessage>
+                </FormItem>
+              )}
+            />}
             <FormField
               control={form.control}
               name="code"
@@ -247,6 +268,31 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
             </>
             }
 
+
+
+
+{<FormField
+              control={form.control}
+              name="validityType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Validity Type</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Validity Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dateRange">Date Range</SelectItem>
+                        <SelectItem value="noRange">No Range</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.validityType?.message}</FormMessage>
+                </FormItem>
+              )}
+            />}
+
             <FormField
               control={form.control}
               name="startDate"
@@ -282,7 +328,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
-            <FormField
+      {selectedValidityType==="dateRange" &&      <FormField
               control={form.control}
               name="endDate"
               render={({ field }) => (
@@ -315,7 +361,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                   <FormMessage>{errors.endDate?.message}</FormMessage>
                 </FormItem>
               )}
-            />
+            />}
 
             <FormField
               control={form.control}
