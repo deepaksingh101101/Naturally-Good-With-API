@@ -331,7 +331,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                       <SelectContent>
                         <SelectItem value="Admin">Admin Only</SelectItem>
                         <SelectItem value="Public">Public</SelectItem>
-                        <SelectItem value="Private">Private</SelectItem>
+                        <SelectItem value="Private">User Specific</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
