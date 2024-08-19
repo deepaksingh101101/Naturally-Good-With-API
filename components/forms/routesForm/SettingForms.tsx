@@ -6,15 +6,16 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { v4 as uuidv4 } from 'uuid';
-import { Trash2Icon } from 'lucide-react';
+import { Trash2Icon, EditIcon } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import Select from 'react-select';
-import { Switch } from '@/components/ui/switch'; // Assuming you have a Switch component for toggling
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
 
 const initialData = [
   { id: uuidv4(), city: 'City A', routes: [{ name: 'Route 1', taggedEmployee: "Deepak Singh", zipCodes: ['10001', '10002'], isActive: true }] },
-  { id: uuidv4(), city: 'City B', routes: [{ name: 'Route 4', taggedEmployee: "Kartik Singh", zipCodes: ['20001', '20002'], isActive: false }] },
-  { id: uuidv4(), city: 'City C', routes: [{ name: 'Route 7', taggedEmployee: "Arya Singh", zipCodes: ['30001', '30002'], isActive: true }] },
+  { id: uuidv4(), city: 'City B', routes: [{ name: 'Route 4', taggedEmployee: "Kartik Singh", zipCodes: ['20001', '20002'], isActive: true }] },
+  { id: uuidv4(), city: 'City C', routes: [{ name: 'Route 7', taggedEmployee: "Arya Singh", zipCodes: ['30001', '30002'], isActive: false }] },
 ];
 
 const employees = [
@@ -29,6 +30,10 @@ export const RoutesForm: React.FC = () => {
   const [newCity, setNewCity] = useState('');
   const [newRoutes, setNewRoutes] = useState<{ [key: string]: { name: string; taggedEmployee: string } }>({});
   const [newZipCodes, setNewZipCodes] = useState<{ [key: string]: string }>({});
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState<{ cityId: string; routeName: string } | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [editedRouteName, setEditedRouteName] = useState('');
 
   const handleAddCity = () => {
     if (newCity.trim()) {
@@ -67,6 +72,25 @@ export const RoutesForm: React.FC = () => {
     }
   };
 
+  const handleEmployeeChange = (cityId: string, routeName: string, selectedOption: any) => {
+    const selectedEmployee = selectedOption ? selectedOption.label.split(' - ')[0] : '';
+    setData(prevData =>
+      prevData.map(city =>
+        city.id === cityId
+          ? {
+              ...city,
+              routes: city.routes.map(route =>
+                route.name === routeName
+                  ? { ...route, taggedEmployee: selectedEmployee }
+                  : route
+              ),
+            }
+          : city
+      )
+    );
+  };
+  
+
   const handleDeleteCity = (cityId: string) => {
     setData(data.filter(city => city.id !== cityId));
   };
@@ -94,17 +118,6 @@ export const RoutesForm: React.FC = () => {
     ));
   };
 
-  const handleEmployeeChange = (cityId: string, routeName: string, selectedOption: any) => {
-    const selectedEmployee = selectedOption ? selectedOption.label.split(' - ')[0] : '';
-    setNewRoutes(prevRoutes => ({
-      ...prevRoutes,
-      [cityId]: {
-        ...prevRoutes[cityId],
-        taggedEmployee: selectedEmployee
-      }
-    }));
-  };
-
   const handleToggleRoute = (cityId: string, routeName: string) => {
     setData(data.map(city =>
       city.id === cityId
@@ -118,6 +131,33 @@ export const RoutesForm: React.FC = () => {
         }
         : city
     ));
+  };
+
+  const openEditModal = (cityId: string, routeName: string) => {
+    const city = data.find(city => city.id === cityId);
+    const route = city?.routes.find(route => route.name === routeName);
+    setSelectedRoute({ cityId, routeName });
+    setSelectedEmployee(employees.find(emp => emp.label.includes(route?.taggedEmployee || '')));
+    setEditedRouteName(route?.name || '');
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEditedEmployee = () => {
+    if (selectedRoute && selectedEmployee) {
+      setData(data.map(city =>
+        city.id === selectedRoute.cityId
+          ? {
+            ...city,
+            routes: city.routes.map(route =>
+              route.name === selectedRoute.routeName
+                ? { ...route, name: editedRouteName, taggedEmployee: selectedEmployee.label.split(' - ')[0] }
+                : route
+            ),
+          }
+          : city
+      ));
+      setEditModalOpen(false);
+    }
   };
 
   return (
@@ -142,9 +182,9 @@ export const RoutesForm: React.FC = () => {
         <Accordion type="single" collapsible>
           {data.map((city) => (
             <AccordionItem key={city.id} value={city.id}>
-              <AccordionTrigger className='bg-green-600 px-3  rounded-t-md mt-3' >
+              <AccordionTrigger className='bg-green-600 px-3 rounded-t-md mt-3'>
                 <div className="flex w-full justify-between items-center">
-                  <span className='text-white' >{city.city}</span>
+                  <span className='text-white'>{city.city}</span>
                   <Button variant="destructive" size="sm" onClick={() => handleDeleteCity(city.id)}>Delete City</Button>
                 </div>
               </AccordionTrigger>
@@ -153,28 +193,26 @@ export const RoutesForm: React.FC = () => {
                   <div style={{border:"1px solid green"}} key={route.name} className="p-3">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-semibold">{route.name} (Driver: {route.taggedEmployee})</h4>
-                      <div className="flex items-center">
-                        <Switch
-                          checked={route.isActive}
-                          onCheckedChange={() => handleToggleRoute(city.id, route.name)}
-                        />
-                        <span className="ml-2">{route.isActive ? 'Active' : 'Inactive'}</span>
-                        <Trash2Icon className='text-red-500 cursor-pointer ml-4' onClick={() => handleDeleteRoute(city.id, route.name)} />
+                      <div className="flex items-center space-x-2">
+                        <Switch checked={route.isActive} onCheckedChange={() => handleToggleRoute(city.id, route.name)} />
+                        <span>{route.isActive ? 'Active' : 'Inactive'}</span>
+                        <EditIcon className='text-blue-500 cursor-pointer' onClick={() => openEditModal(city.id, route.name)} />
+                        <Trash2Icon className='text-red-500 cursor-pointer' onClick={() => handleDeleteRoute(city.id, route.name)} />
                       </div>
                     </div>
                     <table className="min-w-full bg-white border rounded-md">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th className="px-4 py-2 border text-left">Zip Code</th>
-                          <th className="px-4 py-2 border text-left">Actions</th>
+                          <th className="px-4 py-2 border text-left">Zip Codes</th>
+                          {/* <th className="px-4 py-2 border"></th> */}
                         </tr>
                       </thead>
                       <tbody>
                         {route.zipCodes.map(zipCode => (
-                          <tr key={zipCode} className="border-b">
+                          <tr key={zipCode}>
                             <td className="px-4 py-2 border">{zipCode}</td>
-                            <td className="px-4 py-2 border">
-                              <Trash2Icon className='text-red-500 cursor-pointer' onClick={() => handleDeleteZipCode(city.id, route.name, zipCode)} />
+                            <td className="px-4 py-2 border text-right">
+                              <Button variant="destructive" size="sm" onClick={() => handleDeleteZipCode(city.id, route.name, zipCode)}>Delete</Button>
                             </td>
                           </tr>
                         ))}
@@ -183,41 +221,72 @@ export const RoutesForm: React.FC = () => {
                             <Input
                               value={newZipCodes[route.name] || ''}
                               onChange={(e) => setNewZipCodes({ ...newZipCodes, [route.name]: e.target.value })}
-                              placeholder={`Add zip code to ${route.name}`}
-                              className="mr-2"
+                              placeholder="Add new zip code"
+                              className="w-full"
                             />
                           </td>
-                          <td className="px-4 py-2 border">
-                            <Button onClick={() => handleAddZipCode(city.id, route.name)} disabled={!newZipCodes[route.name]}>Add Zip Code</Button>
+                          <td className="px-4 py-2 border text-right">
+                            <Button onClick={() => handleAddZipCode(city.id, route.name)}>Add Zip Code</Button>
                           </td>
                         </tr>
                       </tbody>
                     </table>
                   </div>
                 ))}
-                <div style={{border:"1px solid green"}} className="flex p-3 flex-col space-y-2 mb-4 ">
+                <div style={{border:"1px solid green"}} className="mb-4 flex justify-between flex-col px-3">
                   <Input
                     value={newRoutes[city.id]?.name || ''}
                     onChange={(e) => setNewRoutes({ ...newRoutes, [city.id]: { ...newRoutes[city.id], name: e.target.value } })}
-                    placeholder={`Add new route to ${city.city}`}
-                    className="mr-2"
+                    placeholder="Add new route"
+                    className="mr-2 w-full my-1"
                   />
-         <Select
-  options={employees}
-  getOptionLabel={(option) => `${option.label}`}
-  getOptionValue={(option) => option.value}
-  onChange={(selected) => handleEmployeeChange(city.id, newRoutes[city.id]?.name || '', selected)}
-  placeholder="Tag a driver (search by name or phone)"
-  className="mr-2"
-/>
-
-<Button className='min-w-32' onClick={() => handleAddRoute(city.id)} disabled={!newRoutes[city.id]?.name || !newRoutes[city.id]?.taggedEmployee}>Add Route</Button>
-   </div>
+                  <Select
+                    value={employees.find(emp => emp.value === newRoutes[city.id]?.taggedEmployee)}
+                    onChange={(selectedOption) => setNewRoutes({ ...newRoutes, [city.id]: { ...newRoutes[city.id], taggedEmployee: selectedOption?.value || '' } })}
+                    options={employees}
+                    placeholder="Select Employee"
+                    isClearable
+                    className="mr-2 w-full my-1"
+                  />
+                  <Button className='w-full my-1'  onClick={() => handleAddRoute(city.id)}>Add Route</Button>
+                </div>
               </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
       </div>
+
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="max-w-lg min-h-80">
+          <DialogHeader>
+            <DialogTitle>Edit Employee</DialogTitle>
+            <DialogDescription>
+              Modify the employee assignment and route name.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <Input
+              value={editedRouteName}
+              onChange={(e) => setEditedRouteName(e.target.value)}
+              placeholder="Edit route name"
+              className="mr-2"
+            />
+            <Select
+              value={selectedEmployee}
+              onChange={(selectedOption) => setSelectedEmployee(selectedOption)}
+              options={employees}
+              placeholder="Select Employee"
+              isClearable
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setEditModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveEditedEmployee}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
+
+export default RoutesForm;
