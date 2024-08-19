@@ -90,7 +90,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Eye className="mr-2 h-4 w-4" /> View Order Details
           </DropdownMenuItem>
           <DropdownMenuItem onClick={hanldeResheduleAndSkips}>
-            <UserCheck className="mr-2 h-4 w-4" /> Reschedule and Skips
+            <UserCheck className="mr-2 h-4 w-4" /> Skips This delivery
           </DropdownMenuItem>
           {/* <DropdownMenuItem onClick={generatePackingList}>
             <UserCheck className="mr-2 h-4 w-4" /> Generate Packing List
