@@ -38,9 +38,11 @@ const notificationFormSchema = z.object({
   heading: z.string().min(1, 'Heading is required'),
   description: z.string().min(1, 'Description is required'),
   type: z.string().min(1, 'Type is required'),
+  noOfTimes: z.number().min(1, 'Number of Times is required'),
   scheduleTime: z.string().optional(),
   scheduleType: z.string().min(1, 'Schedule type is required'),
   notificationType: z.string().min(1, 'Notification type is required'),
+  autoMaticType: z.string().min(1, 'AutoMaticType type is required'),
   frequency: z.string().optional(),
   customers: z.array(z.object({
     label: z.string(),
@@ -95,7 +97,9 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
       scheduleTime: '',
       scheduleType: '',
       notificationType: 'Manual',
+      autoMaticType: 'fixedType',
       frequency: '',
+      noOfTimes: 0,
       customers: [],
       startDate:new Date(),
       endDate:new Date()
@@ -108,6 +112,8 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
   const [scheduledData, setScheduledData] = useState<{ scheduleDate: string; scheduleTime: string }[]>([{ scheduleDate: "", scheduleTime: "" }]);
 
   // const notificationType = watch('notificationType');
+  const selectedAutoMaticType = watch('autoMaticType');
+  const selectedNoOfTimes = watch('noOfTimes');
 
   const scheduleType = useWatch({
     control,
@@ -390,9 +396,59 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                   </FormItem>
                 )}
               />
+              
               {notificationType === 'Automatic' && (
                 <>
-                
+                <FormField
+                control={form.control}
+                name="autoMaticType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Automatic Type</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        isSearchable
+                        options={[
+                          { value: 'fixedType', label: 'Fixed Type' },
+                          { value: 'infiniteType', label: 'Infinite Type' },
+                          { value: 'rangeType', label: 'Range Type' },
+                        ]}
+                        getOptionLabel={(option) => option.label}
+                        getOptionValue={(option) => option.value}
+                        isDisabled={loading}
+                        onChange={(selected) => {
+                          field.onChange(selected ? selected.value : '');
+                        }}
+                        value={[
+                          { value: 'fixedType', label: 'Fixed Type' },
+                          { value: 'infiniteType', label: 'Infinite Type' },
+                          { value: 'rangeType', label: 'Range Type' },
+                        ].find(option => option.value === field.value)}
+                      />
+                    </FormControl>
+                    <FormMessage>{renderErrorMessage(errors.autoMaticType)}</FormMessage>
+                  </FormItem>
+                )}
+              />   
+          {selectedAutoMaticType==="fixedType" &&   <FormField
+              control={form.control}
+              name="noOfTimes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number Of Times</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter Number Of Times"
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />}
                   <FormField
                     control={control}
                     name="frequency"
