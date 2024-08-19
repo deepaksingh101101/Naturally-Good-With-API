@@ -9,11 +9,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Trash2Icon } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import Select from 'react-select';
+import { Switch } from '@/components/ui/switch'; // Assuming you have a Switch component for toggling
 
 const initialData = [
-  { id: uuidv4(), city: 'City A', routes: [{ name: 'Route 1', taggedEmployee: "Deepak Singh", zipCodes: ['10001', '10002'] }] },
-  { id: uuidv4(), city: 'City B', routes: [{ name: 'Route 4', taggedEmployee: "Kartik Singh", zipCodes: ['20001', '20002'] }] },
-  { id: uuidv4(), city: 'City C', routes: [{ name: 'Route 7', taggedEmployee: "Arya Singh", zipCodes: ['30001', '30002'] }] },
+  { id: uuidv4(), city: 'City A', routes: [{ name: 'Route 1', taggedEmployee: "Deepak Singh", zipCodes: ['10001', '10002'], isActive: true }] },
+  { id: uuidv4(), city: 'City B', routes: [{ name: 'Route 4', taggedEmployee: "Kartik Singh", zipCodes: ['20001', '20002'], isActive: false }] },
+  { id: uuidv4(), city: 'City C', routes: [{ name: 'Route 7', taggedEmployee: "Arya Singh", zipCodes: ['30001', '30002'], isActive: true }] },
 ];
 
 const employees = [
@@ -22,7 +23,6 @@ const employees = [
   { value: 'arya-singh', label: 'Arya Singh - 1122334455', phoneNumber: '1122334455' }
   // Add more employees as needed
 ];
-
 
 export const RoutesForm: React.FC = () => {
   const [data, setData] = useState(initialData);
@@ -42,14 +42,12 @@ export const RoutesForm: React.FC = () => {
     if (name?.trim() && taggedEmployee?.trim()) {
       setData(data.map(city =>
         city.id === cityId
-          ? { ...city, routes: [...city.routes, { name: name.trim(), taggedEmployee: taggedEmployee.trim(), zipCodes: [] }] }
+          ? { ...city, routes: [...city.routes, { name: name.trim(), taggedEmployee: taggedEmployee.trim(), zipCodes: [], isActive: true }] }
           : city
       ));
-      // Clear the newRoutes fields for this city
       setNewRoutes({ ...newRoutes, [cityId]: { name: '', taggedEmployee: '' } });
     }
   };
-  
 
   const handleAddZipCode = (cityId: string, routeName: string) => {
     if (newZipCodes[routeName]?.trim()) {
@@ -106,8 +104,21 @@ export const RoutesForm: React.FC = () => {
       }
     }));
   };
-  
-  
+
+  const handleToggleRoute = (cityId: string, routeName: string) => {
+    setData(data.map(city =>
+      city.id === cityId
+        ? {
+          ...city,
+          routes: city.routes.map(route =>
+            route.name === routeName
+              ? { ...route, isActive: !route.isActive }
+              : route
+          ),
+        }
+        : city
+    ));
+  };
 
   return (
     <>
@@ -139,10 +150,17 @@ export const RoutesForm: React.FC = () => {
               </AccordionTrigger>
               <AccordionContent>
                 {city.routes.map(route => (
-                  <div style={{border:"1px solid green"}} key={route.name} className=" p-3">
+                  <div style={{border:"1px solid green"}} key={route.name} className="p-3">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-semibold">{route.name} (Driver: {route.taggedEmployee})</h4>
-                      <Trash2Icon className='text-red-500 cursor-pointer' onClick={() => handleDeleteRoute(city.id, route.name)} />
+                      <div className="flex items-center">
+                        <Switch
+                          checked={route.isActive}
+                          onCheckedChange={() => handleToggleRoute(city.id, route.name)}
+                        />
+                        <span className="ml-2">{route.isActive ? 'Active' : 'Inactive'}</span>
+                        <Trash2Icon className='text-red-500 cursor-pointer ml-4' onClick={() => handleDeleteRoute(city.id, route.name)} />
+                      </div>
                     </div>
                     <table className="min-w-full bg-white border rounded-md">
                       <thead className="bg-gray-100">
