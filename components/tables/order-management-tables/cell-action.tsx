@@ -48,6 +48,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const hanldeResheduleAndSkips = () => {
     router.push(`/subscription-management/toggleDeliveryDays/${data.orderId}`); 
   };
+  const handleCancelation = () => {
+    router.push(`/cancelOrder/order/101`); 
+  };
   const generatePackingList = () => {
     router.push(`/subscription-management/manageCustomizationOption/${data.orderId}`); 
   };
@@ -98,7 +101,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem onClick={assignDeliveryRoutes}>
             <UserCheck className="mr-2 h-4 w-4" /> Assign Employee
           </DropdownMenuItem>
-         
+          <DropdownMenuItem onClick={handleCancelation}>
+            <UserCheck className="mr-2 h-4 w-4" /> Cancelation and Refund
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
