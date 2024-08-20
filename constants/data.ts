@@ -163,6 +163,12 @@ export const navItems: NavItem[] = [
     label: 'create-Coupons'
   },
   {
+    title: 'Referral Management',
+    href: '/referral',
+    icon: 'order',
+    label: 'create-Referral'
+  },
+  {
     title: 'Routes Management',
     href: '/routes-management',
     icon: 'order',

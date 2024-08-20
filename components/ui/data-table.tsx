@@ -81,7 +81,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex justify-end">
+     {filters &&  <div className="flex justify-end">
         <Input
           value={filterInput}
           onChange={handleSearchChange}
@@ -109,9 +109,9 @@ export function DataTable<TData, TValue>({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-      </div>
+      </div>}
 
-      <ScrollArea className="rounded-md border min-h-[70vh]">
+      <ScrollArea className="rounded-md border">
         <UiTable className="relative">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
