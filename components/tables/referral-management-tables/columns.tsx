@@ -35,7 +35,7 @@ export const columns: ColumnDef<ReferralManagement>[] = [
   },
   {
     accessorKey: 'discountPercentage',
-    header: 'Discount Percentage',
+    header: 'Discount',
     cell: ({ row }) => (
       <div className="flex justify-center">
         <span className='text-center' >{row.original.discountPercentage} %</span>
@@ -43,17 +43,10 @@ export const columns: ColumnDef<ReferralManagement>[] = [
     )
   },
   {
-    accessorKey: 'startDate',
-    header: 'Start Date',
+    accessorKey: 'validity',
+    header: 'Validity',
     cell: ({ row }) => (
-      <span>{row.getValue<Date>('startDate').toLocaleDateString()}</span>
-    )
-  },
-  {
-    accessorKey: 'endDate',
-    header: 'End Date',
-    cell: ({ row }) => (
-      <span>{row.getValue<Date>('endDate').toLocaleDateString()}</span>
+      <span>{row.original.validity} Month</span>
     )
   },
   {

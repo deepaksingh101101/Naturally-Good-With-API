@@ -61,20 +61,20 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-          <DropdownMenuItem onClick={handleCreateNewReferral}>
+          {/* <DropdownMenuItem onClick={handleCreateNewReferral}>
             <UserPlus className="mr-2 h-4 w-4" /> Create New Referral
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={editReferral}>
-            <Edit className="mr-2 h-4 w-4" /> Edit Referral
+            <Edit className="mr-2 h-4 w-4" /> Edit Coupon
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={viewReferral}>
+          {/* <DropdownMenuItem onClick={viewReferral}>
             <Eye className="mr-2 h-4 w-4" /> View Referral
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={updateReferralStatus}>
-            <UserCheck className="mr-2 h-4 w-4" /> Update Referral Status
+            <UserCheck className="mr-2 h-4 w-4" /> Toggle Status
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="mr-2 h-4 w-4" /> Delete
+            <Trash className="mr-2 h-4 w-4" /> Delete Coupon
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

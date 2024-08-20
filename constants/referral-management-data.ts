@@ -2,8 +2,9 @@
 export interface ReferralManagement {
   id: number;
   discountPercentage: number; // Assuming discount is in percentage
-  startDate: Date;
-  endDate: Date;
+  // startDate: Date;
+  // endDate: Date;
+  validity:number;
   status: 'Active' | 'Inactive';
   assignedTo: 'Referred By' | 'Referred To';
 }
@@ -13,16 +14,14 @@ export const ReferralManagementData: ReferralManagement[] = [
   {
     id: 1,
     discountPercentage: 15,
-    startDate: new Date('2024-06-01'),
-    endDate: new Date('2024-08-31'),
+    validity:1,
     status: 'Active',
     assignedTo:"Referred By"
   },
   {
     id: 2,
     discountPercentage: 10,
-    startDate: new Date('2024-12-01'),
-    endDate: new Date('2024-12-31'),
+    validity:2,
     status: 'Inactive',
     assignedTo:"Referred To"
   }
