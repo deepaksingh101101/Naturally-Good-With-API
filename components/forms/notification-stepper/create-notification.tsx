@@ -117,11 +117,12 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
 
 
 
-  const frequency = useWatch({
+  const frequency:any = useWatch({
     control,
     name: 'frequency',
   });
-
+  const selectedFrequency = watch('frequency');
+console.log(selectedFrequency)
   useEffect(() => {
     if (frequency) {
       const selectedFrequency = frequencies.find(f => f.value === frequency);
@@ -288,57 +289,69 @@ useEffect(() => {
       </Dialog>
 
       <Dialog open={frequencyModalOpen} onOpenChange={setFrequencyModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Frequencies</DialogTitle>
-            <DialogDescription>Add or remove frequencies.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Input
-                placeholder="Frequency Name"
-                value={newFrequency.name}
-                onChange={(e) => setNewFrequency({ ...newFrequency, name: e.target.value })}
-              />
-      <Input
-  type="number"
-  placeholder="Day Basis in number"
-  value={newFrequency.dayBasis !== 0 ? newFrequency.dayBasis : ''} // Allow the input to show an empty string if the value is 0
-  onChange={(e) =>
-    setNewFrequency({
-      ...newFrequency,
-      dayBasis: e.target.value === '' ? 0 : Number(e.target.value), // Set to 0 if the input is empty
-    })
-  }
-/>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Manage Frequencies</DialogTitle>
+      <DialogDescription>Add or remove frequencies.</DialogDescription>
+    </DialogHeader>
+    <div className="space-y-4">
+      <div className="flex justify-between">
+        <div className="flex flex-col flex-2">
+          <label htmlFor="frequencyName" className="mb-1 text-xs">Frequency Name</label>
+          <Input
+            id="frequencyName"
+            placeholder="Frequency Name"
+            value={newFrequency.name}
+            onChange={(e) => setNewFrequency({ ...newFrequency, name: e.target.value })}
+          />
+        </div>
 
+        <div className="flex flex-col ml-2 flex-1">
+          <label htmlFor="dayBasis" className="mb-1 text-xs">Day Basis</label>
+          <Input
+            id="dayBasis"
+            type="number"
+            placeholder="Day Basis in number"
+            value={newFrequency.dayBasis !== 0 ? newFrequency.dayBasis : ''} // Allow the input to show an empty string if the value is 0
+            onChange={(e) =>
+              setNewFrequency({
+                ...newFrequency,
+                dayBasis: e.target.value === '' ? 0 : Number(e.target.value), // Set to 0 if the input is empty
+              })
+            }
+          />
+        </div>
 
-              <Input
-                type="number"
-                placeholder="Frequency Number"
-                value={newFrequency.number}
-                onChange={(e) => setNewFrequency({ ...newFrequency, number: parseInt(e.target.value) })}
-                className="ml-2"
-              />
-              
-              <Button className='ms-3' onClick={addFrequency}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {frequencies.map((frequency) => (
-                <div key={frequency.value} className="flex justify-between items-center">
-                  <span>{frequency.label} - {frequency.number} Times</span>
-                  <Button variant="destructive" onClick={() => deleteFrequency(frequency.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
+        <div className="flex flex-col ml-2 flex-1 ">
+          <label htmlFor="frequencyNumber" className="mb-1 text-xs">Count</label>
+          <Input
+            id="frequencyNumber"
+            type="number"
+            placeholder="Frequency Number"
+            value={newFrequency.number}
+            onChange={(e) => setNewFrequency({ ...newFrequency, number: parseInt(e.target.value) })}
+          />
+        </div>
+        
+        <Button className="ml-3 mt-6" onClick={addFrequency}>Add</Button>
+      </div>
+      <div className="space-y-2">
+        {frequencies.map((frequency) => (
+          <div key={frequency.value} className="flex justify-between items-center">
+            <span>{frequency.label} - {frequency.number} Times</span>
+            <Button variant="destructive" onClick={() => deleteFrequency(frequency.value)}>
+              Delete
+            </Button>
           </div>
-          {/* <DialogFooter>
-            <Button onClick={() => setFrequencyModalOpen(false)}>Close</Button>
-          </DialogFooter> */}
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+    </div>
+    {/* <DialogFooter>
+      <Button onClick={() => setFrequencyModalOpen(false)}>Close</Button>
+    </DialogFooter> */}
+  </DialogContent>
+</Dialog>
+
 
       <div className="container mx-auto p-4">
         <Heading title={initialData ? 'Edit Notification' : 'Create Notification'} description="Fill in the details below" />
@@ -675,9 +688,9 @@ useEffect(() => {
                <thead>
                   <tr>
                     
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   {(frequency?.dayBasis!=1) && <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                      Schedule Date
-                    </th>
+                    </th>}
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                      Schedule Time
                     </th>
@@ -686,7 +699,7 @@ useEffect(() => {
                 <tbody className="bg-white divide-y divide-gray-200">
                 {scheduledData.map((item, index) => (
         <tr key={index} >
-          <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
+        {(frequency?.dayBasis!=1) &&  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
            <FormField
   control={form.control}
   name="endDate"
@@ -722,7 +735,7 @@ useEffect(() => {
     </FormItem>
   )}
 />
-</td>
+</td>}
 
 <td  className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
 <Popover>
