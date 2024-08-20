@@ -60,6 +60,7 @@ const productFormSchema = z.object({
   veggieNameInHindi: z.string().min(1, 'Veggie Name in Hindi is required'),
   unitQuantity: z.number().positive('Unit Quantity must be greater than zero'),
   pieces: z.number().positive('Pieces must be greater than zero'),
+  buffer: z.number().positive('Buffer Percentage must be greater than zero'),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -686,6 +687,26 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                     </Select>
                   </FormControl>
                   <FormMessage>{errors.available?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+<FormField
+              control={form.control}
+              name="buffer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Buffer Percentage</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter Buffer Units "
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

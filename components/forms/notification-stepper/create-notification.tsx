@@ -69,17 +69,12 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
   const [loading, setLoading] = useState(false);
   const [notificationType, setNotificationType] = useState(initialData?.notificationType || 'Manual');
   const [frequencyModalOpen, setFrequencyModalOpen] = useState(false);
-  type FrequencyOption = { value: string; label: string; number: number };
-  const [frequencies, setFrequencies] = useState<FrequencyOption[]>([
-    { value: 'one-time', label: 'One Time', number: 1 },
-    { value: 'daily', label: 'Daily', number: 1 },
-    { value: 'daily-2', label: 'Daily 2', number: 2 },
-    { value: 'daily-3', label: 'Daily 3', number: 3 },
+  type FrequencyOption = { value: string; label: string; number: number,dayBasis:number };
 
-  ]);
+  
 
 
-  const [newFrequency, setNewFrequency] = useState({ name: '', number: 1 });
+  const [newFrequency, setNewFrequency] = useState({ name: '', number: 1, dayBasis: 1});
 
   const [customers, setCustomers] = useState<CustomerOption[]>([
     { value: '1', label: 'John Doe', phone: '1234567890' },
@@ -108,7 +103,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
 
   const { control, handleSubmit, setValue,watch, formState: { errors } } = form;
   
-  const [frequencyNumber, setFrequencyNumber] = useState<number>(1);
+  const [frequencyNumber, setFrequencyNumber] = useState<any>(undefined);
   const [scheduledData, setScheduledData] = useState<{ scheduleDate: string; scheduleTime: string }[]>([{ scheduleDate: "", scheduleTime: "" }]);
 
   // const notificationType = watch('notificationType');
@@ -134,12 +129,21 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
         setFrequencyNumber(selectedFrequency.number);
       }
     }
-  }, [frequency]);
+    setValue('noOfTimes',0)
+    setValue('frequency', undefined);
+    setScheduledData([]);
 
-  useEffect(() => {
-    const newScheduledData = Array.from({ length: frequencyNumber }, () => ({ scheduleDate: "", scheduleTime: "" }));
-    setScheduledData(newScheduledData);
-  }, [frequencyNumber]);
+  }, [frequency,selectedAutoMaticType]);
+
+// ...
+
+useEffect(() => {
+  const length = selectedNoOfTimes ||  frequencyNumber || 0;
+  const newScheduledData = Array.from({ length }, () => ({ scheduleDate: "", scheduleTime: "" }));
+  setScheduledData(newScheduledData);
+}, [selectedNoOfTimes, selectedAutoMaticType, frequencyNumber]);
+
+// ...
 
 
   const onSubmit: SubmitHandler<NotificationFormInputs> = async (data) => {
@@ -200,13 +204,48 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
   const deleteType = (typeToDelete: string) => {
     setTypes(types.filter(t => t.value !== typeToDelete));
   };
-
+  
+  // const newValue = `${newFrequency.name.toLowerCase()}-${newFrequency.dayBasis}-${newFrequency.number}`;
+  const [frequencies, setFrequencies] = useState<FrequencyOption[]>([
+    { value: 'daily', label: 'Daily', number: 1, dayBasis: 1 },
+    { value: 'weekly', label: 'Weekly', number: 3, dayBasis: 7 },
+  ]);
+  
   const addFrequency = () => {
     if (newFrequency.name.trim()) {
-      setFrequencies([...frequencies, { value: newFrequency.name.toLowerCase(), label: newFrequency.name, number: newFrequency.number }]);
-      setNewFrequency({ name: '', number: 1 });
+      const newValue = {
+        value: newFrequency.name.toLowerCase(),
+        label: newFrequency.name,
+        number: newFrequency.number,
+        dayBasis: newFrequency.dayBasis,
+      };
+  
+      // Check if a frequency with the same name, number, and dayBasis already exists
+      const existingIndex = frequencies.findIndex(
+        (f) =>
+          f.value === newValue.value &&
+          f.number === newValue.number &&
+          f.dayBasis === newValue.dayBasis
+      );
+  
+      if (existingIndex !== -1) {
+        const updatedFrequencies = [...frequencies];
+        updatedFrequencies[existingIndex] = newValue;
+        setFrequencies(updatedFrequencies);
+      } else {
+        setFrequencies([...frequencies, newValue]);
+      }
+      
+  
+      setNewFrequency({ name: '', number: 1, dayBasis: 1 });
     }
   };
+  
+  
+  
+  
+  
+  
 
   const deleteFrequency = (frequencyToDelete: string) => {
     setFrequencies(frequencies.filter(f => f.value !== frequencyToDelete));
@@ -261,6 +300,19 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                 value={newFrequency.name}
                 onChange={(e) => setNewFrequency({ ...newFrequency, name: e.target.value })}
               />
+      <Input
+  type="number"
+  placeholder="Day Basis in number"
+  value={newFrequency.dayBasis !== 0 ? newFrequency.dayBasis : ''} // Allow the input to show an empty string if the value is 0
+  onChange={(e) =>
+    setNewFrequency({
+      ...newFrequency,
+      dayBasis: e.target.value === '' ? 0 : Number(e.target.value), // Set to 0 if the input is empty
+    })
+  }
+/>
+
+
               <Input
                 type="number"
                 placeholder="Frequency Number"
@@ -274,7 +326,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
             <div className="space-y-2">
               {frequencies.map((frequency) => (
                 <div key={frequency.value} className="flex justify-between items-center">
-                  <span>{frequency.label} - {frequency.number}</span>
+                  <span>{frequency.label} - {frequency.number} Times</span>
                   <Button variant="destructive" onClick={() => deleteFrequency(frequency.value)}>
                     Delete
                   </Button>
@@ -282,9 +334,9 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
               ))}
             </div>
           </div>
-          <DialogFooter>
+          {/* <DialogFooter>
             <Button onClick={() => setFrequencyModalOpen(false)}>Close</Button>
-          </DialogFooter>
+          </DialogFooter> */}
         </DialogContent>
       </Dialog>
 
@@ -449,29 +501,41 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                 </FormItem>
               )}
             />}
-                  <FormField
-                    control={control}
-                    name="frequency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center">
-                          <FormLabel>Frequency</FormLabel>
-                          <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setFrequencyModalOpen(true)} />
-                        </div>
-                        <FormControl>
-                        <ReactSelect
-        options={frequencies}
-        getOptionLabel={(option) => `${option.label} - ${option.number}`}
-        getOptionValue={(option) => option.value}
-        onChange={(selected: SingleValue<FrequencyOption>) => {
-          if (selected) setValue('frequency', selected.value);
-        }}
-      />
-                        </FormControl>
-                        <FormMessage>{renderErrorMessage(errors.frequency)}</FormMessage>
-                      </FormItem>
-                    )}
-                  />
+            {(selectedAutoMaticType === "rangeType" || selectedAutoMaticType === "infiniteType") && (
+ <FormField
+ control={control}
+ name="frequency"
+ render={({ field }) => (
+   <FormItem>
+     <div className="flex items-center">
+       <FormLabel>Select Frequency</FormLabel>
+       <Edit
+         className="text-red-500 ms-1"
+         height={15}
+         width={15}
+         onClick={() => setFrequencyModalOpen(true)}
+       />
+     </div>
+     <FormControl>
+     <ReactSelect
+  options={frequencies}
+  getOptionLabel={(option) => `${option.label} - ${option.number} Times`}
+  getOptionValue={(option) => option.value}
+  value={frequencies.find(frequency => frequency.value === field.value)}  // Ensures the correct value is displayed
+  onChange={(selected: SingleValue<FrequencyOption>) => {
+    if (selected) setValue('frequency', selected.value);
+  }}
+  isClearable={true}  // Allows the user to clear the selection
+/>
+
+     </FormControl>
+     <FormMessage>{renderErrorMessage(errors.frequency)}</FormMessage>
+   </FormItem>
+ )}
+/>
+
+)}
+
    {frequency!=="one-time" &&               <>
    <FormField
   control={form.control}
@@ -509,7 +573,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
     </FormItem>
   )}
 />
-   <FormField
+  {selectedAutoMaticType!=="infiniteType" && (<FormField
   control={form.control}
   name="endDate"
   render={({ field }) => (
@@ -544,7 +608,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
       <FormMessage>{renderErrorMessage(errors.endDate)}</FormMessage>
     </FormItem>
   )}
-/>
+/>)}
 </>}
 
 
@@ -607,7 +671,7 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
                 />
               )}
                <div className="mt-8">
-            {scheduledData.length>0 && frequency && (  <table className="min-w-full divide-y divide-gray-200">
+            {(selectedNoOfTimes || frequencyNumber) && (  <table className="min-w-full divide-y divide-gray-200">
                <thead>
                   <tr>
                     
