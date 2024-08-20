@@ -30,12 +30,17 @@ export const columns: ColumnDef<ReferralManagement>[] = [
     header: 'ID'
   },
   {
-    accessorKey: 'couponCode',
-    header: 'Coupon Code'
+    accessorKey: 'assignedTo',
+    header: 'Assigned To'
   },
   {
     accessorKey: 'discountPercentage',
-    header: 'Discount Percentage'
+    header: 'Discount Percentage',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className='text-center' >{row.original.discountPercentage} %</span>
+      </div>
+    )
   },
   {
     accessorKey: 'startDate',

@@ -16,12 +16,7 @@ export const ReferralManagementClient: React.FC = () => {
   const initialData: ReferralManagement[] = ReferralManagementData;
   const [data, setData] = useState<ReferralManagement[]>(initialData);
 
-  const handleSearch = (searchValue: string) => {
-    const filteredData = initialData.filter(item =>
-      item.couponCode.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setData(filteredData);
-  };
+
 
   return (
     <>
@@ -36,7 +31,6 @@ export const ReferralManagementClient: React.FC = () => {
         searchKeys={["couponCode"]}
         columns={columns}
         data={data}
-        onSearch={handleSearch}
       />
     </>
   );
