@@ -165,6 +165,7 @@ export const RoutesForm: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addRouteModalOpen, setAddRouteModalOpen] = useState(false);  // Added for new route modal
   const [addZoneModalOpen, setAddZoneModalOpen] = useState(false);  // Added for new route modal
+  const [addLocalityModalOpen, setAddLocalityModalOpen] = useState(false);  // Added for new route modal
   const [selectedRoute, setSelectedRoute] = useState<{ cityId: string; routeName: string } | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [editedRouteName, setEditedRouteName] = useState('');
@@ -172,6 +173,7 @@ export const RoutesForm: React.FC = () => {
   // States for the Add Route Modal
   const [newRouteName, setNewRouteName] = useState('');
   const [newZoneName, setNewZoneName] = useState('');
+  const [newLocalityName, setNewLocalityName] = useState('');
   const [newTaggedVehicle, setNewTaggedVehicle] = useState('');
   const [newClassification, setNewClassification] = useState('');
 
@@ -238,7 +240,60 @@ const handleAddZone = () => {
   }
 };
 
-  
+const handleLoacalityAdd = () => {
+  if (selectedCity && selectedRoute && newLocalityName.trim()) {
+    const { cityId, routeName } = selectedRoute;
+
+    setData((prevData) => 
+      prevData.map((city) =>
+        city.id === cityId
+          ? {
+              ...city,
+              routes: city.routes.map((route) =>
+                route.name === routeName
+                  ? {
+                      ...route,
+                      zones: route.zones.map((zone) => 
+                        zone.name === selectedZone // Use selectedZone here
+                          ? {
+                              ...zone,
+                              sectorLocality: [
+                                ...zone.sectorLocality,
+                                { name: newLocalityName.trim(), serviced: true },
+                              ],
+                            }
+                          : zone
+                      ),
+                    }
+                  : route
+              ),
+            }
+          : city
+      )
+    );
+
+    setNewLocalityName("");
+    setAddLocalityModalOpen(false);
+  } else {
+    // Handle the case where selectedCity, selectedRoute, or newLocalityName is invalid
+    console.error("Missing information or no selected zone");
+    // You might want to display an error message to the user here
+  }
+};
+const [selectedZone, setSelectedZone] = useState<string | null>(null);
+const openAddLocalityModal = (cityId: string, routeName: string, zoneName: string) => {
+  const city = data.find(city => city.id === cityId);
+  const route = city?.routes.find(route => route.name === routeName);
+  const zone = route?.zones.find(zone => zone.name === zoneName);
+
+  if (zone) {
+    setSelectedCity(cityId);
+    setSelectedRoute({ cityId, routeName });
+    setSelectedZone(zoneName); // Assuming you have a setSelectedZone state
+    setNewLocalityName('');
+    setAddLocalityModalOpen(true);
+  }
+};
 
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   
@@ -555,9 +610,14 @@ const handleAddZone = () => {
                                     
                                   </table>
                                   <td className="p-2 text-center absolute top-0 end-0"> 
-                                          <Button variant="outline" size="sm" className="border-gray-300 bg-green-500 hover:bg-green-600 hover:text-white text-white rounded mr-2">
-                                            Add Locality <Plus className=" ms-2 h-4 w-4" />
-                                          </Button>
+                                  <Button
+    variant="outline"
+    size="sm"
+    className="border-gray-300 bg-green-500 hover:bg-green-600 hover:text-white text-white rounded"
+    onClick={() => openAddLocalityModal(city.id, route.name, zone.name)}
+  >
+    Add Locality <PlusIcon className="ms-2 h-4 w-4" />
+  </Button>
                                           <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white rounded mr-2">
                                             Edit <EditIcon className=" ms-2 h-4 w-4" />
                                           </Button>
@@ -751,8 +811,42 @@ const handleAddZone = () => {
   </DialogContent>
 </Dialog>
 
+
+
+{/* Modal for Locality */}
+<Dialog open={addLocalityModalOpen} onOpenChange={setAddLocalityModalOpen}>
+  <DialogContent className='max-w-lg'>
+    <DialogHeader>
+      <DialogTitle>Add New Locality</DialogTitle>
+      <DialogDescription>
+        Add a new locality to the selected zone.
+      </DialogDescription>
+    </DialogHeader>
+    <div className="grid gap-4">
+    <h3 className="text-lg font-semibold mt-4 mb-2">Add New Locality</h3>
+      <Input
+        value={newLocalityName}
+        onChange={(e) => setNewLocalityName(e.target.value)}
+        placeholder="Society/Locality Name"
+        className="mb-2"
+      />
+      <Button
+        type="button"
+        onClick={()=>handleLoacalityAdd()}
+        className="bg-blue-500 text-white"
+      >
+        Add Locality
+      </Button>
+      
+     
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setAddLocalityModalOpen(false)}>Close</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
     </>
-  );
-};
+    )};
 
 export default RoutesForm;
