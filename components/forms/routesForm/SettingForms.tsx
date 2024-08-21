@@ -38,8 +38,8 @@ const initialData = [
           {
             name: 'New Gurgaon',
             Serviced: true,
-            deliverySequence: 1,
-            deliveryCost: 200,
+            deliverySequence: 2,
+            deliveryCost: 300,
             sortOrder: 1,
             sectorLocality: [
               { name: "Adarsh Nagar", serviced: true },
@@ -49,8 +49,8 @@ const initialData = [
           {
             name: 'Old Gurgaon',
             Serviced: true,
-            deliverySequence: 1,
-            deliveryCost: 200,
+            deliverySequence: 3,
+            deliveryCost: 250,
             sortOrder: 1,
             sectorLocality: [
               { name: "Adarsh Nagar", serviced: true },
@@ -59,7 +59,7 @@ const initialData = [
           }
         ],
         isActive: true,
-        activeDays: ['WED', "SAT"]
+        activeDays: ['Wednesday', "Thursday"]
       }
     ]
   },
@@ -432,7 +432,7 @@ export const RoutesForm: React.FC = () => {
                       {route.activeDays.join(', ')}
                     </td>
                     <td className="p-2 border border-gray-300 flex items-center justify-center space-x-2">
-                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500  text-white rounded" onClick={() => openEditModal(city.id, route.name)}>
+                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500  text-white rounded" >
                         <EditIcon className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" size="sm" className="border-gray-300 bg-red-600  text-white rounded" onClick={() => handleDeleteRoute(city.id, route.name)}>
@@ -470,7 +470,7 @@ export const RoutesForm: React.FC = () => {
     type="number"
     className="mr-2 w-1/4 border-gray-300 rounded"
   />
-   <Button onClick={() => handleAddZone(city.id, route.name)} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+   <Button onClick={() => handleAddZone(city.id, route.name)} className="bg-green-500 text-white px-4 py-2 w-1/4  rounded hover:bg-green-600">
     Add Zone
   </Button>
               </div>
@@ -496,7 +496,7 @@ export const RoutesForm: React.FC = () => {
   <span className={`px-2 py-1 rounded-md ${zone.Serviced ? 'bg-green-500' : 'bg-red-500'}`} >{zone.Serviced ? 'Serviced' : 'Not Serviced'}</span>
 </td>
                       <td className="p-2 border border-gray-300">
-                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600  hover:text-white text-white rounded" onClick={() => openEditModal(city.id, route.name)}>
+                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600  hover:text-white text-white rounded">
                         <EditIcon className="h-4 w-4" />
                       </Button>
                         <Button variant="outline" size="sm" className="border-gray-300 ms-2 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded" onClick={() => handleDeleteZone(city.id, route.name, zone.name)}>
