@@ -378,7 +378,7 @@ export const RoutesForm: React.FC = () => {
   <Accordion type="single" collapsible>
     {data.map((city) => (
       <AccordionItem key={city.id} value={city.id}>
-        <AccordionTrigger className="text-lg font-semibold bg-green-600 my-2 px-2 rounded-t-lg text-white ">
+        <AccordionTrigger className="text-lg font-semibold bg-green-600  px-2 rounded-t-lg text-white ">
           <div className="flex justify-between w-full">
           <span>{city.city}</span>
           <div className="flex">
@@ -401,7 +401,7 @@ export const RoutesForm: React.FC = () => {
           </div>
           </AccordionTrigger>
         <AccordionContent>
-          <div className="mb-4 flex items-center justify-center">
+          <div className=" flex items-center justify-center">
           <div className="flex w-full">
 
                           
