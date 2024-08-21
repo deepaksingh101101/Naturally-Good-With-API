@@ -168,12 +168,12 @@ export const navItems: NavItem[] = [
     icon: 'order',
     label: 'create-Referral'
   },
-  {
-    title: 'Routes Management',
-    href: '/routes-management',
-    icon: 'order',
-    label: 'create-order'
-  },
+  // {
+  //   title: 'Routes Management',
+  //   href: '/routes-management',
+  //   icon: 'order',
+  //   label: 'create-order'
+  // },
   {
     title: 'Delivery Management',
     href: '/delivery-management',
@@ -317,5 +317,24 @@ export const navItems: NavItem[] = [
       }
     ]
   },
- 
+  {
+    title: 'Route Management',
+    href: '/route-management',
+    icon: 'settings',
+    label: 'settings',
+    subItems: [
+      {
+        title: 'Route Master',
+        href: '/routes-management',
+        icon: 'general',
+        label: 'general-settings'
+      },
+      {
+        title: 'Vehicle Master',
+        href: '/vehicle-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      }
+    ]
+  },
 ];

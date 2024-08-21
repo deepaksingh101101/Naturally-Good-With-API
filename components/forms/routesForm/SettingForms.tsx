@@ -176,6 +176,7 @@ export const RoutesForm: React.FC = () => {
 
   const openAddRouteModal = (cityId: string) => {
     setSelectedRoute({ cityId, routeName: '' });
+    console.log(selectedRoute)
     setNewRouteName('');
     setNewTaggedVehicle('');
     setNewClassification('');
@@ -184,10 +185,11 @@ export const RoutesForm: React.FC = () => {
 
   
 
-  const handleAddRouteFromModal = () => {
+  const handleAddRouteFromModal = (cityId:any) => {
+    setAddRouteModalOpen(true)
     if (selectedRoute && newRouteName.trim() && newTaggedVehicle.trim() && newClassification.trim()) {
       console.log('Adding Route with:', { 
-        cityId: selectedRoute.cityId,
+        cityId: cityId,
         routeName: newRouteName.trim(),
         taggedVehicle: newTaggedVehicle.trim(),
         classification: newClassification.trim()
@@ -379,7 +381,7 @@ export const RoutesForm: React.FC = () => {
               <Trash2Icon className="h-4 w-4 ms-2" />
             </Button>
             </span>
-            <Button size="sm" onClick={() =>openAddRouteModal(city.id)} className="bg-blue-500 ms-2  text-white px-2  rounded hover:bg-blue-600">
+            <Button size="sm" onClick={() =>handleAddRouteFromModal(city.id )} className="bg-blue-500 ms-2  text-white px-2  rounded hover:bg-blue-600">
     <PlusIcon/> Add Route
   </Button>
   </div>
@@ -555,25 +557,18 @@ export const RoutesForm: React.FC = () => {
             <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setVehicleTypeModalOpen(true)}/>
 
       </div>
-    
-      {/* <Input
-        value={newClassification}
-        onChange={(e) => setNewClassification(e.target.value)}
-        placeholder="Classification"
-      /> */}
+  
         <div className="flex w-full">
       <Select
         options={ClassificationTypes}
         value={selectedClassificationType}
-        onChange={selectedClassificationType}
+        onChange={setSelectedClassificationType}
         placeholder="Select Classification Type"
         className='w-full'
       />
             <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setClassificationTypeModalOpen(true)}/>
 
       </div>
-    </div>
-    <DialogFooter>
       <Button
         type="button"
         onClick={handleAddRouteFromModal}
@@ -581,14 +576,24 @@ export const RoutesForm: React.FC = () => {
       >
         Add Route
       </Button>
-      <Button
-        type="button"
-        onClick={() => setAddRouteModalOpen(false)}
-        className="ml-2"
-      >
-        Cancel
-      </Button>
-    </DialogFooter>
+      <div className="space-y-2">
+  {data.map((city) =>
+    city.routes.map((route) => (
+      <div key={route.name} className="flex justify-between items-center">
+        <span>{route.name}</span>
+        <Button
+          variant="destructive"
+          onClick={() => handleDeleteRoute(city.id, route.name)}
+        >
+          Delete
+        </Button>
+      </div>
+    ))
+  )}
+</div>
+
+    </div>
+    
   </DialogContent>
 </Dialog>
 
