@@ -554,8 +554,6 @@ export const RoutesForm: React.FC = () => {
         placeholder="Select Vehicle Type"
         className='w-full'
       />
-            <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setVehicleTypeModalOpen(true)}/>
-
       </div>
   
         <div className="flex w-full">
@@ -566,8 +564,6 @@ export const RoutesForm: React.FC = () => {
         placeholder="Select Classification Type"
         className='w-full'
       />
-            <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setClassificationTypeModalOpen(true)}/>
-
       </div>
       <Button
         type="button"
@@ -597,77 +593,6 @@ export const RoutesForm: React.FC = () => {
   </DialogContent>
 </Dialog>
 
-
-{/* Modal for Viechel */}
-<Dialog open={vehicleTypeModalOpen} onOpenChange={setVehicleTypeModalOpen}>
-  <DialogContent className='max-w-lg' >
-    <DialogHeader>
-      <DialogTitle>Manage Vehicle Types</DialogTitle>
-      <DialogDescription>
-        Add new vehicle types or manage existing ones.
-      </DialogDescription>
-    </DialogHeader>
-    <div className="grid gap-4">
-      <Input
-        value={newVehicleType}
-        onChange={(e) => setNewVehicleType(e.target.value)}
-        placeholder="New Vehicle Type"
-      />
-    </div>
-    <DialogFooter>
-      <Button
-        type="button"
-        onClick={handleAddVehicleType}
-        className="bg-blue-500 text-white"
-      >
-        Add Vehicle Type
-      </Button>
-      <Button
-        type="button"
-        onClick={() => setVehicleTypeModalOpen(false)}
-        className="ml-2"
-      >
-        Cancel
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
-
-
-{/* Modal for Classification */}
-<Dialog open={classificationTypeModalOpen} onOpenChange={setClassificationTypeModalOpen}>
-  <DialogContent className='max-w-lg' >
-    <DialogHeader>
-      <DialogTitle>Manage Classification of Vehicle</DialogTitle>
-      <DialogDescription>
-        Add new classification types or manage existing ones.
-      </DialogDescription>
-    </DialogHeader>
-    <div className="grid gap-4">
-      <Input
-        value={newClassificationType}
-        onChange={(e) => setNewClassificationType(e.target.value)}
-        placeholder="New Classification Type"
-      />
-    </div>
-    <DialogFooter>
-      <Button
-        type="button"
-        onClick={handleAddClassificationType}
-        className="bg-blue-500 text-white"
-      >
-        Add Classification Type
-      </Button>
-      <Button
-        type="button"
-        onClick={() => setClassificationTypeModalOpen(false)}
-        className="ml-2"
-      >
-        Cancel
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
     </>
   );
 };
