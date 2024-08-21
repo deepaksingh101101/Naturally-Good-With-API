@@ -6,7 +6,7 @@ import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { v4 as uuidv4 } from 'uuid';
-import { Trash2Icon, EditIcon, PlusIcon, Edit } from 'lucide-react';
+import { Trash2Icon, EditIcon, PlusIcon, Edit, Plus } from 'lucide-react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import Select from 'react-select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -14,6 +14,42 @@ import { Switch } from '@/components/ui/switch';
 import { Controller } from 'react-hook-form';
 import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { MultiSelect } from '@/components/ui/MultiSelect';
+
+interface SectorLocality {
+  name: string;
+  serviced: boolean;
+}
+
+interface Zone {
+  name: string;
+  deliveryCost: number;
+  deliverySequence: number;
+  Serviced: boolean;
+  sortOrder: number; // Add this property
+  sectorLocality: SectorLocality[]; // Add this property
+}
+
+interface Route {
+  name: string;
+  taggedVehical: {
+    name: string;
+    classification: string;
+  };
+  zones: Zone[];
+  isActive: boolean;
+  activeDays: string[];
+}
+
+interface City {
+  id: string;
+  city: string;
+  routes: Route[];
+}
+
+interface DataState {
+  data: City[];
+}
+
 
 const initialData = [
   {
@@ -128,12 +164,14 @@ export const RoutesForm: React.FC = () => {
   const [newzones, setNewzones] = useState<{ [key: string]: { name: string, deliveryCost: number, deliverySequence: number } }>({});
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [addRouteModalOpen, setAddRouteModalOpen] = useState(false);  // Added for new route modal
+  const [addZoneModalOpen, setAddZoneModalOpen] = useState(false);  // Added for new route modal
   const [selectedRoute, setSelectedRoute] = useState<{ cityId: string; routeName: string } | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [editedRouteName, setEditedRouteName] = useState('');
   
   // States for the Add Route Modal
   const [newRouteName, setNewRouteName] = useState('');
+  const [newZoneName, setNewZoneName] = useState('');
   const [newTaggedVehicle, setNewTaggedVehicle] = useState('');
   const [newClassification, setNewClassification] = useState('');
 
@@ -160,39 +198,62 @@ export const RoutesForm: React.FC = () => {
     // Add other options here
   ];
 
+  const [newZoneDeliveryCost, setNewZoneDeliveryCost] = useState<number | "">(""); 
+  const [newZoneDeliverySequence, setNewZoneDeliverySequence] = useState<number | "">("");const [newZoneServiced, setNewZoneServiced] = useState(true);
+
   
-  const handleAddZone = (cityId: string, routeName: string) => {
-    const newZone = newzones[routeName];
-    if (newZone?.name?.trim()) {
-      setData(data.map(city =>
-        city.id === cityId
-          ? {
+const handleAddZone = () => {
+  if (selectedRoute && newZoneName.trim()) {
+    const { cityId, routeName } = selectedRoute;
+    const newZone: Zone = {
+      name: newZoneName.trim(),
+      deliveryCost: newZoneDeliveryCost || 100,
+      deliverySequence: newZoneDeliverySequence || 1,
+      Serviced: newZoneServiced,
+      sortOrder: 0, // Add default values for missing properties
+      sectorLocality: [] // Add default values for missing properties
+    };
+
+    setData(data.map(city =>
+      city.id === cityId
+        ? {
             ...city,
             routes: city.routes.map(route =>
               route.name === routeName
                 ? {
                     ...route,
-                    zones: [
-                      ...route.zones,
-                      {
-                        name: newZone.name.trim(),
-                        Serviced: true,
-                        deliverySequence: newZone.deliverySequence || 1,
-                        deliveryCost: newZone.deliveryCost || 100,
-                        sortOrder: 1,
-                        sectorLocality: []
-                      }
-                    ]
+                    zones: [...route.zones, newZone]
                   }
                 : route
             ),
           }
           : city
-      ));
-      setNewzones({ ...newzones, [routeName]: { name: '', deliveryCost: 0, deliverySequence: 1 } });
+    ));
+    
+    setNewZoneName('');
+    setNewZoneDeliveryCost(0);
+    setNewZoneDeliverySequence(1);
+    setNewZoneServiced(true);
+    setAddZoneModalOpen(false);
+  }
+};
+
+  
+
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  
+  const openAddZoneModal = (cityId: string, routeName: string) => {
+    const city = data.find(city => city.id === cityId);
+    const route = city?.routes.find(route => route.name === routeName);
+    
+    if (route) {
+      setSelectedCity(cityId);
+      setSelectedRoute({ cityId, routeName });
+      setNewZoneName('');
+      setAddZoneModalOpen(true);
     }
   };
-
+  
 
   const openAddRouteModal = (cityId: string) => {
     setSelectedRoute({ cityId, routeName: '' });
@@ -408,108 +469,131 @@ export const RoutesForm: React.FC = () => {
             </div>
           </div>
           
-          {/* Routes Table */}
           <div className="">
-            <table className="w-full text-left table-auto border-collapse">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="p-2 border border-gray-300">Route Name</th>
-                  <th className="p-2 border border-gray-300">Tagged Vehicle</th>
-                  <th className="p-2 border border-gray-300">Days</th>
-                  <th className="p-2 border border-gray-300 text-center ">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {city.routes.map(route => (
-                  <tr key={route.name} className="bg-white hover:bg-gray-100">
-                    <td className="p-2 border border-gray-300">
-                      <strong className="text-lg">{route.name}</strong>
-                    </td>
-                    <td className="p-2 border border-gray-300">
-                      <em>{route.taggedVehical.name} ({route.taggedVehical.classification})</em>
-                    </td>
-                    <td className="p-2 border border-gray-300">
-                      {route.activeDays.join(', ')}
-                    </td>
-                    <td className="p-2 border border-gray-300 flex items-center justify-center space-x-2">
-                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500  text-white rounded" >
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="border-gray-300 bg-red-600  text-white rounded" onClick={() => handleDeleteRoute(city.id, route.name)}>
-                        <Trash2Icon className=" h-4 w-4" />
-                      </Button>
-                      <Switch checked={route.isActive} onCheckedChange={() => handleToggleRoute(city.id, route.name)} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          
-          {/* Zones Section */}
-          {city.routes.map(route => (
-            <div key={route.name} className="mt-4">
-              <div className="flex items-center mb-3">
-              <Input
-    value={newzones[route.name]?.name || ''}
-    onChange={(e) => setNewzones({ ...newzones, [route.name]: { ...newzones[route.name], name: e.target.value } })}
-    placeholder="Zone name"
-    className="mr-2 w-1/4 border-gray-300 rounded"
-  />
-  <Input
-    value={newzones[route.name]?.deliveryCost || ''}
-    onChange={(e) => setNewzones({ ...newzones, [route.name]: { ...newzones[route.name], deliveryCost: Number(e.target.value) } })}
-    placeholder="Delivery Cost"
-    type="number"
-    className="mr-2 w-1/4 border-gray-300 rounded"
-  />
-  <Input
-    value={newzones[route.name]?.deliverySequence || ''}
-    onChange={(e) => setNewzones({ ...newzones, [route.name]: { ...newzones[route.name], deliverySequence: Number(e.target.value) } })}
-    placeholder="Delivery Sequence"
-    type="number"
-    className="mr-2 w-1/4 border-gray-300 rounded"
-  />
-   <Button onClick={() => handleAddZone(city.id, route.name)} className="bg-green-500 text-white px-4 py-2 w-1/4  rounded hover:bg-green-600">
-    Add Zone
-  </Button>
-              </div>
+  <table className="w-full text-left table-auto border-collapse">
 
-              {/* Zones Table */}
-              <table className="w-full text-left table-auto border-collapse">
-                <thead>
-                  <tr className="bg-gray-200">
-                    <th className="p-2 border border-gray-300">Zone Name</th>
-                    <th className="p-2 border border-gray-300">Delivery Cost</th>
-                    <th className="p-2 border border-gray-300">Delivery Sequence</th>
-                    <th className="p-2 border border-gray-300">Serviceable</th>
-                    <th className="p-2 border border-gray-300">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {route.zones.map(zone => (
-                    <tr key={zone.name} className="bg-white hover:bg-gray-100">
-                      <td className="p-2 border border-gray-300">{zone.name}</td>
-                      <td className="p-2 border border-gray-300">{zone.deliveryCost}</td>
-                      <td className="p-2 border border-gray-300">{zone.deliverySequence}</td>
-                      <td className='p-2 border border-gray-300' >
-  <span className={`px-2 py-1 rounded-md ${zone.Serviced ? 'bg-green-500' : 'bg-red-500'}`} >{zone.Serviced ? 'Serviced' : 'Not Serviced'}</span>
-</td>
-                      <td className="p-2 border border-gray-300">
-                      <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600  hover:text-white text-white rounded">
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                        <Button variant="outline" size="sm" className="border-gray-300 ms-2 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded" onClick={() => handleDeleteZone(city.id, route.name, zone.name)}>
-                          <Trash2Icon className="  h-4 w-4" />
-                          
-                        </Button>
-                      </td>
+      {city.routes.map((route) => (
+        <>
+         <thead className='mx-5' >
+      <tr className="bg-red-200  ">
+        <th className="p-2 border border-gray-300">Route Name</th>
+        <th className="p-2 border border-gray-300">Tagged Vehicle</th>
+        <th className="p-2 border border-gray-300">Days</th>
+        <th className="p-2 border border-gray-300 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+          <tr key={route.name} className="bg-white hover:bg-gray-100">
+            <td className="p-2 border border-gray-300">
+              <strong className="text-lg">{route.name}</strong>
+            </td>
+            <td className="p-2 border border-gray-300">
+              <em>
+                {route.taggedVehical.name} ({route.taggedVehical.classification})
+              </em>
+            </td>
+            <td className="p-2 border border-gray-300">
+              {route.activeDays.join(", ")}
+            </td>
+            <td className="p-2 border border-gray-300 flex items-center justify-center space-x-2">
+            <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-300 bg-green-600 text-white rounded"
+                onClick={() => openAddZoneModal(city.id, route.name)}
+              >
+                Add Zone <Plus className=" ms-2 h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-300 bg-yellow-500 text-white rounded"
+              >
+                Edit<EditIcon className=" ms-2 h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-gray-300 bg-red-600 text-white rounded"
+                onClick={() => handleDeleteRoute(city.id, route.name)}
+              >
+                Delete<Trash2Icon className=" ms-2 h-4 w-4" />
+              </Button>
+             
+              <Switch
+                checked={route.isActive}
+                onCheckedChange={() => handleToggleRoute(city.id, route.name)}
+              />
+            </td>
+          </tr>
+
+          {/* Zones Section */}
+          <tr className="bg-gray-50">
+            <td colSpan={4}>
+              <div className="">
+                {/* Zones Table */}
+                <table className="w-full text-left table-auto border-collapse">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="p-2 border border-gray-300">Zone Name</th>
+                      <th className="p-2 border border-gray-300">Delivery Cost</th>
+                      <th className="p-2 border border-gray-300">Delivery Sequence</th>
+                      <th className="p-2 border border-gray-300">Serviceable</th>
+                      <th className="p-2 border border-gray-300">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ))}
+                  </thead>
+                  <tbody>
+                    {route.zones.map((zone) => (
+                      <tr
+                        key={zone.name}
+                        className="bg-white hover:bg-gray-100"
+                      >
+                        <td className="p-2 border border-gray-300">{zone.name}</td>
+                        <td className="p-2 border border-gray-300">{zone.deliveryCost}</td>
+                        <td className="p-2 border border-gray-300">{zone.deliverySequence}</td>
+                        <td className="p-2 border border-gray-300">
+                          <span
+                            className={`px-2 py-1 rounded-md ${
+                              zone.Serviced ? "bg-green-500" : "bg-red-500"
+                            }`}
+                          >
+                            {zone.Serviced ? "Serviced" : "Not Serviced"}
+                          </span>
+                        </td>
+                        <td className="p-2 border border-gray-300">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white rounded"
+                          >
+                            <EditIcon className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 ms-2 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded"
+                            onClick={() =>
+                              handleDeleteZone(city.id, route.name, zone.name)
+                            }
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </>
+      ))}
+  
+  </table>
+</div>
+
+          
         </AccordionContent>
       </AccordionItem>
     ))}
@@ -569,16 +653,7 @@ export const RoutesForm: React.FC = () => {
         className='w-full'
       />
       </div>
-  
-        {/* <div className="flex w-full">
-      <Select
-        options={ClassificationTypes}
-        value={selectedClassificationType}
-        onChange={setSelectedClassificationType}
-        placeholder="Select Classification Type"
-        className='w-full'
-      />
-      </div> */}
+
 
       <MultiSelect
   value={selectedDeliveryDays}
@@ -595,24 +670,63 @@ export const RoutesForm: React.FC = () => {
       >
         Add Route
       </Button>
-      <div className="space-y-2">
-  {data.map((city) =>
-    city.routes.map((route) => (
-      <div key={route.name} className="flex justify-between items-center">
-        <span>{route.name}</span>
-        <Button
-          variant="destructive"
-          onClick={() => handleDeleteRoute(city.id, route.name)}
-        >
-          Delete
-        </Button>
-      </div>
-    ))
-  )}
-</div>
 
     </div>
     
+  </DialogContent>
+</Dialog>
+
+
+{/* Modal for Zone */}
+<Dialog open={addZoneModalOpen} onOpenChange={setAddZoneModalOpen}>
+  <DialogContent className='max-w-lg'>
+    <DialogHeader>
+      <DialogTitle>Add New Zone</DialogTitle>
+      <DialogDescription>
+        Add a new zone to the selected route.
+      </DialogDescription>
+    </DialogHeader>
+    <div className="grid gap-4">
+    <h3 className="text-lg font-semibold mt-4 mb-2">Add New Zone</h3>
+      <Input
+        value={newZoneName}
+        onChange={(e) => setNewZoneName(e.target.value)}
+        placeholder="Zone Name"
+        className="mb-2"
+      />
+     <Input
+    value={newZoneDeliveryCost || ""} // Display empty string if value is 0
+    onChange={(e) => {
+        const value = e.target.value;
+        setNewZoneDeliveryCost(value ? Number(value) : ""); // Set to empty string if value is empty
+    }}
+    placeholder="Delivery Cost"
+    type="number"
+    className="mb-2"
+/>
+<Input
+    value={newZoneDeliverySequence || ""}
+    onChange={(e) => {
+        const value = e.target.value;
+        setNewZoneDeliverySequence(value ? Number(value) : "");
+    }}
+    placeholder="Delivery Sequence"
+    type="number"
+    className="mb-2"
+/>
+      <Button
+        type="button"
+        onClick={handleAddZone}
+        className="bg-blue-500 text-white"
+      >
+        Add Zone
+      </Button>
+      
+     
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setAddZoneModalOpen(false)}>Close</Button>
+    </DialogFooter>
   </DialogContent>
 </Dialog>
 
