@@ -11,6 +11,9 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import Select from 'react-select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { Controller } from 'react-hook-form';
+import { FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { MultiSelect } from '@/components/ui/MultiSelect';
 
 const initialData = [
   {
@@ -141,6 +144,23 @@ export const RoutesForm: React.FC = () => {
     }
   };
 
+  interface Option {
+    id: string;
+    name: string;
+  }
+  
+  const deliveryDaysOptions: Option[] = [
+    { id: 'Monday', name: 'Monday' },
+    { id: 'Tuesday', name: 'Tuesday' },
+    { id: 'Wednesday', name: 'Wednesday' },
+    { id: 'Thursday', name: 'Thursday' },
+    { id: 'Friday', name: 'Friday' },
+    { id: 'Saturday', name: 'Saturday' },
+    { id: 'Sunday', name: 'Sunday' },
+    // Add other options here
+  ];
+
+  
   const handleAddZone = (cityId: string, routeName: string) => {
     const newZone = newzones[routeName];
     if (newZone?.name?.trim()) {
@@ -176,42 +196,31 @@ export const RoutesForm: React.FC = () => {
 
   const openAddRouteModal = (cityId: string) => {
     setSelectedRoute({ cityId, routeName: '' });
-    console.log(selectedRoute)
     setNewRouteName('');
     setNewTaggedVehicle('');
     setNewClassification('');
     setAddRouteModalOpen(true);
   };
-
   
-
-  const handleAddRouteFromModal = (cityId:any) => {
-    setAddRouteModalOpen(true)
-    if (selectedRoute && newRouteName.trim() && newTaggedVehicle.trim() && newClassification.trim()) {
-      console.log('Adding Route with:', { 
-        cityId: cityId,
-        routeName: newRouteName.trim(),
-        taggedVehicle: newTaggedVehicle.trim(),
-        classification: newClassification.trim()
-      });
+  const handleAddRouteFromModal = () => {
+    if (selectedRoute && selectedRoute.cityId && newRouteName.trim() && selectedVehicleType ) {
+      const newRoute = {
+        name: newRouteName.trim(),
+        taggedVehical: {
+          name: selectedVehicleType.label,
+          classification: 'Self'
+        },
+        zones: [],
+        isActive: true,
+        activeDays:selectedDeliveryDays||[] // Initialize activeDays as needed
+        
+      };
   
       setData(data.map(city =>
         city.id === selectedRoute.cityId
           ? {
               ...city,
-              routes: [
-                ...city.routes,
-                {
-                  name: newRouteName.trim(),
-                  taggedVehical: {
-                    name: newTaggedVehicle.trim(),
-                    classification: newClassification.trim()
-                  },
-                  zones: [],
-                  isActive: true,
-                  activeDays: [] // Initialize activeDays as an empty array or with default values
-                }
-              ]
+              routes: [...city.routes, newRoute]
             }
           : city
       ));
@@ -225,6 +234,7 @@ export const RoutesForm: React.FC = () => {
       console.log('Missing information or no selected route');
     }
   };
+  
   
   
 
@@ -342,6 +352,8 @@ export const RoutesForm: React.FC = () => {
     }
   };
 
+  const [selectedDeliveryDays, setSelectedDeliveryDays] = useState<string[]>([]);
+
 
   return (
     <>
@@ -381,9 +393,10 @@ export const RoutesForm: React.FC = () => {
               <Trash2Icon className="h-4 w-4 ms-2" />
             </Button>
             </span>
-            <Button size="sm" onClick={() =>handleAddRouteFromModal(city.id )} className="bg-blue-500 ms-2  text-white px-2  rounded hover:bg-blue-600">
-    <PlusIcon/> Add Route
-  </Button>
+            <Button size="sm" onClick={() => openAddRouteModal(city.id)} className="bg-blue-500 ms-2 text-white px-2 rounded hover:bg-blue-600">
+  <PlusIcon /> Add Route
+</Button>
+
   </div>
           </div>
           </AccordionTrigger>
@@ -524,6 +537,7 @@ export const RoutesForm: React.FC = () => {
               onChange={setSelectedEmployee}
               options={employees}
             />
+           
           </div>
           <DialogFooter>
             <Button onClick={handleSaveEditedEmployee}>Save</Button>
@@ -556,7 +570,7 @@ export const RoutesForm: React.FC = () => {
       />
       </div>
   
-        <div className="flex w-full">
+        {/* <div className="flex w-full">
       <Select
         options={ClassificationTypes}
         value={selectedClassificationType}
@@ -564,7 +578,16 @@ export const RoutesForm: React.FC = () => {
         placeholder="Select Classification Type"
         className='w-full'
       />
-      </div>
+      </div> */}
+
+      <MultiSelect
+  value={selectedDeliveryDays}
+  onChange={(value: string[]) => setSelectedDeliveryDays(value)}
+  options={deliveryDaysOptions}
+  placeholder="Select Delivery Days"
+/>
+
+
       <Button
         type="button"
         onClick={handleAddRouteFromModal}
