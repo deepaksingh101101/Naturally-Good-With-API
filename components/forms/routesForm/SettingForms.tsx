@@ -435,170 +435,191 @@ const handleAddZone = () => {
   <Button className='min-w-32' onClick={handleAddCity}>Add City</Button>
 </div>
 
-<div style={{ border: "" }} className="">
-  <Accordion type="single" collapsible>
-    {data.map((city) => (
-      <AccordionItem key={city.id} value={city.id}>
-        <AccordionTrigger className="text-lg font-semibold bg-green-600  px-2 rounded-t-lg text-white ">
-          <div className="flex justify-between w-full">
-          <span>{city.city}</span>
-          <div className="flex">
-          <span className="">
-            <Button
-              size="sm"
-              variant="destructive"
-              onClick={() => handleDeleteCity(city.id)}
-              className="ml-auto"
-            >
-             <span> Delete City</span>
-              <Trash2Icon className="h-4 w-4 ms-2" />
-            </Button>
-            </span>
-            <Button size="sm" onClick={() => openAddRouteModal(city.id)} className="bg-blue-500 ms-2 text-white px-2 rounded hover:bg-blue-600">
-  <PlusIcon /> Add Route
-</Button>
-
-  </div>
-          </div>
-          </AccordionTrigger>
-        <AccordionContent>
-          <div className=" flex items-center justify-center">
-          <div className="flex w-full">
-
-                          
+<div style={{ border: '' }} className="">
+    <Accordion type="single" collapsible>
+      {data.map((city) => (
+        <AccordionItem key={city.id} value={city.id}>
+          <AccordionTrigger className="text-lg font-semibold bg-green-600  px-2 rounded-t-lg text-white ">
+            {/* City Accordion Trigger content */}
+            <div className="flex justify-between w-full">
+              <span>{city.city}</span>
+              <div className="flex">
+                <span className="">
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteCity(city.id)}
+                    className="ml-auto"
+                  >
+                    <span> Delete City</span>
+                    <Trash2Icon className="h-4 w-4 ms-2" />
+                  </Button>
+                </span>
+                <Button size="sm" onClick={() => openAddRouteModal(city.id)} className="bg-blue-500 ms-2 text-white px-2 rounded hover:bg-blue-600">
+                  <PlusIcon /> Add Route
+                </Button>
+              </div>
             </div>
-          </div>
-          
-          <div className="">
-  <table className="w-full text-left table-auto border-collapse">
+          </AccordionTrigger>
 
-      {city.routes.map((route) => (
-        <>
-         <thead className='mx-5' >
-      <tr className="bg-red-200  ">
-        <th className="p-2 border border-gray-300">Route Name</th>
-        <th className="p-2 border border-gray-300">Tagged Vehicle</th>
-        <th className="p-2 border border-gray-300">Days</th>
-        <th className="p-2 border border-gray-300 text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-          <tr key={route.name} className="bg-white hover:bg-gray-100">
-            <td className="p-2 border border-gray-300">
-              <strong className="text-lg">{route.name}</strong>
-            </td>
-            <td className="p-2 border border-gray-300">
-              <em>
-                {route.taggedVehical.name} ({route.taggedVehical.classification})
-              </em>
-            </td>
-            <td className="p-2 border border-gray-300">
-              {route.activeDays.join(", ")}
-            </td>
-            <td className="p-2 border border-gray-300 flex items-center justify-center space-x-2">
-            <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-300 bg-green-600 text-white rounded"
-                onClick={() => openAddZoneModal(city.id, route.name)}
-              >
-                Add Zone <Plus className=" ms-2 h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-300 bg-yellow-500 text-white rounded"
-              >
-                Edit<EditIcon className=" ms-2 h-4 w-4" />
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-gray-300 bg-red-600 text-white rounded"
-                onClick={() => handleDeleteRoute(city.id, route.name)}
-              >
-                Delete<Trash2Icon className=" ms-2 h-4 w-4" />
-              </Button>
-             
-              <Switch
-                checked={route.isActive}
-                onCheckedChange={() => handleToggleRoute(city.id, route.name)}
-              />
-            </td>
-          </tr>
-
-          {/* Zones Section */}
-          <tr className="bg-gray-50">
-            <td colSpan={4}>
-              <div className="">
-                {/* Zones Table */}
-                <table className="w-full text-left table-auto border-collapse">
-                  <thead>
-                    <tr className="bg-gray-200">
-                      <th className="p-2 border border-gray-300">Zone Name</th>
-                      <th className="p-2 border border-gray-300">Delivery Cost</th>
-                      <th className="p-2 border border-gray-300">Delivery Sequence</th>
-                      <th className="p-2 border border-gray-300">Serviceable</th>
-                      <th className="p-2 border border-gray-300">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {route.zones.map((zone) => (
-                      <tr
-                        key={zone.name}
-                        className="bg-white hover:bg-gray-100"
-                      >
-                        <td className="p-2 border border-gray-300">{zone.name}</td>
-                        <td className="p-2 border border-gray-300">{zone.deliveryCost}</td>
-                        <td className="p-2 border border-gray-300">{zone.deliverySequence}</td>
+          <AccordionContent>
+            <div className="">
+              <table className="w-full text-left table-auto border-collapse">
+                {city.routes.map((route) => (
+                  <>
+                    <thead>
+                      <tr className="bg-red-200  ">
+                        {/* Route Details Header */}
+                        <th className="p-2 border border-gray-300">Route Name</th>
+                        <th className="p-2 border border-gray-300">Tagged Vehicle</th>
+                        <th className="p-2 border border-gray-300">Days</th>
+                        <th className="p-2 border border-gray-300 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr key={route.name} className="bg-white hover:bg-gray-100">
+                        {/* Route Details */}
                         <td className="p-2 border border-gray-300">
-                          <span
-                            className={`px-2 py-1 rounded-md ${
-                              zone.Serviced ? "bg-green-500" : "bg-red-500"
-                            }`}
-                          >
-                            {zone.Serviced ? "Serviced" : "Not Serviced"}
-                          </span>
+                          <strong className="text-lg">{route.name}</strong>
                         </td>
                         <td className="p-2 border border-gray-300">
+                          <em>
+                            {route.taggedVehical.name} ({route.taggedVehical.classification})
+                          </em>
+                        </td>
+                        <td className="p-2 border border-gray-300">
+                          {route.activeDays.join(", ")}
+                        </td>
+                        <td className="p-2 border border-gray-300 flex items-center justify-center space-x-2">
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-gray-300 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white rounded"
+                            className="border-gray-300 bg-green-600 text-white rounded"
+                            onClick={() => openAddZoneModal(city.id, route.name)}
                           >
-                            <EditIcon className="h-4 w-4" />
+                            Add Zone <PlusIcon className=" ms-2 h-4 w-4" />
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            className="border-gray-300 ms-2 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded"
-                            onClick={() =>
-                              handleDeleteZone(city.id, route.name, zone.name)
-                            }
+                            className="border-gray-300 bg-yellow-500 text-white rounded"
                           >
-                            <Trash2Icon className="h-4 w-4" />
+                            Edit<EditIcon className=" ms-2 h-4 w-4" />
                           </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-gray-300 bg-red-600 text-white rounded"
+                            onClick={() => handleDeleteRoute(city.id, route.name)}
+                          >
+                            Delete<Trash2Icon className=" ms-2 h-4 w-4" />
+                          </Button>
+
+                          <Switch
+                            checked={route.isActive}
+                            onCheckedChange={() => handleToggleRoute(city.id, route.name)}
+                          />
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </td>
-          </tr>
-          </tbody>
-        </>
-      ))}
-  
-  </table>
-</div>
 
-          
-        </AccordionContent>
-      </AccordionItem>
-    ))}
-  </Accordion>
-</div>
+                      {/* Zones Section (Nested Accordions) */}
+                      <tr>
+                        <td colSpan={4}>
+                          <Accordion type="multiple" className="">
+                            {/* Zone Accordion content */}
+                            {route.zones.map((zone) => (
+                              <AccordionItem key={zone.name} value={zone.name}>
+                                <AccordionTrigger className="bg-gray-100 p-2 border border-gray-300 relative">
+                                  {/* Zone Details in Trigger (Table format with styling) */}
+                                  <table className="w-full text-left table-auto border-collapse ">
+                                    <tbody>
+                                      <tr className="border-b">
+                                        <td className="p-2 font-semibold border-r w-1/4">Zone Name:</td> 
+                                        <td className="p-2">{zone.name}</td>
+                                      </tr>
+                                      <tr className="border-b">
+                                        <td className="p-2 font-semibold border-r w-1/4">Delivery Cost:</td>
+                                        <td className="p-2">{zone.deliveryCost}</td>
+                                      </tr>
+                                      <tr className="border-b">
+                                        <td className="p-2 font-semibold border-r w-1/4">Delivery Sequence:</td>
+                                        <td className="p-2">{zone.deliverySequence}</td>
+                                      </tr>
+                                      <tr>
+                                        <td className="p-2 font-semibold border-r w-1/4">Serviceable:</td>
+                                        <td className="p-2">{zone.Serviced ? 'Yes' : 'No'}</td>
+                                        
+                                      </tr>
+                                      
+                                    </tbody>
+                                    
+                                  </table>
+                                  <td className="p-2 text-center absolute top-0 end-0"> 
+                                          <Button variant="outline" size="sm" className="border-gray-300 bg-green-500 hover:bg-green-600 hover:text-white text-white rounded mr-2">
+                                            Add Locality <Plus className=" ms-2 h-4 w-4" />
+                                          </Button>
+                                          <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white rounded mr-2">
+                                            Edit <EditIcon className=" ms-2 h-4 w-4" />
+                                          </Button>
+                                          <Button variant="outline" size="sm" className="border-gray-300 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded">
+                                            Delete <Trash2Icon className="ms-2 h-4 w-4" />
+                                          </Button>
+                                        </td>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  {/* Societies/Localities Table */}
+                                  <table className="w-full text-left table-auto border-collapse">
+                                    <thead>
+                                      <tr className="bg-gray-200">
+                                        <th className="p-2 border border-gray-300">
+                                          Society/Locality Name
+                                        </th>
+                                        <th className="p-2 border border-gray-300">
+                                          Serviced
+                                        </th>
+                                        {/* Add more columns as needed */}
+                                        <th className="p-2 border border-gray-300">Actions</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {zone.sectorLocality.map((society) => (
+                                        <tr
+                                          key={society.name}
+                                          className="bg-white hover:bg-gray-100"
+                                        >
+                                          <td className="p-2 border border-gray-300">{society.name}</td>
+                                          <td className="p-2 border border-gray-300">{society.serviced ? 'Yes' : 'No'}</td>
+                                          {/* Add more cells as needed */}
+                                          <td className="p-2 border border-gray-300">
+                                            {/* Add action buttons here (edit, delete, etc.) */}
+                                            <Button variant="outline" size="sm" className="border-gray-300 bg-yellow-500 hover:bg-yellow-600 hover:text-white text-white rounded">
+                                              <EditIcon className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="border-gray-300 ms-2 bg-red-500 hover:bg-red-600 hover:text-white text-white rounded">
+                                              <Trash2Icon className="h-4 w-4" />
+                                            </Button>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </AccordionContent>
+                              </AccordionItem>
+                            ))}
+                          </Accordion>
+                        </td> 
+                      </tr> 
+                      </tbody>
+                  </>
+                ))}
+              </table>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  </div>
+);
 
 
 
