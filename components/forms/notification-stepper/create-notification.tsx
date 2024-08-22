@@ -130,8 +130,9 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
     control,
     name: 'frequency',
   });
-  const selectedFrequency = watch('frequency');
-  useEffect(() => {
+  const frequencyValue = watch('frequency');
+  const selectedFrequency = frequencyValue ? JSON.parse(frequencyValue) : null;
+    useEffect(() => {
       if (frequency) {
           const selectedFrequency = frequencies.find(f => JSON.stringify(f.value) === frequency); // Compare stringified values
           if (selectedFrequency) {
@@ -710,8 +711,8 @@ let nextFrequencyId = uuidv4();
                 <tbody className="bg-white divide-y divide-gray-200">
                 {scheduledData.map((item, index) => (
         <tr key={index} >
-        {(frequency?.dayBasis!=1) &&  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
-       { <FormField
+        {(selectedFrequency?.dayBasis!==1) &&  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
+       {(selectedFrequency?.dayBasis!==7) && <FormField
   control={form.control}
   name="endDate"
   render={({ field }) => (
@@ -747,7 +748,7 @@ let nextFrequencyId = uuidv4();
   )}
 />}
 
-{selectedAutoMaticType!=="fixedType"&&<FormField
+{(selectedAutoMaticType!=="fixedType" && selectedFrequency?.dayBasis!==30)&&<FormField
                 control={control}
                 name="weekday"
                 render={({ field }) => (
