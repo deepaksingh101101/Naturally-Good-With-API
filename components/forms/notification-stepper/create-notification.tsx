@@ -3,6 +3,8 @@
 import { useForm, SubmitHandler, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { v4 as uuidv4 } from 'uuid';
+
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Heading } from '@/components/ui/heading';
@@ -32,7 +34,6 @@ interface Notification {
 interface NotificationFormType {
   initialData?: Notification | null;
 }
-
 const notificationFormSchema = z.object({
   image: z.any().refine(file => file instanceof File || typeof file === 'string', 'Invalid file format'),
   heading: z.string().min(1, 'Heading is required'),
@@ -42,6 +43,7 @@ const notificationFormSchema = z.object({
   scheduleTime: z.string().optional(),
   scheduleType: z.string().min(1, 'Schedule type is required'),
   notificationType: z.string().min(1, 'Notification type is required'),
+  weekday: z.string().min(1, 'Day is required'),
   autoMaticType: z.string().min(1, 'AutoMaticType type is required'),
   frequency: z.string().optional(),
   customers: z.array(z.object({
@@ -69,8 +71,15 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
   const [loading, setLoading] = useState(false);
   const [notificationType, setNotificationType] = useState(initialData?.notificationType || 'Manual');
   const [frequencyModalOpen, setFrequencyModalOpen] = useState(false);
-  type FrequencyOption = { value: string; label: string; number: number,dayBasis:number };
-
+  type FrequencyOption = {
+    id: string; 
+    value: { 
+        name: string; 
+        number: number; 
+        dayBasis: number; 
+    };
+    label: string; 
+};
   
 
 
@@ -122,20 +131,18 @@ export const CreateNotificationForm: React.FC<NotificationFormType> = ({ initial
     name: 'frequency',
   });
   const selectedFrequency = watch('frequency');
-console.log(selectedFrequency)
   useEffect(() => {
-    if (frequency) {
-      const selectedFrequency = frequencies.find(f => f.value === frequency);
-      if (selectedFrequency) {
-        setFrequencyNumber(selectedFrequency.number);
+      if (frequency) {
+          const selectedFrequency = frequencies.find(f => JSON.stringify(f.value) === frequency); // Compare stringified values
+          if (selectedFrequency) {
+              setFrequencyNumber(selectedFrequency.value.number); // Access 'number' from 'value'
+          }
       }
-    }
-    setValue('noOfTimes',0)
-    setValue('frequency', undefined);
-    setScheduledData([]);
-
-  }, [frequency,selectedAutoMaticType]);
-
+      setValue('noOfTimes', 0);
+      // setValue('frequency', undefined);
+      setScheduledData([]);
+  
+  }, [frequency, selectedAutoMaticType]);
 // ...
 
 useEffect(() => {
@@ -208,26 +215,31 @@ useEffect(() => {
   
   // const newValue = `${newFrequency.name.toLowerCase()}-${newFrequency.dayBasis}-${newFrequency.number}`;
   const [frequencies, setFrequencies] = useState<FrequencyOption[]>([
-    { value: 'daily', label: 'Daily', number: 1, dayBasis: 1 },
-    { value: 'weekly', label: 'Weekly', number: 3, dayBasis: 7 },
-  ]);
+    { id: uuidv4(), value: {name:"daily",number: 1,dayBasis: 1 }, label: 'Daily' },
+    { id: uuidv4(), value: {name:"weekly",number: 3,dayBasis: 7 }, label: 'Weekly' },
+]);
+
+let nextFrequencyId = uuidv4();
   
   const addFrequency = () => {
     if (newFrequency.name.trim()) {
       const newValue = {
-        value: newFrequency.name.toLowerCase(),
+        id: uuidv4(),
+        value: { 
+          name: newFrequency.name.toLowerCase(), 
+          number: newFrequency.number, 
+          dayBasis: newFrequency.dayBasis 
+        },
         label: newFrequency.name,
-        number: newFrequency.number,
-        dayBasis: newFrequency.dayBasis,
       };
   
       // Check if a frequency with the same name, number, and dayBasis already exists
       const existingIndex = frequencies.findIndex(
         (f) =>
-          f.value === newValue.value &&
-          f.number === newValue.number &&
-          f.dayBasis === newValue.dayBasis
-      );
+            f.value.name === newValue.value.name && // Compare the 'name' property within 'value'
+            f.value.number === newValue.value.number &&
+            f.value.dayBasis === newValue.value.dayBasis
+    );
   
       if (existingIndex !== -1) {
         const updatedFrequencies = [...frequencies];
@@ -248,9 +260,9 @@ useEffect(() => {
   
   
 
-  const deleteFrequency = (frequencyToDelete: string) => {
-    setFrequencies(frequencies.filter(f => f.value !== frequencyToDelete));
-  };
+  const deleteFrequency = (frequencyIdToDelete: string) => {
+    setFrequencies(frequencies.filter(f => f.id !== frequencyIdToDelete));
+};
 
   const [typeModalOpen, setTypeModalOpen] = useState(false);
 
@@ -336,14 +348,14 @@ useEffect(() => {
         <Button className="ml-3 mt-6" onClick={addFrequency}>Add</Button>
       </div>
       <div className="space-y-2">
-        {frequencies.map((frequency) => (
-          <div key={frequency.value} className="flex justify-between items-center">
-            <span>{frequency.label} - {frequency.number} Times</span>
-            <Button variant="destructive" onClick={() => deleteFrequency(frequency.value)}>
-              Delete
-            </Button>
-          </div>
-        ))}
+      {frequencies.map((frequency) => (
+    <div key={frequency.id} className="flex justify-between items-center"> 
+        <span>{frequency.label} - {frequency.value.number} Times</span> 
+        <Button variant="destructive" onClick={() => deleteFrequency(frequency.id)}> 
+            Delete
+        </Button>
+    </div>
+))}
       </div>
     </div>
     {/* <DialogFooter>
@@ -530,18 +542,17 @@ useEffect(() => {
        />
      </div>
      <FormControl>
-     <ReactSelect
-  options={frequencies}
-  getOptionLabel={(option) => `${option.label} - ${option.number} Times`}
-  getOptionValue={(option) => option.value}
-  value={frequencies.find(frequency => frequency.value === field.value)}  // Ensures the correct value is displayed
-  onChange={(selected: SingleValue<FrequencyOption>) => {
-    if (selected) setValue('frequency', selected.value);
-  }}
-  isClearable={true}  // Allows the user to clear the selection
-/>
-
-     </FormControl>
+                <ReactSelect
+                  options={frequencies}
+                  getOptionLabel={(option) => `${option.label} - ${option.value.number} Times`} // Access 'number' from the 'value' object
+                  getOptionValue={(option) => JSON.stringify(option.value)} // Stringify the 'value' object for storage
+                  value={frequencies.find(frequency => JSON.stringify(frequency.value) === field.value)}
+                  onChange={(selected: SingleValue<FrequencyOption>) => {
+                    if (selected) setValue('frequency', JSON.stringify(selected.value)); // Stringify on change
+                  }}
+                  isClearable={true}
+                />
+              </FormControl>
      <FormMessage>{renderErrorMessage(errors.frequency)}</FormMessage>
    </FormItem>
  )}
@@ -549,7 +560,7 @@ useEffect(() => {
 
 )}
 
-   {frequency!=="one-time" &&               <>
+   {(frequency!=="one-time" && selectedAutoMaticType!=='fixedType') &&             <>
    <FormField
   control={form.control}
   name="startDate"
@@ -688,7 +699,7 @@ useEffect(() => {
                <thead>
                   <tr>
                     
-                   {(frequency?.dayBasis!=1) && <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   {(frequency?.dayBasis!=1)  &&<th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                      Schedule Date
                     </th>}
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -700,7 +711,7 @@ useEffect(() => {
                 {scheduledData.map((item, index) => (
         <tr key={index} >
         {(frequency?.dayBasis!=1) &&  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
-           <FormField
+       { <FormField
   control={form.control}
   name="endDate"
   render={({ field }) => (
@@ -734,20 +745,56 @@ useEffect(() => {
       <FormMessage>{renderErrorMessage(errors.endDate)}</FormMessage>
     </FormItem>
   )}
-/>
+/>}
+
+{selectedAutoMaticType!=="fixedType"&&<FormField
+                control={control}
+                name="weekday"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Week Day</FormLabel>
+                    <FormControl>
+                      <ReactSelect
+                        isSearchable
+                        options={[
+                          { value: 'monday', label: 'Monday' },
+                          { value: 'tuesday', label: 'Tuesday' },
+                          { value: 'wednesday', label: 'Wednesday' },
+                          { value: 'thursday', label: 'Thursday' },
+                          { value: 'Friday', label: 'Friday' },
+                          { value: 'Saturday', label: 'Saturday' },
+                          { value: 'sunday', label: 'Sunday' },
+                        ]}
+                        getOptionLabel={(option) => option.label}
+                        getOptionValue={(option) => option.value}
+                        isDisabled={loading}
+                        onChange={(selected) => {
+                          field.onChange(selected ? selected.value : '');
+                          setNotificationType(selected ? selected.value : 'Manual');
+                        }}
+                        value={[
+                          { value: 'monday', label: 'Monday' },
+                          { value: 'tuesday', label: 'Tuesday' },
+                          { value: 'wednesday', label: 'Wednesday' },
+                          { value: 'thursday', label: 'Thursday' },
+                          { value: 'Friday', label: 'Friday' },
+                          { value: 'Saturday', label: 'Saturday' },
+                          { value: 'sunday', label: 'Sunday' },
+                        ].find(option => option.value === field.value)}
+                      />
+                    </FormControl>
+                    <FormMessage>{renderErrorMessage(errors.weekday)}</FormMessage>
+                  </FormItem>
+                )}
+              />}
 </td>}
 
 <td  className="px-6 py-4  whitespace-nowrap text-sm text-gray-500">
 <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="w-full justify-start text-left font-normal">
-            <ClockIcon className="mr-1 h-4 w-4 -translate-x-1" />
-            <span>Select Time</span>
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <div className="w-full" />
-        </PopoverContent>
+       
+        <Input
+        type='time'
+        />
       </Popover>
           </td>
           
