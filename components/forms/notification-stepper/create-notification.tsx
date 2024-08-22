@@ -150,7 +150,7 @@ useEffect(() => {
   const length = selectedNoOfTimes ||  frequencyNumber || 0;
   const newScheduledData = Array.from({ length }, () => ({ scheduleDate: "", scheduleTime: "" }));
   setScheduledData(newScheduledData);
-}, [selectedNoOfTimes, selectedAutoMaticType, frequencyNumber]);
+}, [selectedNoOfTimes, selectedAutoMaticType, frequencyNumber,frequency]);
 
 // ...
 
@@ -217,7 +217,8 @@ useEffect(() => {
   // const newValue = `${newFrequency.name.toLowerCase()}-${newFrequency.dayBasis}-${newFrequency.number}`;
   const [frequencies, setFrequencies] = useState<FrequencyOption[]>([
     { id: uuidv4(), value: {name:"daily",number: 1,dayBasis: 1 }, label: 'Daily' },
-    { id: uuidv4(), value: {name:"weekly",number: 3,dayBasis: 7 }, label: 'Weekly' },
+    { id: uuidv4(), value: {name:"weekly",number: 1,dayBasis: 7 }, label: 'Weekly' },
+    { id: uuidv4(), value: {name:"monthly",number: 1,dayBasis: 30 }, label: 'Monthly' },
 ]);
 
 let nextFrequencyId = uuidv4();
@@ -535,12 +536,12 @@ let nextFrequencyId = uuidv4();
    <FormItem>
      <div className="flex items-center">
        <FormLabel>Select Frequency</FormLabel>
-       <Edit
+       {/* <Edit
          className="text-red-500 ms-1"
          height={15}
          width={15}
          onClick={() => setFrequencyModalOpen(true)}
-       />
+       /> */}
      </div>
      <FormControl>
                 <ReactSelect
@@ -562,7 +563,7 @@ let nextFrequencyId = uuidv4();
 )}
 
    {(frequency!=="one-time" && selectedAutoMaticType!=='fixedType') &&             <>
-   <FormField
+  {(selectedAutoMaticType==="rangeType"||selectedFrequency.dayBasis===7) && <FormField
   control={form.control}
   name="startDate"
   render={({ field }) => (
@@ -597,7 +598,7 @@ let nextFrequencyId = uuidv4();
       <FormMessage>{renderErrorMessage(errors.startDate)}</FormMessage>
     </FormItem>
   )}
-/>
+/>}
   {selectedAutoMaticType!=="infiniteType" && (<FormField
   control={form.control}
   name="endDate"
@@ -700,7 +701,7 @@ let nextFrequencyId = uuidv4();
                <thead>
                   <tr>
                     
-                   {(frequency?.dayBasis!=1)  &&<th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   { <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                      Schedule Date
                     </th>}
                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -711,8 +712,8 @@ let nextFrequencyId = uuidv4();
                 <tbody className="bg-white divide-y divide-gray-200">
                 {scheduledData.map((item, index) => (
         <tr key={index} >
-        {(selectedFrequency?.dayBasis!==1) &&  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
-       {(selectedFrequency?.dayBasis!==7) && <FormField
+        {  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
+       { (selectedFrequency?.dayBasis!==7) && <FormField
   control={form.control}
   name="endDate"
   render={({ field }) => (
@@ -748,7 +749,7 @@ let nextFrequencyId = uuidv4();
   )}
 />}
 
-{(selectedAutoMaticType!=="fixedType" && selectedFrequency?.dayBasis!==30)&&<FormField
+{(selectedAutoMaticType!=="fixedType" && selectedFrequency?.dayBasis!==30)&& (selectedFrequency?.dayBasis!==1) &&<FormField
                 control={control}
                 name="weekday"
                 render={({ field }) => (
