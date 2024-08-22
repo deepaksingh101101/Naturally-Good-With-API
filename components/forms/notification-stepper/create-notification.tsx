@@ -563,7 +563,7 @@ let nextFrequencyId = uuidv4();
 )}
 
    {(frequency!=="one-time" && selectedAutoMaticType!=='fixedType') &&             <>
-  {(selectedAutoMaticType==="rangeType"||selectedFrequency.dayBasis===7) && <FormField
+  {(selectedFrequency?.dayBasis===7) && <FormField
   control={form.control}
   name="startDate"
   render={({ field }) => (
