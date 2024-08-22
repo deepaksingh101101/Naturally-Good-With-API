@@ -371,7 +371,7 @@ let nextFrequencyId = uuidv4();
         <Heading title={initialData ? 'Edit Notification' : 'Create Notification'} description="Fill in the details below" />
         <Separator />
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form  onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-3">
               <FormField
                 control={control}
@@ -696,15 +696,15 @@ let nextFrequencyId = uuidv4();
                   )}
                 />
               )}
-               <div className="mt-8">
+               <div className="mt-8" style={{border:"1px solid green"}} >
             {(selectedNoOfTimes || frequencyNumber) && (  <table className="min-w-full divide-y divide-gray-200">
-               <thead>
+               <thead className='bg-green-500' >
                   <tr>
                     
-                   { <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                   { <th className="px-6 py-3 bg-green-500  text-left text-xs font-medium text-white-500 uppercase tracking-wider">
                      Schedule Date
                     </th>}
-                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 bg-green-500 text-left text-xs font-medium text-white-500 uppercase tracking-wider">
                      Schedule Time
                     </th>
                   </tr>
@@ -714,6 +714,7 @@ let nextFrequencyId = uuidv4();
         <tr key={index} >
         {  <td  className="px-6  py-4 whitespace-nowrap text-sm text-gray-500">
        { (selectedFrequency?.dayBasis!==7) && <FormField
+       
   control={form.control}
   name="endDate"
   render={({ field }) => (
@@ -754,7 +755,7 @@ let nextFrequencyId = uuidv4();
                 name="weekday"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Week Day</FormLabel>
+                    {/* <FormLabel>Week Day</FormLabel> */}
                     <FormControl>
                       <ReactSelect
                         isSearchable
