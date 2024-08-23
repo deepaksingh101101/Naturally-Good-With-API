@@ -31,6 +31,7 @@ export type UserManagement = {
   customerWeight?:number;
   preferences?:string;
   notes?:string;
+  customerType?:string
 };
 
 // Helper function to format dates
@@ -68,6 +69,7 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Lead"
   },
   {
     sno: 2,
@@ -98,6 +100,8 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Prominent"
+
   },
   {
     sno: 3,
@@ -128,6 +132,8 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Lead"
+
   },
   {
     sno: 4,
@@ -158,6 +164,8 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Lead"
+
   },
   {
     sno: 5,
@@ -188,6 +196,8 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Prominent"
+
   },
   {
     sno: 6,
@@ -218,6 +228,7 @@ export const userManagementData: UserManagement[] = [
     customerWeight:55,
     preferences:"potato",
     notes:"Free after 5pm",
+    customerType:"Lead"
   },
 ];
 

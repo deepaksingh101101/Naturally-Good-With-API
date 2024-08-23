@@ -88,12 +88,16 @@ export const columns: ColumnDef<UserManagement>[] = [
  
 
 
-
+  {
+    accessorKey: 'customerType',
+    header: 'customer Type',
+  },
 
   {
     accessorKey: 'houseNumber',
     header: 'House & Floor Number',
   },
+
   {
     accessorKey: 'society/Locality',
     header: 'Society',
