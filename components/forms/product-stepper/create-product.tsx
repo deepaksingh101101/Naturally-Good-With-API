@@ -477,6 +477,24 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
 
 <FormField
               control={form.control}
+              name="group"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Group</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter Group"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+<FormField
+              control={form.control}
               name="veggieNameInHindi"
               render={({ field }) => (
                 <FormItem>
@@ -622,6 +640,29 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
+
+          
+          <FormField
+              control={form.control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Item Visibility</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Visibility" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Admin">Admin</SelectItem>
+                        <SelectItem value="Public">Public</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.visibility?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
           
             {/* <FormField
               control={form.control}
@@ -647,23 +688,7 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             /> */}
-            <FormField
-              control={form.control}
-              name="group"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Group</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter Group"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        
            
            
 
@@ -712,6 +737,7 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
+
             {/* <FormField
               control={control}
               name="organic"
@@ -733,27 +759,7 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             /> */}
-            <FormField
-              control={form.control}
-              name="visibility"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Item Visibility</FormLabel>
-                  <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Visibility" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Admin">Admin</SelectItem>
-                        <SelectItem value="Public">Public</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage>{errors.visibility?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
+           
             <Controller
               name="productImage"
               control={control}
