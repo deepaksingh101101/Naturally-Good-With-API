@@ -431,7 +431,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
             const value = e.target.value;
             field.onChange(value === '' ? '' : Number(value));
           }}
-          value={field.value === undefined || field.value === '' ? '' : field.value}
+          value={field.value === undefined ? '' : field.value}
         />
       </FormControl>
       <FormMessage />
