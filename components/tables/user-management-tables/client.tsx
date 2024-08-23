@@ -22,6 +22,10 @@ export const UserManagementClient: React.FC = () => {
       subOptions: ['Active', 'In Active', 'All Users'],
     },
     {
+      label: 'Customer Type',
+      subOptions: ['Lead', 'Prominent'],
+    },
+    {
       label: 'Payment Type',
       subOptions: ['Credit/Debit', 'UPI', 'Net Banking'],
     },
