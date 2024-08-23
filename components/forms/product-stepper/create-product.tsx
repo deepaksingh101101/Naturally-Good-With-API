@@ -561,25 +561,7 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
 
 
 
-            <FormField
-              control={form.control}
-              name="productPrice"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Item Price</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled={loading}
-                      placeholder="Enter Item Price"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          
 
 
  <FormField
@@ -612,6 +594,26 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                       type="number"
                       disabled={loading}
                       placeholder="Enter Maximum Unit "
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+<FormField
+              control={form.control}
+              name="productPrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Item Price</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      disabled={loading}
+                      placeholder="Enter Item Price"
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
                     />

@@ -387,60 +387,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={control}
-              name="visibility"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subscription Visibility</FormLabel>
-                  <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Visibility" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {visibilityOption.map((option) => (
-                          <SelectItem key={option.id} value={option.name}>
-                            {option.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage>{errors.visibility?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-           
-            <FormField
-              control={form.control}
-              name="subscriptionStatus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subscription Status</FormLabel>
-                  <Select
-                    disabled={loading}
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          defaultValue={field.value}
-                          placeholder="Select Subscription Status"
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          
       <Controller
   control={form.control}
   name="bagName"
@@ -547,6 +494,61 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                       }}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+<FormField
+              control={control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subscription Visibility</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Visibility" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {visibilityOption.map((option) => (
+                          <SelectItem key={option.id} value={option.name}>
+                            {option.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.visibility?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+           
+            <FormField
+              control={form.control}
+              name="subscriptionStatus"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subscription Status</FormLabel>
+                  <Select
+                    disabled={loading}
+                    onValueChange={field.onChange}
+                    value={field.value}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Select Subscription Status"
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
