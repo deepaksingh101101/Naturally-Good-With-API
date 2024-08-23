@@ -407,6 +407,23 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
+              <FormField
+              control={form.control}
+              name="zipcode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zipcode</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter Zipcode"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.zipcode?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="city"
@@ -436,36 +453,25 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
-              name="source"
+              name="state"
               render={({ field }) => (
                 <FormItem>
-                  <div className="flex mt-2">
-                    <FormLabel>Source of Customer</FormLabel>
-                    <Edit onClick={openSourceModal} className="ms-3 cursor-pointer text-red-500" height={15} width={15} />
-                  </div>
-                  <Controller
-                    control={control}
-                    name="source"
-                    render={({ field }) => (
-                      <ReactSelect
-                        isClearable
-                        isSearchable
-                        options={sourceOptions}
-                        getOptionLabel={(option) => option.name}
-                        getOptionValue={(option) => option.id}
-                        isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={sourceOptions.find(option => option.id === field.value)}
-                      />
-                    )}
-                  />
-                  <FormMessage>{errors.source?.message}</FormMessage>
+                  <FormLabel>State</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter State"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.state?.message}</FormMessage>
                 </FormItem>
               )}
             />
-            <FormField
+             <FormField
               control={form.control}
               name="assignedEmployee"
               render={({ field }) => (
@@ -498,120 +504,42 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
             />
             <FormField
               control={form.control}
-              name="zipcode"
+              name="source"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Zipcode</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter Zipcode"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.zipcode?.message}</FormMessage>
+                  <div className="flex mt-2">
+                    <FormLabel>Source of Customer</FormLabel>
+                    <Edit onClick={openSourceModal} className="ms-3 cursor-pointer text-red-500" height={15} width={15} />
+                  </div>
+                  <Controller
+                    control={control}
+                    name="source"
+                    render={({ field }) => (
+                      <ReactSelect
+                        isClearable
+                        isSearchable
+                        options={sourceOptions}
+                        getOptionLabel={(option) => option.name}
+                        getOptionValue={(option) => option.id}
+                        isDisabled={loading}
+                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
+                        value={sourceOptions.find(option => option.id === field.value)}
+                      />
+                    )}
+                  />
+                  <FormMessage>{errors.source?.message}</FormMessage>
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="state"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>State</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter State"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.state?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
+           
+          
 
 
 
 
           </div>
           <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
-     
-            <FormField
-              control={form.control}
-              name="alterNateContact"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>AlterNate Contact Number</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your contact number"
-                      disabled={loading}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.alterNateContact?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="allergies"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Allergies</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter any allergies"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.allergies?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-              <FormField
-              control={form.control}
-              name="alterNateAddress"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Alternate Address</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter House number, Floor number, locality Address"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.alterNateAddress?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-
-<FormField
-              control={form.control}
-              name="numberOfFamilyMembers"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number Of Family Members</FormLabel>
-                  <FormControl>
-                    <Input
-                    type="number"
-                      disabled={loading}
-                      placeholder="Enter Number Of Family Members"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.numberOfFamilyMembers?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-
-        
-            <FormField
+          <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
@@ -629,6 +557,42 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               )}
             />
             <FormField
+              control={form.control}
+              name="alterNateContact"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alternate Contact Number</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Enter your contact number"
+                      disabled={loading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.alterNateContact?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+           
+              <FormField
+              control={form.control}
+              name="alterNateAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Alternate Address</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter House number, Floor number, locality Address"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.alterNateAddress?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+             <FormField
               control={control}
               name="dob"
               render={({ field }) => (
@@ -687,7 +651,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
-         <FormField
+     <FormField
   control={form.control}
   name="weight"
   render={({ field }) => (
@@ -708,6 +672,46 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   )}
 />
 
+<FormField
+              control={form.control}
+              name="numberOfFamilyMembers"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number Of Family Members</FormLabel>
+                  <FormControl>
+                    <Input
+                    type="number"
+                      disabled={loading}
+                      placeholder="Enter Number Of Family Members"
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.numberOfFamilyMembers?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+<FormField
+              control={form.control}
+              name="allergies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Allergies</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter any allergies"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.allergies?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+           
+           
+    
 
 <FormField
   control={form.control}
