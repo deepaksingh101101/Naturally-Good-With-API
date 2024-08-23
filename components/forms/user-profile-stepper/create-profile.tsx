@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon, Edit, Trash } from "lucide-react";
+import { CalendarIcon, Edit, Trash, Trash2Icon, TrashIcon } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useParams, useRouter } from "next/navigation";
@@ -35,6 +35,15 @@ interface ProfileFormType {
   initialData: any | null;
   categories: any;
 }
+export interface family {
+  name: string;
+  gender: string;
+  dob: string;
+  height: string;
+  weight: string;
+  allergies: string;
+  contactNumber: number;
+}
 
 const FormSchema = z.object({
   firstname: z.string().min(1, "First Name is required"),
@@ -54,6 +63,7 @@ const FormSchema = z.object({
   street: z.string().min(1, "Street Address is required"),
   city: z.string().min(1, "City is required"),
   source: z.string().min(1, "Source of customer is required"),
+  customerType: z.string().min(1, "Type of Customer is required"),
   state: z.string().min(1, 'State is required'),
   zipcode: z.string().min(1, 'Zipcode is required'),
   houseNumber: z.string().min(1, 'House and Floor Number is required'),
@@ -65,6 +75,21 @@ const FormSchema = z.object({
   weight: z.number().optional(),
   preferences: z.string().optional(),
   extraNotes: z.string().optional(),
+  cookingTimes: z.string().optional(),
+  cookingType: z.string().optional(),
+  familyMembers: z
+  .array(
+    z.object({
+      name: z.string(),
+      contactNumber: z.string(),
+      gender: z.string().optional(), // Gender is optional
+      dob: z.date().optional(),       // Date of Birth is optional
+      height: z.string().optional(),  // Height is optional
+      weight: z.number().optional(),  // Weight is optional
+      allergies: z.string().optional() // Allergies is optional
+    })
+  )
+  .optional(),
 });
 
 export const CreateProfileOne: React.FC<ProfileFormType> = ({
@@ -157,11 +182,48 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     { id: "instagram", name: "Instagram" },
     { id: "facebook", name: "Facebook" }
   ]);
+  const [customerTypeOptions, setCustomerTypeOptions] = useState([
+    { id: "lead", name: "lead" },
+    { id: "prominent", name: "Prominent" }
+  ]);
 
   const [isCityModalOpen, setIsCityModalOpen] = useState(false);
-  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const [newCity, setNewCity] = useState('');
+
+  const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const [newSource, setNewSource] = useState('');
+
+  const [customerTypeModalOpen, setCustomerTypeModalOpen] = useState(false);
+  const [newCustomerType, setNewCustomerType] = useState('');
+
+
+  const [familyMembers, setFamilyMembers] = useState<any[]>(initialData?.familyMembers || []);
+
+  const handleAddMember = () => {
+    setFamilyMembers([
+      ...familyMembers,
+      { 
+        name: "", 
+        contactNumber: "", 
+        gender: "", 
+        dob: null, 
+        height: "", 
+        weight: "", 
+        allergies: "" 
+      }
+    ]);
+  };
+
+  const handleRemoveMember = (index: number) => {
+    const updatedFamilyMembers = familyMembers.filter((_, i) => i !== index);
+    setFamilyMembers(updatedFamilyMembers);
+  };
+
+  const handleMemberChange = (index: number, field: string, value: any) => {
+    const updatedFamilyMembers = [...familyMembers];
+    updatedFamilyMembers[index][field] = value;
+    setFamilyMembers(updatedFamilyMembers);
+  };
 
   const openCityModal = () => {
     setIsCityModalOpen(true);
@@ -177,6 +239,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const closeSourceModal = () => {
     setIsSourceModalOpen(false);
   };
+  const openCustomerTypeModal = () => {
+    setCustomerTypeModalOpen(true);
+  };
+
+  const closeCustomerTypeModal = () => {
+    setCustomerTypeModalOpen(false);
+  };
 
   const addCity = () => {
     if (newCity) {
@@ -190,13 +259,23 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       setNewSource('');
     }
   };
+  const deleteSource = (index: number) => {
+    setSourceOptions(sourceOptions.filter((_, i) => i !== index));
+  };
+  const addCustomerType = () => {
+    if (newCustomerType) {
+      setCustomerTypeOptions([...customerTypeOptions, { id: newCustomerType.toLowerCase(), name: newCustomerType }]);
+      setNewCustomerType('');
+    }
+  };
+  const deleteCustomerType = (index: number) => {
+    setCustomerTypeOptions(customerTypeOptions.filter((_, i) => i !== index));
+  };
 
   const deleteCity = (index: number) => {
     setCityOptions(cityOptions.filter((_, i) => i !== index));
   };
-  const deleteSource = (index: number) => {
-    setSourceOptions(sourceOptions.filter((_, i) => i !== index));
-  };
+ 
 
   return (
     <>
@@ -259,6 +338,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           </div>
         </DialogContent>
       </Dialog>
+
       <Dialog open={isSourceModalOpen} onOpenChange={(open) => !open && closeSourceModal()}>
         <DialogContent className="max-w-lg" >
           <DialogHeader>
@@ -304,6 +384,56 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Modal for customer type */}
+
+
+      <Dialog open={customerTypeModalOpen} onOpenChange={(open) => !open && closeCustomerTypeModal()}>
+        <DialogContent className="max-w-lg" >
+          <DialogHeader>
+            <DialogTitle>Manage Customer Type</DialogTitle>
+            <DialogDescription>You can manage customer Type.</DialogDescription>
+          </DialogHeader>
+          <div>
+            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              <thead className="bg-red-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                    Customer Type
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                {customerTypeOptions.map((type, typeIndex) => (
+                  <tr key={typeIndex}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {type.name}
+                    </td>
+                    <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Trash onClick={() => deleteCustomerType(typeIndex)} className="cursor-pointer text-red-500" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="flex mt-4">
+              <Input
+                type="text"
+                placeholder="Add new Customer type"
+                value={newCustomerType}
+                onChange={(e) => setNewCustomerType(e.target.value)}
+              />
+              <Button onClick={addCustomerType} className="ml-2">
+                Add
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(processForm)}
@@ -533,7 +663,35 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
             />
            
           
-
+           <FormField
+              control={form.control}
+              name="customerType"
+              render={({ field }) => (
+                <FormItem>
+                  <div className="flex mt-2">
+                    <FormLabel>Customer Type</FormLabel>
+                    <Edit onClick={openCustomerTypeModal} className="ms-3 cursor-pointer text-red-500" height={15} width={15} />
+                  </div>
+                  <Controller
+                    control={control}
+                    name="customerType"
+                    render={({ field }) => (
+                      <ReactSelect
+                        isClearable
+                        isSearchable
+                        options={customerTypeOptions}
+                        getOptionLabel={(option) => option.name}
+                        getOptionValue={(option) => option.id}
+                        isDisabled={loading}
+                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
+                        value={customerTypeOptions.find(option => option.id === field.value)}
+                      />
+                    )}
+                  />
+                  <FormMessage>{errors.customerType?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
 
 
 
@@ -672,43 +830,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   )}
 />
 
-<FormField
-              control={form.control}
-              name="numberOfFamilyMembers"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number Of Family Members</FormLabel>
-                  <FormControl>
-                    <Input
-                    type="number"
-                      disabled={loading}
-                      placeholder="Enter Number Of Family Members"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.numberOfFamilyMembers?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
 
-<FormField
-              control={form.control}
-              name="allergies"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Allergies</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter any allergies"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.allergies?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
            
            
     
@@ -731,7 +853,256 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   )}
 />
 
+<FormField
+              control={form.control}
+              name="cookingTimes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>How often you cooked at home? </FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select here" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2-3">2-3 Times</SelectItem>
+                        <SelectItem value="3-5">3-5 Times</SelectItem>
+                        <SelectItem value="more than 5">More than 5 Times</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.cookingTimes?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+<FormField
+  control={form.control}
+  name="cookingType"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>What do you usually cook?</FormLabel>
+      <FormControl>
+        <Input
+          placeholder="Select here"
+          disabled={loading}
+          {...field}
+        />
+      </FormControl>
+      <FormMessage>{errors.cookingType?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
+{/* <FormField
+              control={form.control}
+              name="numberOfFamilyMembers"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Number Of Family Members</FormLabel>
+                  <FormControl>
+                    <Input
+                    type="number"
+                      disabled={loading}
+                      placeholder="Enter Number Of Family Members"
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.numberOfFamilyMembers?.message}</FormMessage>
+                </FormItem>
+              )}
+            /> */}
+
+{/* <FormField
+              control={form.control}
+              name="allergies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Allergies</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter any allergies"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.allergies?.message}</FormMessage>
+                </FormItem>
+              )}
+            /> */}
+
+<div className="mt-4 flex justify-between">
+                  <Button
+                    type="button"
+                    onClick={handleAddMember}
+                    disabled={loading}
+                    className="mt-2"
+                  >
+                    Add Family Member
+                  </Button>
+                </div>
+
+          
+
           </div>
+
+                {/* Family Members Table */}
+                <div className="mt-8">
+                  {familyMembers.length > 0 && (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">   
+
+                            Name
+                          </th>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs   
+ font-medium text-gray-500 uppercase tracking-wider">
+                            Height
+                          </th>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">   
+
+                           Weight
+                          </th>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">   
+
+                          DOB
+                          </th>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">   
+
+                       Gender
+                          </th>
+                          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">   
+
+                         Allergies
+                          </th>
+                          {/* Add more header cells for Height, Weight, Allergies */}
+                          <th className="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y   
+ divide-gray-200">
+                        {familyMembers.map((member, index) => (
+                          <tr key={index}>
+                            <td className=" py-2 whitespace-nowrap text-sm text-gray-500">
+                              <Input
+                                type="text"
+                                disabled={loading}
+                                placeholder="Enter name"
+                                value={member.name}
+                                onChange={(e) => handleMemberChange(index, "name", e.target.value)}
+                              />
+                            </td>
+                            <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+      <Input
+        type="text"
+        disabled={loading}
+        placeholder="Height"
+        value={member.height}
+        onChange={(e) => handleMemberChange(index, "height", e.target.value)}
+      />
+    </td>
+
+    {/* Weight */}
+    <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+      <Input
+        type="number"
+        disabled={loading}
+        placeholder="Weight"
+        value={member.weight || ''}
+        onChange={(e) => handleMemberChange(index, "weight", e.target.value === '' ? undefined : Number(e.target.value))}
+      />
+    </td>
+                        
+                           
+                            <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
+      <Controller
+        control={control}
+        name={`familyMembers.${index}.dob`}
+        render={({ field }) => (
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full pl-3 text-left font-normal",
+                    !field.value && "text-muted-foreground"
+                  )}
+                >
+                  {field.value ? format(field.value,   
+ "dd MMM yyyy") : <span>Pick a date</span>}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value}
+                onSelect={field.onChange}
+                disabled={(date) =>
+                  date > new   
+ Date() || date < new Date("1900-01-01")
+                }
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>   
+
+        )}
+      />
+      {/* You can add FormMessage here if needed */}
+    </td>
+    <td className="px-2 py-2  whitespace-nowrap text-sm min-w-32 text-gray-500">
+                              <Select
+                                disabled={loading}
+                                onValueChange={(value) => handleMemberChange(index, "gender", value)}
+                                value={member.gender}
+                              >
+                                <SelectTrigger className="mt-5 " >
+                                  <SelectValue placeholder="Select Gender" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Male">Male</SelectItem>
+                                  <SelectItem value="Female">Female</SelectItem>   
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>   
+
+                            </td>
+  
+    
+
+    {/* Allergies */}
+    <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
+      <Input
+        type="text"
+        disabled={loading}
+        placeholder="Enter any allergies"
+        value={member.allergies}
+        onChange={(e) => handleMemberChange(index, "allergies", e.target.value)}
+      />
+    </td>
+                            {/* Add more table cells for Date of Birth, Height, Weight, Allergies */}
+                            <td className="pe-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveMember(index)}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                <Trash2Icon className="h-6 w-6" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
           <FormField
   control={form.control}
   name="extraNotes"
