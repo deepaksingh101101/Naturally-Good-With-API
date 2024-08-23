@@ -118,10 +118,24 @@ export const navItems: NavItem[] = [
     icon: 'dashboard',
     label: 'Dashboard'
   },
-
-
- 
-
+  {
+    title: 'Customer Management',
+    href: '/user-management',
+    icon: 'management',
+    label: 'User Management'
+  },
+  {
+    title: 'Subscription/Order Management',
+    href: '/order-management',
+    icon: 'order',
+    label: 'create-order'
+  },
+  {
+    title: 'Delivery Management',
+    href: '/delivery-management',
+    icon: 'order',
+    label: 'create-order'
+  },
   {
     title: 'Product/Item Management',
     href: '/product-management',
@@ -140,19 +154,9 @@ export const navItems: NavItem[] = [
     icon: 'createSubscription',
     label: 'subscription'
   },
-  {
-    title: 'Customer Management',
-    href: '/user-management',
-    icon: 'management',
-    label: 'User Management'
-  },
+
   
-  {
-    title: 'Subscription/Order Management',
-    href: '/order-management',
-    icon: 'order',
-    label: 'create-order'
-  },
+
 
   // {
   //   title: 'Routes Management',
@@ -160,12 +164,7 @@ export const navItems: NavItem[] = [
   //   icon: 'order',
   //   label: 'create-order'
   // },
-  {
-    title: 'Delivery Management',
-    href: '/delivery-management',
-    icon: 'order',
-    label: 'create-order'
-  },
+
  
   // {
   //   title: 'Profile',
@@ -231,7 +230,7 @@ export const navItems: NavItem[] = [
   },
 
 
-  
+
   {
     title: 'Report And Analytics',
     href: '/report-management',
