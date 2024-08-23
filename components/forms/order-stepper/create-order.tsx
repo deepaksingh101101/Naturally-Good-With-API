@@ -416,25 +416,31 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
-              <FormField
-              control={form.control}
-              name="amountReceived"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount Received</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled={loading}
-                      placeholder="Enter Amount Received"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+           <FormField
+  control={form.control}
+  name="amountReceived"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Amount Received</FormLabel>
+      <FormControl>
+        <Input
+          type="number"
+          disabled={loading}
+          placeholder="Enter Amount Received"
+          onChange={(e) => {
+            const value = e.target.value;
+            field.onChange(value === '' ? '' : Number(value));
+          }}
+          value={field.value === undefined || field.value === '' ? '' : field.value}
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
+
+
               <FormField
               control={form.control}
               name="amountDue"
@@ -630,7 +636,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                           options={[
                             { id: 'Upi', name: 'UPI' },
                             { id: 'Netbanking', name: 'Net Banking' },
-                            { id: 'Credit/Debit', name: 'Credit/Debit' }
+                            { id: 'Credit/Debit', name: 'Credit/Debit' },
+                            { id: 'Cod', name: 'Cash On Delivery' }
                           ]}
                           getOptionLabel={(option) => option.name}
                           getOptionValue={(option) => option.id}
@@ -639,7 +646,9 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                           value={[
                             { id: 'Upi', name: 'UPI' },
                             { id: 'Netbanking', name: 'Net Banking' },
-                            { id: 'Credit/Debit', name: 'Credit/Debit' }
+                            { id: 'Credit/Debit', name: 'Credit/Debit' },
+                            { id: 'Cod', name: 'Cash On Delivery' }
+
                           ].find(option => option.id === field.value)}
                         />
                       )}
