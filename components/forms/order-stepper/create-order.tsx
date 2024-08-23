@@ -142,6 +142,8 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
 
   const { control, trigger, watch, handleSubmit, setValue, formState: { errors } } = form;
 
+  const selectedPaymentType=watch('paymentType');
+
   const onSubmit: SubmitHandler<typeof orderFormSchema._type> = async (data) => {
     try {
       setLoading(true);
@@ -248,7 +250,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       netPrice -= manualDiscount;
     }
     setValue('netPrice', netPrice);
-  }, [selectedCoupon, subscriptionPrice, manualDiscount, setValue]);
+  }, [selectedCoupon, subscriptionPrice, manualDiscount, setValue,selectedPaymentType]);
 
   // Update manual discount percentage when net price or subscription price changes
   useEffect(() => {
@@ -258,7 +260,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     } else {
       setManualDiscountPercentage(0);
     }
-  }, [netPrice, subscriptionPrice]);
+  }, [netPrice, subscriptionPrice,selectedPaymentType]);
 
   const allowedDeliveryDays = subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.allowedDeliveryDays || [];
 
@@ -425,13 +427,13 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
       <FormControl>
         <Input
           type="number"
-          disabled={loading}
+          disabled={loading||selectedPaymentType==="Cod"}
           placeholder="Enter Amount Received"
           onChange={(e) => {
             const value = e.target.value;
             field.onChange(value === '' ? '' : Number(value));
           }}
-          value={field.value === undefined ? '' : field.value}
+          value={field.value === undefined ? '' :selectedPaymentType==="Cod"?0: field.value}
         />
       </FormControl>
       <FormMessage />
@@ -441,25 +443,30 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
 
 
 
-              <FormField
-              control={form.control}
-              name="amountDue"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount Dues</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled
-                      placeholder="Enter Amount Dues"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || netPrice-amountReceived}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+<FormField
+  control={form.control}
+  name="amountDue"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Amount Dues</FormLabel>
+      <FormControl>
+        <Input
+          type="number"
+          disabled
+          placeholder="Enter Amount Dues"
+          onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+          value={
+            field.value ||
+            selectedPaymentType === "Cod"
+              ? netPrice - (selectedCoupon?.discountPrice ?? 0)
+              : netPrice - amountReceived
+          }
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
               <FormField
                 control={form.control}

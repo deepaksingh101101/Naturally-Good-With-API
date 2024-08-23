@@ -30,6 +30,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const handleEditCoupon = () => {
     router.push(`/coupon-management/edit/${data.sno}`); 
   };
+  const handleViewStats = () => {
+    router.push(`/coupons-management/stats`); 
+  };
 
   const updateCouponVisibility = () => {
     router.push(`/coupon-management/update-visibility/${data.sno}`); 
@@ -54,6 +57,9 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={handleEditCoupon}>
             <Edit className="mr-2 h-4 w-4" /> Edit Coupon Details
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleViewStats}>
+            <Edit className="mr-2 h-4 w-4" /> View Coupons Stats
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleEditCoupon}>
             <Edit className="mr-2 h-4 w-4" /> Assign Customers
