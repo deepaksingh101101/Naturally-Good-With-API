@@ -119,6 +119,9 @@ export const navItems: NavItem[] = [
     label: 'Dashboard'
   },
 
+
+ 
+
   {
     title: 'Product/Item Management',
     href: '/product-management',
@@ -138,36 +141,19 @@ export const navItems: NavItem[] = [
     label: 'subscription'
   },
   {
-    title: 'Employee Management',
-    href: '/employee-management',
-    icon: 'user',
-    label: 'create-employee'
-  },
-  
-  {
     title: 'Customer Management',
     href: '/user-management',
     icon: 'management',
     label: 'User Management'
   },
+  
   {
     title: 'Subscription/Order Management',
     href: '/order-management',
     icon: 'order',
     label: 'create-order'
   },
-  {
-    title: 'Coupons Management',
-    href: '/coupons',
-    icon: 'order',
-    label: 'create-Coupons'
-  },
-  {
-    title: 'Referral Management',
-    href: '/referral',
-    icon: 'order',
-    label: 'create-Referral'
-  },
+
   // {
   //   title: 'Routes Management',
   //   href: '/routes-management',
@@ -196,7 +182,32 @@ export const navItems: NavItem[] = [
   //   label: 'create-subscription'
   // },
  
-
+  {
+    title: 'Employee Management',
+    href: '/employee-management',
+    icon: 'user',
+    label: 'create-employee'
+  },
+  {
+    title: 'Route Management',
+    href: '/route-management',
+    icon: 'settings',
+    label: 'settings',
+    subItems: [
+      {
+        title: 'Route Master',
+        href: '/routes-management',
+        icon: 'general',
+        label: 'general-settings'
+      },
+      {
+        title: 'Vehicle Master',
+        href: '/vehicle-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      }
+    ]
+  },
 
   {
     title: 'Complaint Management',
@@ -204,7 +215,23 @@ export const navItems: NavItem[] = [
     icon: 'complaint',
     label: 'create-complaint'
   },
+  {
+    title: 'Coupons Management',
+    href: '/coupons',
+    icon: 'order',
+    label: 'create-Coupons'
+  },
 
+
+  {
+    title: 'Referral Management',
+    href: '/referral',
+    icon: 'order',
+    label: 'create-Referral'
+  },
+
+
+  
   {
     title: 'Report And Analytics',
     href: '/report-management',
@@ -317,24 +344,5 @@ export const navItems: NavItem[] = [
       }
     ]
   },
-  {
-    title: 'Route Management',
-    href: '/route-management',
-    icon: 'settings',
-    label: 'settings',
-    subItems: [
-      {
-        title: 'Route Master',
-        href: '/routes-management',
-        icon: 'general',
-        label: 'general-settings'
-      },
-      {
-        title: 'Vehicle Master',
-        href: '/vehicle-management',
-        icon: 'paymentSetting',
-        label: 'payment-settings'
-      }
-    ]
-  },
+
 ];
