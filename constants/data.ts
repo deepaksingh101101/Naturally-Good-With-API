@@ -201,7 +201,7 @@ export const navItems: NavItem[] = [
       },
       {
         title: 'Vehicle Master',
-        href: '/vehicle-management',
+        href: '/route-management-tables/vehicle',
         icon: 'paymentSetting',
         label: 'payment-settings'
       },  

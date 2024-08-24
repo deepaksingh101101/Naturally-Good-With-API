@@ -2,20 +2,13 @@
 
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
-import { EmployeeManagement } from '@/constants/employee-management-data';
-import { Edit, MoreHorizontal, Trash, Eye, UserPlus, UserCheck } from 'lucide-react';
+import { Vehicle } from '@/constants/vehicle'; // Change this import to use Vehicle instead of City
+import { Edit, Trash } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface CellActionProps {
-  data: EmployeeManagement;
+  data: Vehicle; // Update data type to Vehicle
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -25,22 +18,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onConfirm = async () => {
     // Your confirm logic here
+    setLoading(true);
+    // Simulate deletion process
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setLoading(false);
+    setOpen(false);
+    // Perform deletion action here
   };
 
- 
-  const editEmployeeDetails = () => {
-    router.push(`/employee-management/editEmployeeDetails/${data}`); 
+  const editVehicle = () => {
+    router.push(`/vehicle-management/editVehicle/${data.id}`); // Update path to vehicle-management
   };
 
-  const viewEmployeePerformance = () => {
-    router.push(`/employee-management/viewEmployeePerformance/${data}`); 
+  const deleteVehicle = () => {
+    setOpen(true);
   };
-
-  const assignUserToEmployee = () => {
-    router.push(`/employee-management/assignUserToEmployee/${data}`); 
-  };
-
-
 
   return (
     <>
@@ -50,38 +42,22 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onConfirm={onConfirm}
         loading={loading}
       />
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-          {/* <DropdownMenuItem onClick={handleRegisterNewSubscription}>
-            <UserPlus className="mr-2 h-4 w-4" /> Create New Subscription
-          </DropdownMenuItem> */}
-      
-          <DropdownMenuItem onClick={viewEmployeePerformance}>
-            <Eye className="mr-2 h-4 w-4" /> View Employee Performance 
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={editEmployeeDetails}>
-            <UserCheck className="mr-2 h-4 w-4" /> Edit Employee Details
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={assignUserToEmployee}>
-            <UserCheck className="mr-2 h-4 w-4" /> Assign Customer To Employee
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={assignUserToEmployee}>
-            <UserCheck className="mr-2 h-4 w-4" /> Edit Permissions
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="mr-2 h-4 w-4" /> Delete Employee
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex justify-center gap-2">
+        <Button 
+          variant="outline" 
+          onClick={editVehicle}
+          className="text-white bg-green-500 hover:bg-green-600 hover:text-white"
+        >
+          <Edit className="h-4 w-4" /> 
+        </Button>
+        <Button 
+          variant="outline" 
+          onClick={deleteVehicle}
+          className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
+        >
+          <Trash className="h-4 w-4" /> 
+        </Button>
+      </div>
     </>
   );
 };

@@ -1,26 +1,12 @@
-// columns/EmployeeManagementColumns.tsx
 'use client';
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { EmployeeManagement } from '@/constants/employee-management-data';
-import { Mail, Phone } from 'lucide-react';
-import AssignedRoutesCell from '@/components/AssignedRoutesCell';
-import { Button } from '@/components/ui/button';
+import { Vehicle } from '@/constants/vehicle';
 import { CellAction } from './cell-action';
 
-// Function to generate a random color in hex format
-const getRandomColor = () => {
-  const letters = '0123456789ABCDEF';
-  let color = '#';
-  for (let i = 0; i < 6; i++) {
-    color += letters[Math.floor(Math.random() * 16)];
-  }
-  return color;
-};
-
-export const columns: ColumnDef<EmployeeManagement>[] = [
+export const columns: ColumnDef<Vehicle>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -41,90 +27,36 @@ export const columns: ColumnDef<EmployeeManagement>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'sno',
-    header: 'EID'
+    accessorKey: 'vehicleName',
+    header: 'Vehicle Name',
   },
   {
-    accessorKey: 'firstName',
-    header: 'First Name',
-    cell: ({ row }) => (
-      <div className="flex items-center">
-        <div 
-          className="flex items-center justify-center w-8 h-8 rounded-full mr-2"
-          style={{ backgroundColor: getRandomColor(), color: 'white' }}
-        >
-          {row.original.firstName.charAt(0)}
-        </div>
-        <span>{row.original.firstName}</span>
-      </div>
-    ),
-    enableSorting: true,
+    accessorKey: 'classification',
+    header: 'Classification',
   },
   {
-    accessorKey: 'lastName',
-    header: 'Last Name',
+    accessorKey: 'vehicleNumber',
+    header: 'Vehicle Number',
+    cell: ({ row }) => <div className="flex justify-center">{row.original.vehicleNumber}</div>
   },
   {
-    accessorKey: 'contactInformation.phone',
-    header: 'Phone',
-    cell: ({ row }) => (
-      <div className="flex items-center mt-1">
-        <Phone className="text-green-500 mr-2" width={10} height={10} />
-        <span className="">{row.original.contactInformation.phone}</span>
-      </div>
-    )
+    accessorKey: 'vehicleModel',
+    header: 'Vehicle Model',
+    cell: ({ row }) => <div className="flex justify-center">{row.original.vehicleModel}</div>
   },
   {
-    accessorKey: 'contactInformation.email',
-    header: 'Email',
-    cell: ({ row }) => (
-        <div className="flex items-center mt-1">
-          <Mail className="text-blue-500 mr-2" width={10} height={10} />
-          <span className="">{row.original.contactInformation.email}</span>
-      </div>
-    )
+    accessorKey: 'driverName',
+    header: 'Driver Name',
+    cell: ({ row }) => <div className="flex justify-center">{row.original.driverName}</div>
   },
   {
-    accessorKey: 'dob',
-    header: 'Dob'
-  },
-  {
-    accessorKey: 'gender',
-    header: 'Gender'
-  },
-  {
-    accessorKey: 'address',
-    header: 'Street Address'
-  },
-  {
-    accessorKey: 'city',
-    header: 'City'
-  },
-  {
-    accessorKey: 'state',
-    header: 'State'
-  },
-
- 
-  {
-    accessorKey: 'assignedUsers',
-    header: 'Assigned Customers',
-    cell: ({ row }) => (
-      <ul>
-        {row.original.assignedUsers.map((user) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul>
-    )
-  },
-
- 
-  {
-    accessorKey: 'role',
-    header: 'Role'
+    accessorKey: 'driverNumber',
+    header: 'Driver Number',
+    cell: ({ row }) => <div className="flex justify-center">{row.original.driverNumber}</div>
   },
   {
     id: 'actions',
+    header: 'Action',
     cell: ({ row }) => <CellAction data={row.original} />
   }
 ];
