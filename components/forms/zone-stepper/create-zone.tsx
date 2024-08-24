@@ -118,26 +118,8 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             {/* Zone Name Field */}
-            <FormField
-              control={control}
-              name="zoneName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Zone Name</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter Zone Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.zoneName?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-
-            {/* City Field */}
-            <FormField
+             {/* City Field */}
+             <FormField
               control={control}
               name="city"
               render={({ field }) => (
@@ -166,6 +148,26 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={control}
+              name="zoneName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Zone Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      disabled={loading}
+                      placeholder="Enter Zone Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.zoneName?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+           
 
             {/* Serviced Field */}
             <FormField
@@ -229,8 +231,8 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
             />
           </div>
 
-          {/* Locality Field */}
-          <FormField
+        {/* Locality Field */}
+          {/* <FormField
             control={control}
             name="locality"
             render={({ field }) => (
@@ -270,7 +272,7 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
                 <FormMessage>{errors.locality?.message}</FormMessage>
               </FormItem>
             )}
-          />
+          /> */}
 
           <Button type="submit" disabled={loading}>
             {initialData ? 'Save Changes' : 'Create Zone'}

@@ -206,18 +206,19 @@ export const navItems: NavItem[] = [
         label: 'payment-settings'
       },  
       {
+        title: 'Zone Master',
+        href: '/zone-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      },
+      {
         title: 'Locality Master',
         href: '/locality-management',
         icon: 'paymentSetting',
         label: 'payment-settings'
       },
 
-      {
-        title: 'Zone Master',
-        href: '/zone-management',
-        icon: 'paymentSetting',
-        label: 'payment-settings'
-      },
+  
     
       {
         title: 'Route Master',
