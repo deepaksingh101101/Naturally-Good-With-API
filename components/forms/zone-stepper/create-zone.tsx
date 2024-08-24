@@ -10,6 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { VehicleManagementClient } from '@/components/tables/route-management-tables/vehicleTable/client';
+import { ZoneManagementClient } from '@/components/tables/route-management-tables/zoneTable/client';
 
 // Define the interface for form data
 export interface ZoneFormData {
@@ -279,6 +281,11 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
           </Button>
         </form>
       </Form>
+
+
+      {/* Starting Table */}
+      <ZoneManagementClient  />
+
     </div>
   );
 };
