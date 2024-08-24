@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,10 +18,10 @@ export interface RouteFormData {
   day: { label: string; value: string }[];
   vehicleTagged: { label: string; value: string }[];
   zoneName: { label: string; value: string }[];
-  city: { id: string; label: string; value: string } | null;  // Update here
+  city: { id: string; label: string; value: string; zones: { label: string; value: string }[] } | null;
 }
 
-
+// Define schema for form validation
 const routeFormSchema = z.object({
   status: z
     .object({
@@ -60,13 +60,17 @@ const routeFormSchema = z.object({
       id: z.string(),
       label: z.string(),
       value: z.string(),
+      zones: z.array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+        })
+      ),
     })
     .nullable()
-    .refine((data) => data !== null, { message: 'City is required' }),  // Update here
+    .refine((data) => data !== null, { message: 'City is required' }),
 });
 
-
-// Sample options for the select fields
 const statusOptions = [
   { label: 'Active', value: 'active' },
   { label: 'Inactive', value: 'inactive' },
@@ -88,20 +92,27 @@ const vehicleOptions = [
   { label: 'Vehicle 3', value: 'vehicle3' },
 ];
 
-const zoneOptions = [
-  { label: 'Zone 1', value: 'zone1' },
-  { label: 'Zone 2', value: 'zone2' },
-  { label: 'Zone 3', value: 'zone3' },
-];
 const cityOptions = [
-  { id: 'city1', label: 'City 1', value: 'city1' },
-{ id: 'city2', label: 'City 2', value: 'city2' },
-  { id: 'city3', label: 'City 3', value: 'city3' },
+  { id: 'city1', label: 'City 1', value: 'city1', zones: [
+      { label: 'Zone 1A', value: 'zone1a' },
+      { label: 'Zone 1B', value: 'zone1b' },
+    ]
+  },
+  { id: 'city2', label: 'City 2', value: 'city2', zones: [
+      { label: 'Zone 2A', value: 'zone2a' },
+      { label: 'Zone 2B', value: 'zone2b' },
+    ]
+  },
+  { id: 'city3', label: 'City 3', value: 'city3', zones: [
+      { label: 'Zone 3A', value: 'zone3a' },
+      { label: 'Zone 3B', value: 'zone3b' },
+    ]
+  },
 ];
-
 
 export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
+  const [zoneOptions, setZoneOptions] = useState<{ label: string; value: string }[]>([]);
 
   const form = useForm<RouteFormData>({
     resolver: zodResolver(routeFormSchema),
@@ -111,16 +122,28 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
       day: [],
       vehicleTagged: [],
       zoneName: [],
-      city: null,  // Add this line
+      city: null,
     },
   });
-  
 
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = form;
+
+  // Watch for changes in city selection
+  const selectedCity = watch('city');
+
+  useEffect(() => {
+    if (selectedCity) {
+      const city = cityOptions.find(option => option.value === selectedCity.value);
+      setZoneOptions(city ? city.zones : []);
+    } else {
+      setZoneOptions([]);
+    }
+  }, [selectedCity]);
 
   const onSubmit: SubmitHandler<RouteFormData> = async (data) => {
     try {
@@ -148,7 +171,7 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-          <FormField
+            <FormField
               control={control}
               name="routeName"
               render={({ field }) => (
@@ -165,41 +188,42 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
                 </FormItem>
               )}
             />
-            <FormField
-  control={control}
-  name="city"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>City</FormLabel>
-      <FormControl>
-        <Select
-          isDisabled={loading}
-          options={cityOptions.map(option => ({
-            label: option.label,
-            value: option.value,
-            id: option.id, // Include id in options
-          }))}
-          placeholder="Select City"
-          value={field.value ? {
-            label: field.value.label,
-            value: field.value.value,
-            id: field.value.id, // Include id in value
-          } : null}
-          onChange={(selected) => {
-            field.onChange(selected ? {
-              id: selected.id,
-              label: selected.label,
-              value: selected.value,
-            } : null);
-          }}
-        />
-      </FormControl>
-      <FormMessage>{errors.city?.message}</FormMessage>
-    </FormItem>
-  )}
-/>
 
-            {/* Status Field */}
+            <FormField
+              control={control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Select
+                      isDisabled={loading}
+                      options={cityOptions.map(option => ({
+                        label: option.label,
+                        value: option.value,
+                        id: option.id,
+                      }))}
+                      placeholder="Select City"
+                      value={field.value ? {
+                        label: field.value.label,
+                        value: field.value.value,
+                        id: field.value.id,
+                      } : null}
+                      onChange={(selected) => {
+                        field.onChange(selected ? {
+                          id: selected.id,
+                          label: selected.label,
+                          value: selected.value,
+                          zones: cityOptions.find(city => city.value === selected.value)?.zones || [],
+                        } : null);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.city?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={control}
               name="status"
@@ -220,10 +244,6 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
               )}
             />
 
-            {/* Route Name Field */}
-           
-
-            {/* Day Field */}
             <FormField
               control={control}
               name="day"
@@ -245,7 +265,6 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
               )}
             />
 
-            {/* Vehicle Tagged Field */}
             <FormField
               control={control}
               name="vehicleTagged"
@@ -269,8 +288,7 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
 
           
           </div>
-            {/* Zone Name Field */}
-            <FormField
+          <FormField
               control={control}
               name="zoneName"
               render={({ field }) => (
@@ -290,8 +308,8 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
                 </FormItem>
               )}
             />
-          <Button type="submit" disabled={loading}>
-            {initialData ? 'Save Changes' : 'Create Route'}
+          <Button type="submit" disabled={loading} className="mt-4">
+            {initialData ? 'Update Route' : 'Create Route'}
           </Button>
         </form>
       </Form>
