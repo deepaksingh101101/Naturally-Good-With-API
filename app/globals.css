@@ -122,3 +122,8 @@
   opacity: 0.5 !important;
   pointer-events: none !important;
 }
+
+
+html, body {
+  overflow-y: hidden;   /* Auto hides vertical overflow */
+}
