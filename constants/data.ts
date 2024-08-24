@@ -195,7 +195,7 @@ export const navItems: NavItem[] = [
     subItems: [
       {
         title: 'City Master',
-        href: '/city-management',
+        href: '/route-management-tables/city',
         icon: 'paymentSetting',
         label: 'payment-settings'
       },
