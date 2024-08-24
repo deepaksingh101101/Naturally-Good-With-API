@@ -29,7 +29,10 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   };
 
   const editZone = () => {
-    router.push(`/zone-management/editZone/${data.id}`); // Update path to zone-management
+    router.push(`/zone-management/editZone`); // Update path to zone-management
+  };
+  const viewZone = () => {
+    router.push(`/zone-management/viewZone`); // Update path to zone-management
   };
 
   const deleteZone = () => {
@@ -47,7 +50,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       <div className="flex justify-center gap-2">
         <Button 
           variant="outline" 
-          onClick={editZone}
+          onClick={viewZone}
           className="text-white bg-blue-500 hover:bg-blue-600 hover:text-white"
         >
           <Eye className="h-4 w-4" /> 

@@ -36,12 +36,7 @@ export const ZoneManagementClient: React.FC = () => {
           title={`Zones (${data.length})`}
           description="Manage Zones (Client-side table functionalities.)"
         />
-        <Button
-          className="text-xs md:text-sm"
-          onClick={() => router.push(`/zone-management`)} // Adjust the route if needed
-        >
-          <Plus className="mr-2 h-4 w-4" /> Add New
-        </Button>
+      
       </div>
       <Separator />
       <DataTable
