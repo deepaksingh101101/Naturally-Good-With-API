@@ -194,17 +194,46 @@ export const navItems: NavItem[] = [
     label: 'settings',
     subItems: [
       {
-        title: 'Route Master',
-        href: '/routes-management',
-        icon: 'general',
-        label: 'general-settings'
+        title: 'City Master',
+        href: '/city-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
       },
       {
         title: 'Vehicle Master',
         href: '/vehicle-management',
         icon: 'paymentSetting',
         label: 'payment-settings'
-      }
+      },  
+      {
+        title: 'Locality Master',
+        href: '/locality-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      },
+
+      {
+        title: 'Zone Master',
+        href: '/zone-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      },
+    
+      {
+        title: 'Route Master',
+        href: '/route-management',
+        icon: 'paymentSetting',
+        label: 'payment-settings'
+      },
+  
+      
+      {
+        title: 'Route Master',
+        href: '/routes-management',
+        icon: 'general',
+        label: 'general-settings'
+      },
+  
     ]
   },
 
