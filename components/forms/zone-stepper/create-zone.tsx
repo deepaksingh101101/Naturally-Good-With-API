@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Select from 'react-select';
@@ -18,6 +18,7 @@ export interface ZoneFormData {
   deliverySequence: number;
   deliveryCost: number;
   locality: { name: string; id: string; pincode: string }[];
+  city: { id: string; label: string; value: string } | null;
 }
 
 // Define the schema for form validation
@@ -41,6 +42,14 @@ const zoneFormSchema = z.object({
       })
     )
     .min(1, 'At least one locality must be selected'),
+  city: z
+    .object({
+      id: z.string(),
+      label: z.string(),
+      value: z.string(),
+    })
+    .nullable()
+    .refine((data) => data !== null, { message: 'City is required' }),
 });
 
 // Sample options for select fields
@@ -55,6 +64,12 @@ const localityOptions = [
   { name: 'Locality 3', id: 'locality3', pincode: '789012' },
 ];
 
+const cityOptions = [
+  { id: 'city1', label: 'City 1', value: 'city1' },
+  { id: 'city2', label: 'City 2', value: 'city2' },
+  { id: 'city3', label: 'City 3', value: 'city3' },
+];
+
 export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +81,7 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
       deliverySequence: 1,
       deliveryCost: 0,
       locality: [],
+      city: null,
     },
   });
 
@@ -116,6 +132,37 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
                     />
                   </FormControl>
                   <FormMessage>{errors.zoneName?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
+
+            {/* City Field */}
+            <FormField
+              control={control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>City</FormLabel>
+                  <FormControl>
+                    <Select
+                      isDisabled={loading}
+                      options={cityOptions}
+                      placeholder="Select City"
+                      value={field.value ? {
+                        label: field.value.label,
+                        value: field.value.value,
+                        id: field.value.id,
+                      } : null}
+                      onChange={(selected) => {
+                        field.onChange(selected ? {
+                          id: selected.id,
+                          label: selected.label,
+                          value: selected.value,
+                        } : null);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage>{errors.city?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -180,52 +227,51 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
                 </FormItem>
               )}
             />
-
-       
-
           </div>
-               {/* Locality Field */}
-               <FormField
-  control={control}
-  name="locality"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Locality</FormLabel>
-      <FormControl>
-        <Select
-          isMulti
-          isDisabled={loading}
-          options={localityOptions.map(option => ({
-            label: (
-              <div className='flex justify-between' >
-                {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
-              </div>
-            ),
-            value: option.id,
-          }))}
-          placeholder="Select Localities"
-          value={field.value.map(option => ({
-            label: (
-              <div>
-                {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
-              </div>
-            ),
-            value: option.id,
-          }))}
-          onChange={(selected) => {
-            field.onChange(selected.map(opt => ({
-              name: localityOptions.find(loc => loc.id === opt.value)?.name || '',
-              id: opt.value,
-              pincode: localityOptions.find(loc => loc.id === opt.value)?.pincode || '',
-            })));
-          }}
-          formatOptionLabel={({ label }) => <div>{label}</div>}
-        />
-      </FormControl>
-      <FormMessage>{errors.locality?.message}</FormMessage>
-    </FormItem>
-  )}
-/>
+
+          {/* Locality Field */}
+          <FormField
+            control={control}
+            name="locality"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Locality</FormLabel>
+                <FormControl>
+                  <Select
+                    isMulti
+                    isDisabled={loading}
+                    options={localityOptions.map(option => ({
+                      label: (
+                        <div className='flex justify-between'>
+                          {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
+                        </div>
+                      ),
+                      value: option.id,
+                    }))}
+                    placeholder="Select Localities"
+                    value={field.value.map(option => ({
+                      label: (
+                        <div>
+                          {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
+                        </div>
+                      ),
+                      value: option.id,
+                    }))}
+                    onChange={(selected) => {
+                      field.onChange(selected.map(opt => ({
+                        name: localityOptions.find(loc => loc.id === opt.value)?.name || '',
+                        id: opt.value,
+                        pincode: localityOptions.find(loc => loc.id === opt.value)?.pincode || '',
+                      })));
+                    }}
+                    formatOptionLabel={({ label }) => <div>{label}</div>}
+                  />
+                </FormControl>
+                <FormMessage>{errors.locality?.message}</FormMessage>
+              </FormItem>
+            )}
+          />
+
           <Button type="submit" disabled={loading}>
             {initialData ? 'Save Changes' : 'Create Zone'}
           </Button>
