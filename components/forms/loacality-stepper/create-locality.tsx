@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 import ReactSelect from 'react-select';
+import { ZoneManagementClient } from '@/components/tables/route-management-tables/zoneTable/client';
+import { LocalityManagementClient } from '@/components/tables/route-management-tables/localityTable/client';
 
 export interface LocalityFormData {
   sectorLocality: string;
@@ -243,6 +245,9 @@ export const LocalityForm: React.FC<{ initialData?: LocalityFormData }> = ({ ini
           </Button>
         </form>
       </Form>
+
+          {/* Starting Table */}
+          <LocalityManagementClient  />
     </div>
   );
 };

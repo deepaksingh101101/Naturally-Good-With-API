@@ -10,6 +10,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { LocalityManagementClient } from '@/components/tables/route-management-tables/localityTable/client';
+import { RouteManagementClient } from '@/components/tables/route-management-tables/routeTable/client';
 
 // Define the interface for form data
 export interface RouteFormData {
@@ -313,6 +315,9 @@ export const RouteForm: React.FC<{ initialData?: RouteFormData }> = ({ initialDa
           </Button>
         </form>
       </Form>
+
+      <RouteManagementClient  />
+
     </div>
   );
 };
