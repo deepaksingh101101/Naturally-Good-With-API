@@ -365,6 +365,13 @@ export const navItems: NavItem[] = [
         icon: 'notificationSetting',
         label: 'notification-settings'
       },
+      
+      {
+        title: 'Permissions Settings',
+        href: '/permission-management',
+        icon: 'general',
+        label: 'general-settings'
+      },
       {
         title: 'API Settings',
         href: '/settings-management/API',
