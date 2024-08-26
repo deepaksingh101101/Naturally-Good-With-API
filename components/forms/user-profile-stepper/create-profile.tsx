@@ -809,6 +809,26 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
+               <FormField
+  control={form.control}
+  name="weight"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Height</FormLabel>
+      <FormControl>
+        <Input
+          type="number"
+          placeholder="Enter height"
+          disabled={loading}
+          {...field}
+          onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+          value={field.value || ''}
+        />
+      </FormControl>
+      <FormMessage>{errors.height?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
      <FormField
   control={form.control}
   name="weight"
@@ -853,6 +873,23 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   )}
 />
 
+<FormField
+  control={form.control}
+  name="allergies"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Allergies</FormLabel>
+      <FormControl>
+        <Input
+          placeholder="Enter allergies"
+          disabled={loading}
+          {...field}
+        />
+      </FormControl>
+      <FormMessage>{errors.allergies?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
 <FormField
               control={form.control}
               name="cookingTimes"
