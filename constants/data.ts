@@ -341,12 +341,12 @@ export const navItems: NavItem[] = [
     icon: 'settings',
     label: 'settings',
     subItems: [
-        {
-    title: 'Admin',
-    href: '/admin',
-    icon: 'user',
-    label: 'Admin'
-  },
+  //       {
+  //   title: 'Admin',
+  //   href: '/admin',
+  //   icon: 'user',
+  //   label: 'Admin'
+  // },
       {
         title: 'General Settings',
         href: '/settings-management/general',
