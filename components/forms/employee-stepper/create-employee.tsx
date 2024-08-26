@@ -102,6 +102,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
     { value: 'Manager', label: 'Manager' },
     { value: 'Executive', label: 'Executive' },
     { value: 'External', label: 'External' },
+    { value: 'Admin', label: 'Admin' },
   ]);
 
   const addRole = () => {
