@@ -73,6 +73,7 @@ const FormSchema = z.object({
   dob: z.date().optional(),
   gender: z.string().optional(),
   weight: z.number().optional(),
+  height: z.number().optional(),
   preferences: z.string().optional(),
   extraNotes: z.string().optional(),
   cookingTimes: z.string().optional(),
@@ -811,7 +812,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
             />
                <FormField
   control={form.control}
-  name="weight"
+  name="height"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Height</FormLabel>
