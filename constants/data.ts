@@ -228,12 +228,12 @@ export const navItems: NavItem[] = [
       },
   
       
-      {
-        title: 'Route Master',
-        href: '/routes-management',
-        icon: 'general',
-        label: 'general-settings'
-      },
+      // {
+      //   title: 'Route Master',
+      //   href: '/routes-management',
+      //   icon: 'general',
+      //   label: 'general-settings'
+      // },
   
     ]
   },
