@@ -297,6 +297,18 @@ export const navItems: NavItem[] = [
         icon: 'productStock',
         label: 'product-stock'
       },
+      {
+        title: 'Packwise Report',
+        href: '/report-management/pack-wise',
+        icon: 'productStock',
+        label: 'product-stock'
+      },
+      {
+        title: 'Routewise Report',
+        href: '/report-management/route-wise',
+        icon: 'productStock',
+        label: 'product-stock'
+      },
       // {
       //   title: 'Cash Flow',
       //   href: '/report-management/cash-flow',
