@@ -896,7 +896,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
               name="cookingTimes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>How often you cooked at home? </FormLabel>
+                  <FormLabel>How often do you cook at home? </FormLabel>
                   <FormControl>
                     <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
