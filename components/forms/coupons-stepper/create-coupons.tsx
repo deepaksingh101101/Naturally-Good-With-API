@@ -26,7 +26,8 @@ const couponFormSchema = z.object({
   code: z.string().min(1, 'Coupon Code is required'),
   couponsName: z.string().min(1, 'Coupon Name is required'),
   discountPrice: z.number().positive('Discount Price must be greater than zero'),
-  couponType: z.enum(['global', 'subscription','freeDelivery','seasonSpecial','celebrity']),
+  couponType: z.enum(['normal', 'subscription']),
+  couponCategory: z.enum(['normal','freeDelivery','seasonSpecial','celebrity']),
   validityType: z.enum(['dateRange', 'noRange']),
   discountType: z.enum(['price', 'percentage']),
   visibility: z.enum(['Admin', 'Public','Private']),
@@ -66,7 +67,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
       code: initialData?.code || '',
       discountPrice: initialData?.discountPrice || 0,
       visibility: initialData?.visibility || 'Admin',
-      couponType: initialData?.couponType || 'global',
+      couponType: initialData?.couponType || 'normal',
       discountType: initialData?.discountType || 'price',
       validityType: initialData?.validityType || 'dateRange',
       subscriptionType: initialData?.subscriptionType || [],
@@ -81,13 +82,14 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
   const { control, handleSubmit, setValue, watch, formState: { errors } } = form;
 
   const selectedCouponType = watch('couponType');
+  const selectedCouponCategory = watch('couponCategory');
   const selectedDiscountType = watch('discountType');
   const selectedValidityType = watch('validityType');
   const selectedSubscriptionType = watch('subscriptionType');
   const discountPrice = watch('discountPrice');
 
   useEffect(() => {
-    if (selectedCouponType === 'global') {
+    if (selectedCouponType === 'normal') {
       setValue('subscriptionType', []);
     }
   }, [selectedCouponType, setValue]);
@@ -157,11 +159,11 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
                         <SelectValue placeholder="Select Coupon Type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="global">Global</SelectItem>
+                        <SelectItem value="normal">Normal Discount</SelectItem>
                         <SelectItem value="subscription">Subscription</SelectItem>
-                        <SelectItem value="freeDelivery">Free Delivery</SelectItem>
+                        {/* <SelectItem value="freeDelivery">Free Delivery</SelectItem>
                         <SelectItem value="celebrity">Celebrity Type</SelectItem>
-                        <SelectItem value="seasonSpecial">Season Special</SelectItem>
+                        <SelectItem value="seasonSpecial">Season Special</SelectItem> */}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -170,9 +172,34 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
+
+<FormField
+              control={form.control}
+              name="couponCategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Coupon Category</FormLabel>
+                  <FormControl>
+                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Coupon Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="freeDelivery">Free Delivery</SelectItem>
+                        <SelectItem value="celebrity">Celebrity Type</SelectItem>
+                        <SelectItem value="seasonSpecial">Season Special</SelectItem>
+                        <SelectItem value="normal">Normal Category</SelectItem>
+
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage>{errors.couponType?.message}</FormMessage>
+                </FormItem>
+              )}
+            />
             
 
-          {selectedCouponType==="seasonSpecial"  &&  <FormField
+          {selectedCouponCategory==="seasonSpecial"  &&  <FormField
               control={form.control}
               name="couponsName"
               render={({ field }) => (
@@ -205,7 +232,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />
 
-{selectedCouponType !== 'freeDelivery' && <FormField
+{selectedCouponCategory !== 'freeDelivery' && <FormField
               control={form.control}
               name="discountType"
               render={({ field }) => (
@@ -227,7 +254,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />}
 
-      {selectedCouponType !== 'freeDelivery' &&    
+      {selectedCouponCategory !== 'freeDelivery' &&    
       <>
        {selectedDiscountType ==='price' && <FormField
               control={form.control}
@@ -364,7 +391,7 @@ export const CreateCoupons: React.FC<CouponFormProps> = ({ initialData }) => {
               )}
             />}
 
-           {selectedCouponType!=='celebrity' && <FormField
+           {selectedCouponCategory!=='celebrity' && <FormField
               control={form.control}
               name="visibility"
               render={({ field }) => (
