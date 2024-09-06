@@ -1,25 +1,48 @@
-import { Metadata } from 'next';
+'use client';
 import UserAuthForm from '@/components/forms/sign-form';
 import Image from 'next/image';
 import logo from '@/public/assets/ngLogo.png';
-
-export const metadata: Metadata = {
-  title: 'Authentication',
-  description: 'Authentication forms built using the components.'
-};
+import { useRouter } from 'next/navigation';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/app/redux/store';
+import { useEffect } from 'react';
+import { getLocalStorageItem } from '@/utils/localStorage';
+import { setLoading } from '@/app/redux/slices/authSlice';
+import Loader from '@/components/loader/Loader';
 
 export default function AuthenticationPage() {
+const router = useRouter();
+const isAuthenticated = getLocalStorageItem('token');
+//   const loading = useSelector((state: RootState) => state.auth.loading);
+const { loading } = useSelector((state: RootState) => state.auth);
+
+const dispatch=useDispatch()
+  useEffect(() => {
+    const isAuthenticated = getLocalStorageItem('token');
+
+    if (isAuthenticated) {
+      router.push('/dashboard'); // Redirect to dashboard if already authenticated
+    }
+    dispatch(setLoading(false)); 
+  }, [isAuthenticated, router]);
+
+
   return (
-    <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+    <>
+{(loading || isAuthenticated )  && 
+ <div className='min-h-[100vh] min-w-full flex justify-center items-center' >
+    <Loader/>
+</div>
+}    
+    {(!loading) && <div className="relative h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
-        <Image src={logo} alt="Naturally Goods Logo" width={50} height={50} />
-
+          <Image src={logo} alt="Naturally Goods Logo" width={50} height={50} />
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
-          <p className="text-lg">
+            <p className="text-lg">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate aut aspernatur esse quibusdam nesciunt.
             </p>
             <footer className="text-sm">Naturally Good</footer>
@@ -37,6 +60,7 @@ export default function AuthenticationPage() {
           <UserAuthForm />
         </div>
       </div>
-    </div>
+    </div>}
+    </>
   );
 }

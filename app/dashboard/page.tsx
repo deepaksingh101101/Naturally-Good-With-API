@@ -170,7 +170,8 @@ export default function page() {
   // ];
 
   return (
-      <MainLayout meta={{ title: 'Dashboard' }}>
+    <ProtectedRoute>
+            <MainLayout meta={{ title: 'Dashboard' }}>
         {/* <ScrollArea className="h-full"> */}
           <div className="flex-1 min space-y-4 p-4 pt-6 md:p-8">
             <div className="flex items-center justify-between space-y-2">
@@ -300,5 +301,7 @@ export default function page() {
         {/* </ScrollArea> */}
        
       </MainLayout>
+      </ProtectedRoute>
+
   );
 }

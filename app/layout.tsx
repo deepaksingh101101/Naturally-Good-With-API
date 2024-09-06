@@ -1,18 +1,18 @@
+// app/layout.tsx
 import '@uploadthing/react/styles.css';
-import type { Metadata } from 'next';
 import NextTopLoader from 'nextjs-toploader';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import AuthProvider from '@/provider/auth.provider';
+import Providers from '@/components/Providers'; // Import the Providers component
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metadata: Metadata = {
+export const metaMetadata = {
   title: 'Next',
   description: 'Basic dashboard with Next.js'
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
@@ -20,8 +20,10 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
+        <Providers>
           <NextTopLoader />
           {children}
+        </Providers>
       </body>
     </html>
   );
