@@ -20,10 +20,8 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} overflow-hidden`}>
-        <AuthProvider>
           <NextTopLoader />
           {children}
-        </AuthProvider>
       </body>
     </html>
   );

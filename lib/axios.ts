@@ -1,4 +1,4 @@
-import Axios from 'axios';
+import Axios, { AxiosResponse, Method } from 'axios';
 
 import storage from '../utils/storage';
 
@@ -42,3 +42,25 @@ axios.interceptors.response.use(
     });
   }
 );
+
+
+// Common method for api hitting 
+async function apiCall<T = any>(
+  method: Method,
+  url: string,
+  data?: any
+): Promise<T> {
+  try {
+    const response: AxiosResponse<T> = await axios({
+      method,
+      url,
+      data
+    });
+    return response.data;
+  } catch (error: any) {
+    // You can handle specific errors or rethrow them
+    throw error;
+  }
+}
+
+export default apiCall;
