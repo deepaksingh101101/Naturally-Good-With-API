@@ -7,7 +7,7 @@ import Providers from '@/components/Providers'; // Import the Providers componen
 
 const inter = Inter({ subsets: ['latin'] });
 
-export const metaMetadata = {
+export const metadata = {
   title: 'Next',
   description: 'Basic dashboard with Next.js'
 };
