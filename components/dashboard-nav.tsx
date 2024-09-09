@@ -74,7 +74,7 @@ export function DashboardNav({
     <nav className="grid items-start gap-2 overflow-y-auto max-h-[80vh] no-scrollbar">
       <TooltipProvider>
         {items.map((item, index) => {
-          const Icon = Icons[item.icon || 'arrowRight'];
+          const Icon:any = Icons[item.icon || 'arrowRight'];
           const isExpanded = expandedItems.includes(item.href || '');
           const isActive = activeItem === item.href;
 
