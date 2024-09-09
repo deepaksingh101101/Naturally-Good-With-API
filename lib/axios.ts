@@ -46,21 +46,23 @@ axios.interceptors.response.use(
 
 
 // Common method for api hitting 
+
 async function apiCall<T = any>(
   method: Method,
   url: string,
   data?: any
-): Promise<T> {
+): Promise<AxiosResponse<T>> { // Return type is now AxiosResponse<T>
   try {
     const response: AxiosResponse<T> = await axios({
       method,
       url,
-      data
+      data,
+      // You can add headers or other configurations here if needed
     });
-    return response.data;
+    return response; // Return the whole response object
   } catch (error: any) {
-    // You can handle specific errors or rethrow them
-    throw error;
+    console.error('API call error:', error); // Log the error for debugging
+    throw error; // Rethrow the error for handling in the caller
   }
 }
 

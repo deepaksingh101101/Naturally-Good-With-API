@@ -8,7 +8,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactSelect from 'react-select';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
@@ -17,67 +17,111 @@ import { CalendarIcon, Edit, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { createEmployee } from '@/app/redux/actions/employeeActions';
+import apiCall from '@/lib/axios';
+import { getAllRoleName } from '@/app/redux/actions/dropdownActions';
+import { setLoading } from '@/app/redux/slices/authSlice';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
 
 interface EmployeeFormType {
   initialData: any | null;
-  userOptions: { id: string; name: string; phoneNo: string }[]; // List of users to assign
 }
 
 const employeeFormSchema = z.object({
-  employeeId: z.number().nonnegative().optional(),
-  firstName: z.string().min(1, 'First Name is required'),
-  lastName: z.string().min(1, 'Last Name is required'),
-  role: z.string().min(1, 'Role is required'),
-  contactInformation: z.object({
-    email: z.string().email('Invalid email format').min(1, 'Email is required'),
-    phone: z.string().min(1, 'Phone is required'),
-  }),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
-  city: z.string().min(1, 'City is required'),
-  state: z.string().min(1, 'State is required'),
-  address: z.string().min(1, 'Address is required'),
-  gender: z.string().min(1, 'Gender is required'),
-  dob: z.date({
+  FirstName: z.string().min(1, 'First Name is required'),
+  LastName: z.string().min(1, 'Last Name is required'),
+  RoleId: z.string().min(1, 'Role is required'),
+  Email: z.string().email('Invalid email format').min(1, 'Email is required'),
+  PhoneNumber: z.string().length(10, 'Phone number must be exactly 10 characters long'),
+  Password: z.string().min(6, 'Password must be at least 6 characters long'),
+  City: z.string().min(1, 'City is required'),
+  State: z.string().min(1, 'State is required'),
+  StreetAddress: z.string().min(1, 'Address is required'),
+  Gender: z.string().min(1, 'Gender is required'),
+  Dob: z.date({
     required_error: 'Date of Birth is required.',
   }),
-  assignedUsers: z.array(z.string()).optional(),
 });
 
-export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, userOptions }) => {
-  const [loading, setLoading] = useState(false);
+interface Role {
+  _id: string;
+  roleName: string;
+}
+
+export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [fetchedRoles, setFetchedRoles] = useState<Role[]>([]); // Specify the type here
+
+
   const form = useForm({
     resolver: zodResolver(employeeFormSchema),
     defaultValues: initialData || {
-      employeeId: undefined,
-      firstName: '',
-      lastName: '',
-      role: '',
-      contactInformation: {
-        email: '',
-        phone: '',
-      },
-      password: '',
-      dob: new Date(),
-      assignedUsers: [],
+      FirstName: '',
+      LastName: '',
+      RoleId: '',
+      Email: '',
+      PhoneNumber: '',
+      Password: '',
+      Dob: new Date(),
+      City: '',
+      State: '',
+      StreetAddress: '',
+      Gender: '',
     },
   });
 
   const { control, handleSubmit, formState: { errors } } = form;
 
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  const { loading } = useSelector((state: RootState) => state.auth); // Access loading from employee slice
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+    const roles=  await dispatch(getAllRoleName());
+    setFetchedRoles(roles.payload)
+    dispatch(setLoading(false)); 
+    };
+    fetchRoles();
+
+  }, []);
+
   const onSubmit: SubmitHandler<typeof employeeFormSchema._type> = async (data) => {
     try {
-      setLoading(true);
       if (initialData) {
+        dispatch(setLoading(true)); 
         // Update existing employee
+        // await dispatch(updateEmployee({ ...data, employeeId: initialData.employeeId }));
       } else {
-        // Create new employee
-      }
-      // Refresh or redirect after submission
+      // Create new employee
+     dispatch(setLoading(true)); 
+     const response= await dispatch(createEmployee(data));
+     if(response.type==="employees/create/rejected")
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: response?.payload.message,
+      });
+     else if(response.type==="employees/create/fulfilled"){
+      ToastAtTopRight.fire({
+        icon: 'success',
+        title: response?.payload.message,
+      });
+     dispatch(setLoading(false));
+     form.reset(); // Clear all fields in the form only on successful creation 
+    }
+    }
+    
+  // Optionally show success message or redirect
     } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+      dispatch(setLoading(false));
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title:'Internal server error',
+      });
+    }
+    finally{
+      dispatch(setLoading(false));
     }
   };
 
@@ -88,74 +132,71 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
     return null;
   };
 
-  const filterOption = (option: any, inputValue: string) => {
-    const user = userOptions.find((user) => user.id === option.value);
-    return (
-      option.label.toLowerCase().includes(inputValue.toLowerCase()) ||
-      (user && user.phoneNo.includes(inputValue))
-    );
-  };
+
 
   const [newRole, setNewRole] = useState('');
 
-  const [role, setRole] = useState([
-    { value: 'Manager', label: 'Manager' },
-    { value: 'Executive', label: 'Executive' },
-    { value: 'External', label: 'External' },
-    { value: 'Admin', label: 'Admin' },
-  ]);
 
   const addRole = () => {
     if (newRole.trim()) {
-      setRole([...role, { value: newRole, label: newRole }]);
+      // Assuming newRole has to be added as a new object
+      const newRoleId = Math.random().toString(36).substr(2, 9); // Generate a temporary ID (replace this with actual logic if needed)
+      setFetchedRoles(prevRoles => [
+        ...prevRoles,
+        { _id: newRoleId, roleName: newRole } // Create a new role object
+      ]);
       setNewRole('');
     }
   };
-
-  const deleteRole = (roleToDelete: string) => {
-    setRole(role.filter(r => r.value !== roleToDelete));
+  
+  const deleteRole = (roleId: string) => {
+    setFetchedRoles(prevRoles => prevRoles.filter(role => role._id !== roleId));
   };
 
   const [roleModalOpen, setRoleModalOpen] = useState(false);
 
   const generatePassword = () => {
     const generatedPassword = Math.random().toString(36).slice(-8);
-    form.setValue('password', generatedPassword);
+    form.setValue('Password', generatedPassword);
   };
 
   return (
     <>
-      <Dialog open={roleModalOpen} onOpenChange={setRoleModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Roles</DialogTitle>
-            <DialogDescription>Add or remove roles.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <Input
-                placeholder="New Role"
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value)}
-              />
-              <Button className='ms-3' onClick={addRole}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {role.map((roster) => (
-                <div key={roster.value} className="flex justify-between items-center">
-                  <span>{roster.label}</span>
-                  <Button variant="destructive" onClick={() => deleteRole(roster.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
+
+<Dialog open={roleModalOpen} onOpenChange={setRoleModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Manage Roles</DialogTitle>
+      <DialogDescription>Add or remove roles.</DialogDescription>
+    </DialogHeader>
+    <div className="space-y-4">
+      {/* Input for new role */}
+      <div className="flex justify-between">
+        <Input
+          placeholder="New Role Name"
+          value={newRole}
+          onChange={(e) => setNewRole(e.target.value)}
+        />
+        <Button className='ms-3' onClick={addRole}>Add</Button>
+      </div>
+
+      {/* List of existing roles */}
+      <div className="space-y-2">
+        {fetchedRoles?.map((role) => (
+          <div key={role._id} className="flex justify-between items-center">
+            <span>{role.roleName}</span> {/* Access roleName instead of label */}
+            <Button variant="destructive" onClick={() => deleteRole(role._id)}>
+              Delete
+            </Button>
           </div>
-          <DialogFooter>
-            <Button onClick={() => setRoleModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setRoleModalOpen(false)}>Close</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       <div className="container mx-auto p-4">
         <Heading title={initialData ? 'Edit Employee' : 'Create Employee'} description="Fill in the details below" />
@@ -165,7 +206,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-3">
               <FormField
                 control={control}
-                name="firstName"
+                name="FirstName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
@@ -178,7 +219,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="lastName"
+                name="LastName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
@@ -191,12 +232,12 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="contactInformation.phone"
+                name="PhoneNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter Phone" {...field} />
+                      <Input type="number" disabled={loading} placeholder="Enter Phone" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.contactInformation)}</FormMessage>
                   </FormItem>
@@ -204,7 +245,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="contactInformation.email"
+                name="Email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
@@ -217,7 +258,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="password"
+                name="Password"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Password</FormLabel>
@@ -251,7 +292,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="gender"
+                name="Gender"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
@@ -273,7 +314,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="address"
+                name="StreetAddress"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Street Address</FormLabel>
@@ -286,7 +327,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="city"
+                name="City"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>City</FormLabel>
@@ -299,7 +340,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
               />
               <FormField
                 control={control}
-                name="state"
+                name="State"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>State</FormLabel>
@@ -310,9 +351,9 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={control}
-                name="role"
+                name="Role"
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex items-center">
@@ -333,10 +374,39 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData, us
                     <FormMessage>{renderErrorMessage(errors.role)}</FormMessage>
                   </FormItem>
                 )}
-              />
+              /> */}
+
+<FormField
+  control={control}
+  name="RoleId"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex items-center">
+        <FormLabel>Role</FormLabel>
+        <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRoleModalOpen(true)} />
+      </div>
+      <FormControl>
+        <ReactSelect
+          isSearchable
+          options={fetchedRoles?.map(role => ({
+            value: role._id,   // Use the _id as the value
+            label: role.roleName // Use the roleName as the label
+          }))}
+          isDisabled={loading}
+          onChange={(selected) => field.onChange(selected ? selected.value : '')}
+          value={fetchedRoles?.map(role => ({
+            value: role._id,
+            label: role.roleName
+          })).find(option => option.value === field.value)} // Map to find the correct role
+        />
+      </FormControl>
+      <FormMessage>{renderErrorMessage(errors.role)}</FormMessage>
+    </FormItem>
+  )}
+/>
               <FormField
                 control={control}
-                name="dob"
+                name="Dob"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date of Birth</FormLabel>

@@ -57,7 +57,7 @@ export default function UserAuthForm() {
         // Dispatch Redux action
         dispatch(loginSuccess(token)); 
        const permission=await apiCall('get','/admin/emplooyee/permission')
-       setSessionStorageItem('permission', permission.permissions);
+       setSessionStorageItem('permission', permission.data.permissions);
         router.push('/dashboard'); // Redirect after successful login
       } else {
         dispatch(setLoading(false)); 

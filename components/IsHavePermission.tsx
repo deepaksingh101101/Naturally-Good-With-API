@@ -41,8 +41,6 @@ export const IsHavePermission: React.FC<ProtectedRouteProps> = ({ children, requ
 
   useEffect(() => {
     dispatch(setLoading(true)); // Set loading to true when the component mounts
-
-    // Check permission and set loading to false after that
     if (!hasPermission) {
       dispatch(setLoading(false)); // Set loading to false if no permission and redirect
       router.push('/dashboard'); // Redirect to dashboard if no permission
