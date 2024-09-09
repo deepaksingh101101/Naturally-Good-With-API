@@ -28,16 +28,26 @@ export const createEmployee = createAsyncThunk<
   }
 );
 
-// // Action to update an existing employee
-// export const updateEmployee = createAsyncThunk<Employee, Employee, { rejectValue: any }>(
-//   'employees/update',
-//   async (employeeData, { rejectWithValue }) => {
-//     try {
-//       // Make API call to update an employee
-//       return await apiCall('PUT', `${API_URL}/${employeeData.employeeId}`, employeeData);
-//     } catch (error: any) {
-//       // Handle errors and return the error message
-//       return rejectWithValue(error.response?.data);
-//     }
-//   }
-// );
+
+
+// Action to get an employee by ID
+export const getEmployeeById = createAsyncThunk<
+  AxiosResponse<Employee>, // Return type is the entire Axios response
+  string, // Input type is the employee ID as a string
+  { rejectValue: any } // Reject value type
+>(
+  'employees/getById',
+  async (employeeId, { rejectWithValue }) => {
+    try {
+      // Make API call to get the employee by ID
+      const response = await apiCall('GET', `/admin/employee/${employeeId}`);
+      console.log('API Response:', response); // Log the full response for debugging
+
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error || 'Failed to fetch employee');
+    }
+  }
+);

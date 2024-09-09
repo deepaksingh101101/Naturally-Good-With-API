@@ -27,6 +27,7 @@ import { ToastAtTopRight } from '@/lib/sweetAlert';
 
 interface EmployeeFormType {
   initialData: any | null;
+  isDisabled?:boolean
 }
 
 const employeeFormSchema = z.object({
@@ -50,27 +51,34 @@ interface Role {
   roleName: string;
 }
 
-export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) => {
+export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData ,isDisabled}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fetchedRoles, setFetchedRoles] = useState<Role[]>([]); // Specify the type here
 
-
-  const form = useForm({
-    resolver: zodResolver(employeeFormSchema),
-    defaultValues: initialData || {
-      FirstName: '',
-      LastName: '',
-      RoleId: '',
-      Email: '',
-      PhoneNumber: '',
-      Password: '',
-      Dob: new Date(),
-      City: '',
-      State: '',
-      StreetAddress: '',
-      Gender: '',
-    },
-  });
+const form = useForm({
+  resolver: zodResolver(employeeFormSchema),
+  defaultValues: initialData
+  ? {
+      ...initialData,
+      RoleId: initialData.Role
+        ? { value: initialData.Role._id, label: initialData.Role.roleName } // Assign as an object
+        : null,
+      Dob: new Date(initialData.Dob), // Convert the Dob string to a Date object
+    }
+  :{
+        FirstName: '',
+        LastName: '',
+        RoleId: '',
+        Email: '',
+        PhoneNumber: '',
+        Password: '',
+        Dob: new Date(),
+        City: '',
+        State: '',
+        StreetAddress: '',
+        Gender: '',
+      },
+});
 
   const { control, handleSubmit, formState: { errors } } = form;
 
@@ -142,7 +150,6 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
       try {
         dispatch(setLoading(true)); // Start loading state
         const response = await dispatch(createRole({ roleName: newRole })); // Call the createRole action
-        console.log(response)
 
         if (response.type === 'role/create/fulfilled') {
           // Handle successful role creation
@@ -224,7 +231,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
 </Dialog>
 
       <div className="container mx-auto p-4">
-        <Heading title={initialData ? 'Edit Employee' : 'Create Employee'} description="Fill in the details below" />
+        <Heading title={isDisabled && initialData ? 'View Employee' :(isDisabled===false && initialData)? 'Edit Employee':"Create Employee"} description={isDisabled && initialData ? 'Details of Employee' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below"} />
         <Separator />
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -236,7 +243,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter First Name" {...field} />
+                      <Input type="text" disabled={isDisabled||loading} placeholder="Enter First Name" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.firstName)}</FormMessage>
                   </FormItem>
@@ -249,7 +256,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter Last Name" {...field} />
+                      <Input disabled={isDisabled||loading} type="text"  placeholder="Enter Last Name" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.lastName)}</FormMessage>
                   </FormItem>
@@ -262,7 +269,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <Input type="number" disabled={loading} placeholder="Enter Phone" {...field} />
+                      <Input type="number" disabled={isDisabled||loading} placeholder="Enter Phone" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.contactInformation)}</FormMessage>
                   </FormItem>
@@ -275,13 +282,13 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" disabled={loading} placeholder="Enter Email" {...field} />
+                      <Input type="email" disabled={isDisabled||loading} placeholder="Enter Email" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.contactInformation)}</FormMessage>
                   </FormItem>
                 )}
               />
-              <FormField
+           {!initialData &&   <FormField
                 control={control}
                 name="Password"
                 render={({ field }) => (
@@ -314,7 +321,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                    
                   </FormItem>
                 )}
-              />
+              />}
               <FormField
                 control={control}
                 name="Gender"
@@ -322,7 +329,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
                     <FormControl>
-                      <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                      <Select disabled={isDisabled||loading} onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
@@ -344,7 +351,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>Street Address</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter Street Address" {...field} />
+                      <Input type="text" disabled={isDisabled||loading} placeholder="Enter Street Address" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.address)}</FormMessage>
                   </FormItem>
@@ -357,7 +364,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>City</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter City" {...field} />
+                      <Input type="text" disabled={isDisabled||loading} placeholder="Enter City" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.city)}</FormMessage>
                   </FormItem>
@@ -370,7 +377,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   <FormItem>
                     <FormLabel>State</FormLabel>
                     <FormControl>
-                      <Input type="text" disabled={loading} placeholder="Enter State" {...field} />
+                      <Input type="text" disabled={isDisabled||loading}placeholder="Enter State" {...field} />
                     </FormControl>
                     <FormMessage>{renderErrorMessage(errors.state)}</FormMessage>
                   </FormItem>
@@ -392,7 +399,7 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
             value: role._id,   // Use the _id as the value
             label: role.roleName // Use the roleName as the label
           }))}
-          isDisabled={loading}
+          isDisabled={isDisabled||loading}
           onChange={(selected) => field.onChange(selected ? selected.value : '')}
           value={fetchedRoles?.map(role => ({
             value: role._id,
@@ -404,48 +411,48 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
     </FormItem>
   )}
 />
-              <FormField
-                control={control}
-                name="Dob"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Date of Birth</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-  mode="single"
-  selected={field.value}
-  onSelect={field.onChange}
-  disabled={(date) =>
-    date > new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
-  }
-  initialFocus
-/>
-
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage>{renderErrorMessage(errors.dob)}</FormMessage>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button type="submit" disabled={loading}>
-              {initialData ? 'Save Changes' : 'Create Employee'}
+<FormField
+  control={control}
+  name="Dob"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>Date of Birth</FormLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <FormControl>
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full pl-3 text-left font-normal",
+                !field.value && "text-muted-foreground"
+              )}
+              disabled={isDisabled || loading} // Add disabled condition here
+            >
+              {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
+              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
             </Button>
+          </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={field.value}
+            onSelect={field.onChange}
+            disabled={(date) =>
+              date > new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
+            }
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <FormMessage>{renderErrorMessage(errors.dob)}</FormMessage>
+    </FormItem>
+  )}
+/>
+            </div>
+          {isDisabled===false && <Button type="submit" disabled={loading}>
+            {(isDisabled===false && initialData)? 'Save Employee':"Create Employee"}     
+            </Button>}
           </form>
         </Form>
       </div>
