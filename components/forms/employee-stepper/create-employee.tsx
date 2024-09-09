@@ -80,7 +80,8 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
   useEffect(() => {
     const fetchRoles = async () => {
     const roles=  await dispatch(getAllRoleName());
-    setFetchedRoles(roles.payload)
+    console.log(roles)
+    setFetchedRoles(roles.payload.data)
     dispatch(setLoading(false)); 
     };
     fetchRoles();
@@ -351,31 +352,6 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
-              {/* <FormField
-                control={control}
-                name="Role"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="flex items-center">
-                      <FormLabel>Role</FormLabel>
-                      <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRoleModalOpen(true)} />
-                    </div>
-                    <FormControl>
-                      <ReactSelect
-                        isSearchable
-                        options={role}
-                        getOptionLabel={(option) => option.label}
-                        getOptionValue={(option) => option.value}
-                        isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.value : '')}
-                        value={role.find(option => option.value === field.value)}
-                      />
-                    </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.role)}</FormMessage>
-                  </FormItem>
-                )}
-              /> */}
-
 <FormField
   control={control}
   name="RoleId"

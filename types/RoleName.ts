@@ -1,5 +1,5 @@
 // src/app/types/Employee.ts
 export interface RoleName {
-    _id: string;
+    _id?: string;
     roleName: string;
 }
