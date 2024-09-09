@@ -7,7 +7,7 @@ const breadcrumbItems = [{ title: 'Complaint Management', link: '/dashboard/comp
 
 export default function SubscriptionManagementPage() {
   return (
-    <MainLayout meta={{ title: 'Complaint Management' }}>
+    <MainLayout meta={{ title: 'Employee Management' }}>
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
         <EmployeeManagementClient  />

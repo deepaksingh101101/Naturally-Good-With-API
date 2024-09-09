@@ -1,12 +1,9 @@
-// columns/EmployeeManagementColumns.tsx
 'use client';
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
-import { EmployeeManagement } from '@/constants/employee-management-data';
 import { Mail, Phone } from 'lucide-react';
-import AssignedRoutesCell from '@/components/AssignedRoutesCell';
 import { Button } from '@/components/ui/button';
 import { CellAction } from './cell-action';
 
@@ -20,32 +17,16 @@ const getRandomColor = () => {
   return color;
 };
 
-export const columns: ColumnDef<EmployeeManagement>[] = [
+export const columns: ColumnDef<any>[] = [ // Adjust type if you have a specific Employee type
   {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
+    id: 'sno', // Unique id for the serial number column
+    header: 'S.No',
     cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
+      <span>{row.index + 1}</span> // Display the index of the row + 1 for serial number
     ),
-    enableSorting: false,
-    enableHiding: false
   },
   {
-    accessorKey: 'sno',
-    header: 'EID'
-  },
-  {
-    accessorKey: 'firstName',
+    accessorKey: 'FirstName', // Updated to match API response
     header: 'First Name',
     cell: ({ row }) => (
       <div className="flex items-center">
@@ -53,74 +34,59 @@ export const columns: ColumnDef<EmployeeManagement>[] = [
           className="flex items-center justify-center w-8 h-8 rounded-full mr-2"
           style={{ backgroundColor: getRandomColor(), color: 'white' }}
         >
-          {row.original.firstName.charAt(0)}
+          {row.original.FirstName.charAt(0)}
         </div>
-        <span>{row.original.firstName}</span>
+        <span>{row.original.FirstName}</span>
       </div>
     ),
     enableSorting: true,
   },
   {
-    accessorKey: 'lastName',
+    accessorKey: 'LastName', // Updated to match API response
     header: 'Last Name',
   },
   {
-    accessorKey: 'contactInformation.phone',
+    accessorKey: 'PhoneNumber', // Updated to match API response
     header: 'Phone',
     cell: ({ row }) => (
       <div className="flex items-center mt-1">
         <Phone className="text-green-500 mr-2" width={10} height={10} />
-        <span className="">{row.original.contactInformation.phone}</span>
+        <span>{row.original.PhoneNumber}</span>
       </div>
     )
   },
   {
-    accessorKey: 'contactInformation.email',
+    accessorKey: 'Email', // Updated to match API response
     header: 'Email',
     cell: ({ row }) => (
-        <div className="flex items-center mt-1">
-          <Mail className="text-blue-500 mr-2" width={10} height={10} />
-          <span className="">{row.original.contactInformation.email}</span>
+      <div className="flex items-center mt-1">
+        <Mail className="text-blue-500 mr-2" width={10} height={10} />
+        <span>{row.original.Email}</span>
       </div>
     )
   },
   {
-    accessorKey: 'dob',
-    header: 'Dob'
+    accessorKey: 'Dob', // Updated to match API response
+    header: 'Date of Birth'
   },
   {
-    accessorKey: 'gender',
+    accessorKey: 'Gender', // Updated to match API response
     header: 'Gender'
   },
   {
-    accessorKey: 'address',
+    accessorKey: 'StreetAddress', // Assuming this is a direct property
     header: 'Street Address'
   },
   {
-    accessorKey: 'city',
+    accessorKey: 'City', // Updated to match API response
     header: 'City'
   },
   {
-    accessorKey: 'state',
+    accessorKey: 'State', // Updated to match API response
     header: 'State'
   },
-
- 
   {
-    accessorKey: 'assignedUsers',
-    header: 'Assigned Customers',
-    cell: ({ row }) => (
-      <ul>
-        {row.original.assignedUsers.map((user) => (
-          <li key={user.id}>{user.name}</li>
-        ))}
-      </ul>
-    )
-  },
-
- 
-  {
-    accessorKey: 'role',
+    accessorKey: 'Role.roleName', // Updated to match API response
     header: 'Role'
   },
   {

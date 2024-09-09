@@ -70,3 +70,21 @@ export const updateEmployee = createAsyncThunk<
     }
   }
 );
+// Action to get all employees with pagination support
+// Action to get all employees with pagination support
+export const getAllEmployees = createAsyncThunk<
+  AxiosResponse<{ total: number; currentPage: number; totalPages: number; employees: Employee[] }>, // Return type
+  { page: number; limit: number }, // Input type
+  { rejectValue: any }
+>(
+  'employees/getAll',
+  async ({ page, limit }, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', `/admin/employee?page=${page}&limit=${limit}`);
+      console.log('API Response for all employees:', response);
+      return response; // Return full response including employees and pagination data
+    } catch (error: any) {
+      return rejectWithValue(error || 'Failed to fetch employees');
+    }
+  }
+);

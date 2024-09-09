@@ -9,13 +9,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { EmployeeManagement } from '@/constants/employee-management-data';
+import { EmployeeManagement } from '@/constants/employee-management-data'; // Make sure this type is correctly defined
 import { Edit, MoreHorizontal, Trash, Eye, UserPlus, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface CellActionProps {
-  data: EmployeeManagement;
+  data:any; // Ensure EmployeeManagement type has necessary properties
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -24,23 +24,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const router = useRouter();
 
   const onConfirm = async () => {
-    // Your confirm logic here
+    // Your confirm logic here (e.g., deleting an employee)
+    setLoading(true);
+    // Perform the delete action
+    // On completion, close the modal
+    setLoading(false);
+    setOpen(false);
   };
 
- 
   const editEmployeeDetails = () => {
-    router.push(`/employee-management/editEmployeeDetails/${data}`); 
+    router.push(`/employee/edit/${data._id}`); // Use the unique identifier for routing
   };
 
-  const viewEmployeePerformance = () => {
-    router.push(`/employee-management/viewEmployeePerformance/${data}`); 
+  const viewEmployee = () => {
+    router.push(`/employee/view/${data._id}`); // Use the unique identifier for routing
   };
-
-  const assignUserToEmployee = () => {
-    router.push(`/employee-management/assignUserToEmployee/${data}`); 
-  };
-
-
 
   return (
     <>
@@ -60,26 +58,23 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-          {/* <DropdownMenuItem onClick={handleRegisterNewSubscription}>
+          {/* Uncomment if needed
+          <DropdownMenuItem onClick={handleRegisterNewSubscription}>
             <UserPlus className="mr-2 h-4 w-4" /> Create New Subscription
-          </DropdownMenuItem> */}
-      
-          <DropdownMenuItem onClick={viewEmployeePerformance}>
-            <Eye className="mr-2 h-4 w-4" /> View Employee Performance 
+          </DropdownMenuItem>
+          */}
+
+          <DropdownMenuItem onClick={viewEmployee}>
+            <Eye className="mr-2 h-4 w-4" /> View Employee 
           </DropdownMenuItem>
           <DropdownMenuItem onClick={editEmployeeDetails}>
-            <UserCheck className="mr-2 h-4 w-4" /> Edit Employee Details
+            <UserCheck className="mr-2 h-4 w-4" /> Edit Employee
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={assignUserToEmployee}>
-            <UserCheck className="mr-2 h-4 w-4" /> Assign Customer To Employee
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={assignUserToEmployee}>
-            <UserCheck className="mr-2 h-4 w-4" /> Edit Permissions
-          </DropdownMenuItem>
-          
+          {/* Uncomment if you want a delete option
           <DropdownMenuItem onClick={() => setOpen(true)}>
             <Trash className="mr-2 h-4 w-4" /> Delete Employee
           </DropdownMenuItem>
+          */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
