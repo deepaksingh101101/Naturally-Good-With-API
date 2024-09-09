@@ -34,6 +34,7 @@ const employeeFormSchema = z.object({
   FirstName: z.string().min(1, 'First Name is required'),
   LastName: z.string().min(1, 'Last Name is required'),
   RoleId: z.string().min(1, 'Role is required'),
+  IsActive: z.string().min(1, 'Status is required'),
   Email: z.string().email('Invalid email format').min(1, 'Email is required'),
   PhoneNumber: z.string().length(10, 'Phone number must be exactly 10 characters long'),
   Password: z.string().min(6, 'Password must be at least 6 characters long'),
@@ -77,6 +78,7 @@ const form = useForm({
         State: '',
         StreetAddress: '',
         Gender: '',
+        IsActive: '',
       },
 });
 
@@ -290,7 +292,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="text" disabled={isDisabled||loading} placeholder="Enter First Name" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.firstName)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.FirstName)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -303,7 +305,7 @@ const form = useForm({
                     <FormControl>
                       <Input disabled={isDisabled||loading} type="text"  placeholder="Enter Last Name" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.lastName)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.LastName)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -316,7 +318,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="number" disabled={isDisabled||loading} placeholder="Enter Phone" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.contactInformation)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.PhoneNumber)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -329,7 +331,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="email" disabled={isDisabled||loading} placeholder="Enter Email" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.contactInformation)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.Email)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -362,7 +364,7 @@ const form = useForm({
                     </Button>
                                           
                     </div>
-                    <FormMessage>{renderErrorMessage(errors.password)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.Password)}</FormMessage>
                    
                   </FormItem>
                 )}
@@ -385,7 +387,7 @@ const form = useForm({
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.gender)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.Gender)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -398,7 +400,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="text" disabled={isDisabled||loading} placeholder="Enter Street Address" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.address)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.Address)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -411,7 +413,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="text" disabled={isDisabled||loading} placeholder="Enter City" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.city)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.City)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -424,7 +426,7 @@ const form = useForm({
                     <FormControl>
                       <Input type="text" disabled={isDisabled||loading}placeholder="Enter State" {...field} />
                     </FormControl>
-                    <FormMessage>{renderErrorMessage(errors.state)}</FormMessage>
+                    <FormMessage>{renderErrorMessage(errors.State)}</FormMessage>
                   </FormItem>
                 )}
               />
@@ -452,7 +454,7 @@ const form = useForm({
           })).find(option => option.value === field.value)} // Map to find the correct role
         />
       </FormControl>
-      <FormMessage>{renderErrorMessage(errors.role)}</FormMessage>
+      <FormMessage>{renderErrorMessage(errors.Role)}</FormMessage>
     </FormItem>
   )}
 />
@@ -490,16 +492,81 @@ const form = useForm({
           />
         </PopoverContent>
       </Popover>
-      <FormMessage>{renderErrorMessage(errors.dob)}</FormMessage>
+      <FormMessage>{renderErrorMessage(errors.Dob)}</FormMessage>
     </FormItem>
   )}
 />
+
+{initialData && (
+  <FormField
+    control={control}
+    name="IsActive"
+    render={({ field }) => (
+      <FormItem>
+        <FormLabel>Status</FormLabel>
+        <FormControl>
+          <Select
+            disabled={isDisabled || loading}
+            onValueChange={field.onChange}
+            value={field.value || initialData.IsActive ? "true" : "false"} // Set default value based on initialData
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="true">Active</SelectItem>
+              <SelectItem value="false">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <FormMessage>{renderErrorMessage(errors.IsActive)}</FormMessage>
+      </FormItem>
+    )}
+  />
+)}
             </div>
           {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
             {(isDisabled===false && initialData)? 'Save Employee':"Create Employee"}     
             </Button>}
           </form>
         </Form>
+
+        {
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.createdAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.updatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
       </div>
     </>
   );
