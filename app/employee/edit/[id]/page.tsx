@@ -20,8 +20,8 @@ export default function Page() {
   // Retrieve employee data from the Redux store
   const employee = useSelector((state: RootState) => state.employees.selectedEmployee);
   const loading = useSelector((state: RootState) => state.employees.loading); // Assuming you have a loading state
-  const isDisabled=false;
-  console.log(employee)
+  const isDisabled = loading; // Disable the form while loading
+
   useEffect(() => {
     // Check if the ID is present before dispatching the action
     if (id) {
@@ -30,7 +30,7 @@ export default function Page() {
   }, [id, dispatch]);
 
   return (
-    <MainLayout meta={{ title: 'Employee Management' }}>
+    <MainLayout meta={{ title: 'Edit Employee' }}>
       <ScrollArea className="h-full">
         <div className="flex-1 min-h-screen space-y-4 p-4 pt-6 md:p-8">
           <BreadCrumb items={breadcrumbItems} />

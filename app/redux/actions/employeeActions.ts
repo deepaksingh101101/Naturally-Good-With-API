@@ -51,3 +51,22 @@ export const getEmployeeById = createAsyncThunk<
     }
   }
 );
+
+
+// Action to update an existing employee
+export const updateEmployee = createAsyncThunk<
+  AxiosResponse<Employee>,
+  { id: string; employeeData: Employee }, // Input type includes employee ID and data
+  { rejectValue: any }
+>(
+  'employees/update',
+  async ({ id, employeeData }, { rejectWithValue }) => {
+    try {
+      const response = await apiCall<Employee>('PUT', `/admin/employee/${id}`, employeeData);
+      console.log('API Response:', response);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error || 'Failed to update employee');
+    }
+  }
+);

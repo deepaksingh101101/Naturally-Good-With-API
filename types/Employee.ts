@@ -1,5 +1,6 @@
 // src/app/types/Employee.ts
 export interface Employee {
+    _id?: string; // Ensure _id is included in the Employee interface
     FirstName: string;
     LastName: string;
     RoleId: string;

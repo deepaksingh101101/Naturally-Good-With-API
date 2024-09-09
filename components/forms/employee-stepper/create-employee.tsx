@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/redux/store';
-import { createEmployee } from '@/app/redux/actions/employeeActions';
+import { createEmployee, updateEmployee } from '@/app/redux/actions/employeeActions';
 import apiCall from '@/lib/axios';
 import { createRole, getAllRoleName } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
@@ -95,44 +95,89 @@ const form = useForm({
 
   }, []);
 
+  // const onSubmit: SubmitHandler<typeof employeeFormSchema._type> = async (data) => {
+  //   try {
+  //     if (initialData) {
+  //       dispatch(setLoading(true)); 
+  //       // Update existing employee
+  //       console.log(data)
+  //       await dispatch(updateEmployee({ id: initialData._id, employeeData: data }));
+  //       ToastAtTopRight.fire({
+  //         icon: 'success',
+  //         title: 'Employee updated!',
+  //       });
+  //       } else {
+  //     // Create new employee
+  //    dispatch(setLoading(true)); 
+  //    const response= await dispatch(createEmployee(data));
+  //    if(response.type==="employees/create/rejected")
+  //     ToastAtTopRight.fire({
+  //       icon: 'error',
+  //       title: response?.payload.message,
+  //     });
+  //    else if(response.type==="employees/create/fulfilled"){
+  //     ToastAtTopRight.fire({
+  //       icon: 'success',
+  //       title: response?.payload.message,
+  //     });
+  //    dispatch(setLoading(false));
+  //    form.reset(); // Clear all fields in the form only on successful creation 
+  //   }
+  //   }
+    
+  // // Optionally show success message or redirect
+  //   } catch (error) {
+  //     dispatch(setLoading(false));
+  //     ToastAtTopRight.fire({
+  //       icon: 'error',
+  //       title:'Internal server error',
+  //     });
+  //   }
+  //   finally{
+  //     dispatch(setLoading(false));
+  //   }
+  // };
+
+
   const onSubmit: SubmitHandler<typeof employeeFormSchema._type> = async (data) => {
     try {
-      if (initialData) {
-        dispatch(setLoading(true)); 
+      dispatch(setLoading(true)); 
+      // Log data to see what is being submitted
+      console.log('Submitting data:', data);
+      
+      if ((isDisabled===false && initialData)) {
         // Update existing employee
-        // await dispatch(updateEmployee({ ...data, employeeId: initialData.employeeId }));
+        await dispatch(updateEmployee({ id: initialData._id, employeeData: data }));
+        ToastAtTopRight.fire({
+          icon: 'success',
+          title: 'Employee updated!',
+        });
       } else {
-      // Create new employee
-     dispatch(setLoading(true)); 
-     const response= await dispatch(createEmployee(data));
-     if(response.type==="employees/create/rejected")
-      ToastAtTopRight.fire({
-        icon: 'error',
-        title: response?.payload.message,
-      });
-     else if(response.type==="employees/create/fulfilled"){
-      ToastAtTopRight.fire({
-        icon: 'success',
-        title: response?.payload.message,
-      });
-     dispatch(setLoading(false));
-     form.reset(); // Clear all fields in the form only on successful creation 
-    }
-    }
-    
-  // Optionally show success message or redirect
+        // Create new employee
+        const response = await dispatch(createEmployee(data));
+        if (response.type === "employees/create/rejected") {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response?.payload.message,
+          });
+        } else if (response.type === "employees/create/fulfilled") {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: response?.payload.message,
+          });
+          form.reset(); // Clear all fields in the form only on successful creation 
+        }
+      }
     } catch (error) {
-      dispatch(setLoading(false));
+      console.error('Submission error:', error); // Log the error for debugging
       ToastAtTopRight.fire({
         icon: 'error',
-        title:'Internal server error',
+        title: 'Internal server error',
       });
-    }
-    finally{
+    } finally {
       dispatch(setLoading(false));
     }
   };
-
   const renderErrorMessage = (error: any) => {
     if (!error) return null;
     if (typeof error === 'string') return error;
@@ -390,8 +435,8 @@ const form = useForm({
     <FormItem>
       <div className="flex items-center">
         <FormLabel>Role</FormLabel>
-        <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRoleModalOpen(true)} />
-      </div>
+{!(isDisabled && initialData) &&  <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRoleModalOpen(true)} />
+}      </div>
       <FormControl>
         <ReactSelect
           isSearchable
@@ -450,7 +495,7 @@ const form = useForm({
   )}
 />
             </div>
-          {isDisabled===false && <Button type="submit" disabled={loading}>
+          {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
             {(isDisabled===false && initialData)? 'Save Employee':"Create Employee"}     
             </Button>}
           </form>
