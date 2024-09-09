@@ -6,19 +6,19 @@ import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/app/redux/store';
 import { useEffect } from 'react';
-import { getLocalStorageItem } from '@/utils/localStorage';
+import { getLocalStorageItem, getSessionStorageItem } from '@/utils/localStorage';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import Loader from '@/components/loader/Loader';
 
 export default function AuthenticationPage() {
 const router = useRouter();
-const isAuthenticated = getLocalStorageItem('token');
+const isAuthenticated = getSessionStorageItem('token');
 //   const loading = useSelector((state: RootState) => state.auth.loading);
 const { loading } = useSelector((state: RootState) => state.auth);
 
 const dispatch=useDispatch()
   useEffect(() => {
-    const isAuthenticated = getLocalStorageItem('token');
+    const isAuthenticated = getSessionStorageItem('token');
 
     if (isAuthenticated) {
       router.push('/dashboard'); // Redirect to dashboard if already authenticated

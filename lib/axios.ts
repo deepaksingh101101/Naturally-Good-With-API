@@ -1,10 +1,11 @@
 import Axios, { AxiosResponse, Method } from 'axios';
 
 import storage from '../utils/storage';
+import { getSessionStorageItem } from '@/utils/localStorage';
 
 function authRequestInterceptor(config: any) {
   config.headers = config.headers ?? {};
-  const token = storage.getToken();
+  const token = getSessionStorageItem('token');
   if (token) {
     config.headers.authorization = `Bearer ${token}`;
   }
@@ -12,7 +13,7 @@ function authRequestInterceptor(config: any) {
   return config;
 }
 export const axios = Axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
+  baseURL: `${process.env.NEXT_PUBLIC_API_URL}`
 });
 axios.interceptors.request.use(authRequestInterceptor);
 axios.interceptors.response.use(

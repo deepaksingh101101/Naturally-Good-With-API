@@ -111,6 +111,15 @@ export type Employee = {
   profile_picture?: string | null; 
 };
 
+const newNavItem: NavItem[]=[
+{
+  title: 'Dashboard',
+  href: '/dashboard',
+  icon: 'dashboard',
+  label: 'Dashboard'
+}
+]
+
 export const navItems: NavItem[] = [
   {
     title: 'Dashboard',
@@ -122,76 +131,49 @@ export const navItems: NavItem[] = [
     title: 'Customer Management',
     href: '/user-management',
     icon: 'management',
-    label: 'User Management'
+    label: 'Customer Management'
   },
   {
     title: 'Subscription/Order Management',
     href: '/order-management',
     icon: 'order',
-    label: 'create-order'
+    label: 'Order Management'
   },
   {
     title: 'Delivery Management',
     href: '/delivery-management',
     icon: 'order',
-    label: 'create-order'
+    label: 'Delivery Management'
   },
   {
     title: 'Product/Item Management',
     href: '/product-management',
     icon: 'product',
-    label: 'create-product'
+    label: 'Product Management'
   },
   {
     title: 'Bag Management',
     href: '/bag',
     icon: 'order',
-    label: 'create-order'
+    label: 'Bag Management'
   },
   {
     title: 'Subscription',
     href: '/subscriptions',
     icon: 'createSubscription',
-    label: 'subscription'
+    label: 'Subscription Management'
   },
-
-  
-
-
-  // {
-  //   title: 'Routes Management',
-  //   href: '/routes-management',
-  //   icon: 'order',
-  //   label: 'create-order'
-  // },
-
- 
-  // {
-  //   title: 'Profile',
-  //   href: '/profile',
-  //   icon: 'profile',
-  //   label: 'Profile'
-  // },
-
-  
-  // {
-  //   title: 'Subscription Management',
-  //   href: '/subscription-management',
-  //   icon:  'manageSubscription',
-  //   label: 'create-subscription'
-  // },
- 
   {
     title: 'Employee Management',
     href: '/employee-management',
     icon: 'user',
-    label: 'create-employee'
+    label: 'Employee Management'
   },
   {
     title: 'Route Management',
     href: '/route-management',
     icon: 'settings',
-    label: 'settings',
+    label: 'Route Management',
     subItems: [
       {
         title: 'City Master',
@@ -225,42 +207,27 @@ export const navItems: NavItem[] = [
         href: '/route-management',
         icon: 'paymentSetting',
         label: 'payment-settings'
-      },
-  
-      
-      // {
-      //   title: 'Route Master',
-      //   href: '/routes-management',
-      //   icon: 'general',
-      //   label: 'general-settings'
-      // },
-  
+      },  
     ]
   },
-
   {
-    title: 'Complaint Management',
+    title: 'Complain Management',
     href: '/complaint-management',
     icon: 'complaint',
-    label: 'create-complaint'
+    label: 'Complain Management'
   },
   {
     title: 'Coupons Management',
     href: '/coupons',
     icon: 'order',
-    label: 'create-Coupons'
+    label: 'Coupon Management'
   },
-
-
   {
     title: 'Referral Management',
     href: '/referral',
     icon: 'order',
-    label: 'create-Referral'
+    label: 'Referral Management'
   },
-
-
-
   {
     title: 'Report And Analytics',
     href: '/report-management',
@@ -351,7 +318,7 @@ export const navItems: NavItem[] = [
     title: 'Settings',
     href: '/settings-management',
     icon: 'settings',
-    label: 'settings',
+    label: 'Settings Management',
     subItems: [
   //       {
   //   title: 'Admin',

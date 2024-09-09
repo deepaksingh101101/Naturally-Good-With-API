@@ -4,7 +4,7 @@ import { RootState } from '@/app/redux/store';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLocalStorageItem } from '@/utils/localStorage';
+import { getLocalStorageItem, getSessionStorageItem } from '@/utils/localStorage';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import Loader from '../loader/Loader';
 
@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   // const { loading } = useSelector((state: RootState) => state.auth);
-  const isAuthenticated  = getLocalStorageItem('token');
+  const isAuthenticated  = getSessionStorageItem('token');
   const { loading } = useSelector((state: RootState) => state.auth);
 
   const { push } = useRouter();
@@ -22,7 +22,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   useEffect(() => {
     dispatch(setLoading(true)); 
-    const isAuthenticated  = getLocalStorageItem('token');
+    const isAuthenticated  = getSessionStorageItem('token');
     if (!isAuthenticated) {
       push('/auth/login');
     }else{

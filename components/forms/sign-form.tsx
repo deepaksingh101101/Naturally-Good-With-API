@@ -14,11 +14,12 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import {  setLocalStorageItem } from '@/utils/localStorage';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess, setLoading } from '@/app/redux/slices/authSlice';
 import { RootState } from '@/app/redux/store';
+import { setSessionStorageItem } from '@/utils/localStorage';
+import apiCall from '@/lib/axios';
 
 const FormSchema = z.object({
   Email: z.string().email({ message: 'Enter a valid email address' }),
@@ -41,6 +42,8 @@ export default function UserAuthForm() {
   });
 
 
+
+
   const onSubmit = async (data: UserFormValue) => {
     dispatch(setLoading(true)); 
     try {
@@ -48,17 +51,16 @@ export default function UserAuthForm() {
         Email: data.Email,
         Password: data.Password,
       });
-
       if (response.data.statusCode === 200) {
-        router.push('/dashboard'); // Redirect after successful login
-        // ToastAtTopRight.fire({
-        //   icon: 'success',
-        //   title: 'Signed in successfully',
-        // });
         const token = response.data.data;
-        setLocalStorageItem('token', token);
-        dispatch(loginSuccess(token)); // Dispatch Redux action
+        setSessionStorageItem('token', token);
+        // Dispatch Redux action
+        dispatch(loginSuccess(token)); 
+       const permission=await apiCall('get','/admin/emplooyee/permission')
+       setSessionStorageItem('permission', permission.permissions);
+        router.push('/dashboard'); // Redirect after successful login
       } else {
+        dispatch(setLoading(false)); 
         throw new Error('Invalid credentials'); // Handle unsuccessful login attempts
       }
     } catch (error: any) {

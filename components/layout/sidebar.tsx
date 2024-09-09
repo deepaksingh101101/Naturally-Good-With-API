@@ -1,24 +1,55 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardNav } from '@/components/dashboard-nav';
-import { navItems } from '@/constants/data';
 import { cn } from '@/lib/utils';
 import { ChevronLeft } from 'lucide-react';
 import { useSidebar } from '@/hooks/useSidebar';
+import { getSessionStorageItem } from '@/utils/localStorage';
+import { NavItem } from '@/types'; // Adjust the import path as necessary
+import { Icons } from '@/components/icons';
 
-type SidebarProps = {
-  className?: string;
-};
+interface PermissionDetail {
+  actionName: string;
+  isAllowed: boolean;
+  href: string;
+  isInSidebar: boolean;
+}
 
-export default function Sidebar({ className }: SidebarProps) {
+interface Permission {
+  permissionId: string;
+  moduleName: string;
+  icon: keyof typeof Icons; // This should match your defined icon keys
+  details: PermissionDetail[];
+}
+
+export default function Sidebar({ className }: { className?: string }) {
   const { isMinimized, toggle } = useSidebar();
   const [status, setStatus] = useState(false);
+  const [navItems, setNavItems] = useState<NavItem[]>([]);
 
   const handleToggle = () => {
     setStatus(true);
     toggle();
     setTimeout(() => setStatus(false), 500);
   };
+
+  useEffect(() => {
+    const permissions: Permission[] = getSessionStorageItem('permission') || [];
+    
+    const items = permissions.flatMap((permission) => 
+      permission.details
+        .filter(detail => detail.isInSidebar)
+        .map(detail => ({
+          title: permission.moduleName,
+          href: detail.href,
+          icon: permission.icon as keyof typeof Icons, // Ensure the icon is of the correct type
+          isAllowed: detail.isAllowed,
+        }))
+    );
+
+    setNavItems(items);
+  }, []);
+
   return (
     <nav
       className={cn(
