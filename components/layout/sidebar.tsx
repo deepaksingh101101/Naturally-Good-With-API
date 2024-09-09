@@ -35,8 +35,8 @@ export default function Sidebar({ className }: { className?: string }) {
 
   useEffect(() => {
     const permissions: Permission[] = getSessionStorageItem('permission') || [];
-    
-    const items = permissions.flatMap((permission) => 
+
+    const dynamicItems = permissions.flatMap((permission) => 
       permission.details
         .filter(detail => detail.isInSidebar)
         .map(detail => ({
@@ -47,7 +47,15 @@ export default function Sidebar({ className }: { className?: string }) {
         }))
     );
 
-    setNavItems(items);
+    // Define static nav items
+    const staticItems: NavItem[] = [
+      { title: 'Dashboard', href: '/dashboard', icon: 'dashboard' }, // Example static item
+        ];
+
+    // Concatenate static and dynamic items
+    const allNavItems = staticItems.concat(dynamicItems);
+
+    setNavItems(allNavItems);
   }, []);
 
   return (
