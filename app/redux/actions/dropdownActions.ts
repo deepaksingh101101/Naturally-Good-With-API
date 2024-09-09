@@ -31,6 +31,7 @@ export const getAllRoleName = createAsyncThunk<
   }
 );
 
+// Action to create a new role
 export const createRole = createAsyncThunk<
   AxiosResponse<RoleName>, // Return type is the entire Axios response
   Omit<RoleName, '_id'>, // Input type excluding '_id'
@@ -47,7 +48,8 @@ export const createRole = createAsyncThunk<
       return response; // Return the full response
     } catch (error: any) {
       // Handle errors and return the error message
-      return rejectWithValue(error || 'Failed to create role');
+      console.log(error)
+      return rejectWithValue(error);
     }
   }
 );

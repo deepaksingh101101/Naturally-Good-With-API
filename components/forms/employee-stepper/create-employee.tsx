@@ -21,7 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/redux/store';
 import { createEmployee } from '@/app/redux/actions/employeeActions';
 import apiCall from '@/lib/axios';
-import { getAllRoleName } from '@/app/redux/actions/dropdownActions';
+import { createRole, getAllRoleName } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
 
@@ -80,7 +80,6 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
   useEffect(() => {
     const fetchRoles = async () => {
     const roles=  await dispatch(getAllRoleName());
-    console.log(roles)
     setFetchedRoles(roles.payload.data)
     dispatch(setLoading(false)); 
     };
@@ -138,15 +137,40 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
   const [newRole, setNewRole] = useState('');
 
 
-  const addRole = () => {
-    if (newRole.trim()) {
-      // Assuming newRole has to be added as a new object
-      const newRoleId = Math.random().toString(36).substr(2, 9); // Generate a temporary ID (replace this with actual logic if needed)
-      setFetchedRoles(prevRoles => [
-        ...prevRoles,
-        { _id: newRoleId, roleName: newRole } // Create a new role object
-      ]);
-      setNewRole('');
+  const addRole = async () => {
+    if (newRole.trim()) { // Check if the new role name is not empty
+      try {
+        dispatch(setLoading(true)); // Start loading state
+        const response = await dispatch(createRole({ roleName: newRole })); // Call the createRole action
+        console.log(response)
+
+        if (response.type === 'role/create/fulfilled') {
+          // Handle successful role creation
+          setFetchedRoles((prevRoles) => [
+            ...prevRoles,
+            { _id: response?.payload?.data?._id, roleName: newRole }, // Assuming the response contains the new role's ID
+          ]);
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'New role created!',
+          });
+          setNewRole(''); // Clear the input field
+        } else {
+          // Handle error in case of rejection
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to add role',
+          });
+        }
+      } catch (error: any) {
+        console.error('Error adding role:', error);
+        ToastAtTopRight.fire({
+          icon: 'error',
+          title: error?.response?.data?.message || 'Failed to add role',
+        });
+      } finally {
+        dispatch(setLoading(false)); // Stop loading state
+      }
     }
   };
   
@@ -183,18 +207,18 @@ export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData }) 
 
       {/* List of existing roles */}
       <div className="space-y-2">
-        {fetchedRoles?.map((role) => (
-          <div key={role._id} className="flex justify-between items-center">
-            <span>{role.roleName}</span> {/* Access roleName instead of label */}
-            <Button variant="destructive" onClick={() => deleteRole(role._id)}>
+        {fetchedRoles?.map((role,index) => (
+          <div key={role._id} style={{border:"1px solid grey"}} className="  flex px-2 py-1 items-center bg-green-300 rounded-md ">
+            {index+1} ) <span className='ms-2' >{role.roleName}</span> {/* Access roleName instead of label */}
+            {/* <Button variant="destructive" onClick={() => deleteRole(role._id)}>
               Delete
-            </Button>
+            </Button> */}
           </div>
         ))}
       </div>
     </div>
     <DialogFooter>
-      <Button onClick={() => setRoleModalOpen(false)}>Close</Button>
+      {/* <Button onClick={() => setRoleModalOpen(false)}>Close</Button> */}
     </DialogFooter>
   </DialogContent>
 </Dialog>
