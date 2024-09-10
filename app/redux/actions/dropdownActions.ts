@@ -1,11 +1,11 @@
 // src/app/redux/actions/employeeActions.ts
 import apiCall from '@/lib/axios';
-import { RoleName } from '@/types/RoleName';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store';
 import { setLoading } from '../slices/authSlice';
 import { AxiosResponse } from 'axios';
+import { ProductType, RoleName, RosterType, SeasonType } from '@/types/Dropdown';
 
 
 
@@ -88,3 +88,101 @@ export const deleteRole = createAsyncThunk<
     }
   }
 );
+
+
+// Product Types
+
+// Action to create a new role
+export const createProductType = createAsyncThunk<
+  AxiosResponse<ProductType>, // Return type is the entire Axios response
+  Omit<ProductType, '_id'>, // Input type excluding '_id'
+  { rejectValue: any } // Reject value type
+>(
+  'productType/create',
+  async (productTypeData, { rejectWithValue }) => {
+    try {
+      console.log(productTypeData)
+      // Make API call to create a role
+      const response = await apiCall('POST', '/dropDown/productType', productTypeData);
+
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllProductType = createAsyncThunk<
+  AxiosResponse<ProductType[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'productType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/productTypes');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+
+export const deleteProductType = createAsyncThunk<
+  string, // Return type is the ID of the deleted product type
+  string, // Input type is the product type ID
+  { rejectValue: any } // Reject value type
+>(
+  'productType/delete',
+  async (productTypeId, { rejectWithValue }) => {
+    try {
+      const response: AxiosResponse<{ message: string }> = await apiCall('DELETE', `/dropDown/productType/${productTypeId}`);
+      return productTypeId; // Return the product type ID after successful deletion
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to delete product type'); // Return the error message
+    }
+  }
+);
+
+
+
+
+export const getAllSeasonType = createAsyncThunk<
+  AxiosResponse<SeasonType[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'seasonType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/seasons');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+export const getAllRosterType = createAsyncThunk<
+  AxiosResponse<RosterType[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'rosterType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/rosters');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+

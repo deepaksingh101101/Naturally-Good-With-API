@@ -29,18 +29,23 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash, Edit } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import ReactSelect from 'react-select';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { createProductType, deleteProductType, getAllProductType } from '@/app/redux/actions/dropdownActions';
+import { setLoading } from '@/app/redux/slices/authSlice';
+import { ProductType } from '@/types/Dropdown';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
 
 interface ProductFormType {
   initialData: any | null;
 }
 
 const productFormSchema = z.object({
-  productId: z.number().nonnegative().optional(),
   productName: z.string().min(1, 'Product Name is required'),
   description: z.string().min(1, 'Description is required'),
   productImage: z.object({}).optional(),
@@ -49,7 +54,6 @@ const productFormSchema = z.object({
   minUnit: z.number().min(1, 'Minimum Quantity is required'),
   maxUnit: z.number().min(1, 'Maximum Quantity is required'),
   available: z.string().min(1, 'Please Enter availability'),
-  // organic: z.string().min(1, 'Please Enter Product Type'),
   productPrice: z.number().min(1, 'Product Price is required'),
   type: z.string().min(1, 'Type is required'),
   subtype: z.string().min(1, 'Subtype is required'),
@@ -69,11 +73,51 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [typeModalOpen, setTypeModalOpen] = useState(false);
   const [subtypeModalOpen, setSubtypeModalOpen] = useState(false);
   const [seasonModalOpen, setSeasonModalOpen] = useState(false);
   const [rosterModalOpen, setRosterModalOpen] = useState(false);
+  const { loading } = useSelector((state: RootState) => state.auth);
+  const [deleteTypeModalOpen, setDeleteTypeModalOpen] = useState(false);
+  const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
+  interface ProductTypeInterface {
+    _id?: string;
+    Name: string;
+    SortOrder:number;
+  }
+
+  // Define the ProductTypeInterface with expected types
+
+
+  interface RosterInterface {
+    _id: string;
+    Name: string;
+    SortOrder:number;
+  }
+  interface SeasonInterface {
+    _id: string;
+    Name: string;
+  }
+  const [fetchedProductType, setFetchedProductType] = useState<ProductTypeInterface[]>([]); // Specify the type here
+
+
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  useEffect(() => {
+    const fetchProductType = async () => {
+    const productTypes=  await dispatch(getAllProductType());
+    setFetchedProductType(productTypes.payload.data)
+    };
+    fetchProductType();
+    dispatch(setLoading(false)); 
+
+  }, []);
+  const confirmDeleteType = async () => {
+    if (typeToDelete) {
+      await deleteType(typeToDelete);
+      setDeleteTypeModalOpen(false); // Close the modal
+    }
+  };
+
   const [types, setTypes] = useState([
     { value: 'Staples', label: 'Staples' },
     { value: 'Regular Veggie', label: 'Regular Veggie' },
@@ -112,6 +156,7 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
   ]);
 
   const [newType, setNewType] = useState('');
+const [sortOrder, setSortOrder] = useState(1); // Default sort order
   const [newSubtype, setNewSubtype] = useState('');
   const [newSeason, setNewSeason] = useState('');
   const [newRoster, setNewRoster] = useState('');
@@ -168,12 +213,40 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
     }
   };
 
-  const addType = () => {
-    if (newType.trim()) {
-      setTypes([...types, { value: newType, label: newType }]);
-      setNewType('');
+  const addType = async () => {
+    if (newType.trim() && sortOrder >= 0) { // Ensure sort order is non-negative
+        try {
+            dispatch(setLoading(true));
+            const response = await dispatch(createProductType({ Name: newType, SortOrder: sortOrder })); // Include SortOrder
+
+            if (response.type === 'productType/create/fulfilled') {
+                const newProductType: ProductTypeInterface = {
+                    _id: response.payload.data._id, // Ensure this is a string
+                    Name: newType,
+                    SortOrder: sortOrder, // Use the specified sort order
+                };
+                setFetchedProductType((prev: ProductTypeInterface[]) => [...prev, newProductType]); // Ensure prev is of the correct type
+                ToastAtTopRight.fire({
+                    icon: 'success',
+                    title: 'New product type created!',
+                });
+                setNewType(''); // Clear the input field
+                setSortOrder(1); // Reset sort order to default
+            } else {
+                ToastAtTopRight.fire({
+                    icon: 'error',
+                    title: response.payload.message || 'Failed to add product type',
+                });
+            }
+        } catch (error) {
+            console.error('Error adding product type:', error);
+        } finally {
+            dispatch(setLoading(false));
+        }
     }
-  };
+};
+  
+  
 
   const addSubtype = () => {
     if (newSubtype.trim()) {
@@ -196,8 +269,24 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
     }
   };
 
-  const deleteType = (typeToDelete: string) => {
-    setTypes(types.filter(type => type.value !== typeToDelete));
+  const  deleteType = async (typeToDelete: string) => {
+    if (typeToDelete) {
+      const response=  await dispatch(deleteProductType(typeToDelete)); // Dispatch the delete action
+      if (response.type === 'productType/delete/fulfilled') {
+        setFetchedProductType((prev) => prev.filter(type => type._id !== typeToDelete));
+         ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Product type deleted!',
+        });
+        setNewType(''); // Clear the input field
+        setSortOrder(1); // Reset sort order to default
+    } else {
+        ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to add product type',
+        });
+    }
+    }
   };
 
   const deleteSubtype = (subtypeToDelete: string) => {
@@ -214,37 +303,68 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
 
   return (
     <>
-      <Dialog open={typeModalOpen} onOpenChange={setTypeModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Types</DialogTitle>
-            <DialogDescription>Add or remove product types.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex justify-between">
+    <Dialog open={deleteTypeModalOpen} onOpenChange={setDeleteTypeModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this product type? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteType} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteTypeModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+ <Dialog open={typeModalOpen} onOpenChange={setTypeModalOpen}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Manage Types</DialogTitle>
+          <DialogDescription>Add or remove product types.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="flex flex-row ">
             <Input
-              placeholder="New Type"
+              placeholder="Type Name"
               value={newType}
               onChange={(e) => setNewType(e.target.value)}
+              className="mb-2 me-2 "
+            />
+            <Input
+              placeholder="Sort Order"
+              type="number" // Ensure this is a number input
+              value={sortOrder}
+              onChange={(e) => setSortOrder(Number(e.target.value))}
+              className="mb-4 ms-2"
             />
             <Button className='ms-3' onClick={addType}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {types.map((type) => (
-                <div key={type.value} className="flex justify-between items-center">
-                  <span>{type.label}</span>
-                  <Button variant="destructive" onClick={() => deleteType(type.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
           </div>
-          <DialogFooter>
-            <Button onClick={() => setTypeModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          <div className="space-y-2">
+            {fetchedProductType?.map((type) => (
+              <div key={type._id} className="flex justify-between items-center">
+                <span className='w-full' >{type.Name}</span>
+                <span className='w-full' >{type.SortOrder}</span> {/* Display Sort Order */}
+                <Button 
+  variant="destructive" 
+  disabled={loading}
+  onClick={() => {
+    if (type._id) { // Ensure _id is defined
+      setTypeToDelete(type._id); // Set the type ID to delete
+      setDeleteTypeModalOpen(true); // Open the confirmation modal
+    }
+  }}
+>
+  Delete
+</Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
 
       <Dialog open={subtypeModalOpen} onOpenChange={setSubtypeModalOpen}>
         <DialogContent className="max-w-lg">
@@ -384,30 +504,35 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
                 </FormItem>
               )}
             />
-              <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Type</FormLabel>
-                    <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setTypeModalOpen(true)}/>
-                  </div>
-                  <FormControl>
-                    <ReactSelect
-                      isSearchable
-                      options={types}
-                      getOptionLabel={(option) => option.label}
-                      getOptionValue={(option) => option.value}
-                      isDisabled={loading}
-                      onChange={(selected) => field.onChange(selected ? selected.value : '')}
-                      value={types.find(option => option.value === field.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+<FormField
+  control={form.control}
+  name="type"
+  render={({ field }) => {
+    const options: any[] = fetchedProductType?.map(type => ({
+      value: type._id, // Assuming _id is guaranteed to be a string
+      label: type.Name.trim(), // Trimmed label to avoid issues with spaces
+    }));
+
+    return (
+      <FormItem>
+        <div className="flex items-center">
+          <FormLabel>Type</FormLabel>
+          <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setTypeModalOpen(true)} />
+        </div>
+        <FormControl>
+          <ReactSelect
+            isSearchable
+            options={options} // Use the newly defined options
+            isDisabled={loading}
+            onChange={(selected) => field.onChange(selected ? selected.value : '')} // Handle selection
+            value={options?.find(option => option.value === field.value) ?? null} // Safely access selected value
+          />
+        </FormControl>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
              <FormField
               control={form.control}
               name="season"

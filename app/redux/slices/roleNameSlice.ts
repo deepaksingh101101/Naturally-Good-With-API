@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RoleName } from '@/types/RoleName'; // Import the RoleName type
 import { AxiosResponse } from 'axios'; // Import AxiosResponse
 import { createRole } from '../actions/dropdownActions';
+import { RoleName } from '@/types/Dropdown';
 
 interface RoleState {
   loading: boolean;

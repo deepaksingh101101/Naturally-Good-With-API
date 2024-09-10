@@ -37,17 +37,25 @@ const useCheckPermission = (requiredRoute: string) => {
 export const IsHavePermission: React.FC<ProtectedRouteProps> = ({ children, requiredRoute }) => {
   const dispatch = useDispatch();
   const router = useRouter(); // Initialize the router here
-  const hasPermission = useCheckPermission(requiredRoute); // Call the custom hook with the required route
+  // const hasPermission = useCheckPermission(requiredRoute); // Call the custom hook with the required route
 
   useEffect(() => {
     dispatch(setLoading(true)); // Set loading to true when the component mounts
+
+    const permissions: Permission[] = getSessionStorageItem('permission') || []; // Default to an empty array
+
+    // Check if the user has permission to access the required route
+    const hasPermission = permissions.some((permission) =>
+      permission.details.some((detail) => detail.href === requiredRoute && detail.isAllowed)
+    );
+console.log('hasPermission', hasPermission)
     if (!hasPermission) {
       dispatch(setLoading(false)); // Set loading to false if no permission and redirect
       router.push('/dashboard'); // Redirect to dashboard if no permission
     } else {
       dispatch(setLoading(false)); // Set loading to false if permission is granted
     }
-  }, [dispatch, hasPermission, router]); // Run effect when dispatch, permission status, or router changes
+  }, [dispatch, router]); // Run effect when dispatch, permission status, or router changes
 
   return <>{children}</>; // Render children if permission is granted
 };
