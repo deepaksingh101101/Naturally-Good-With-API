@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface CellActionProps {
-  data: ProductManagement;
+  data: any;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -32,11 +32,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   // };
 
   const handleEditProduct = () => {
-    router.push(`/product-management/edit/${data}`); 
+    router.push(`/product/edit/${data._id}`); 
   };
 
-  const manageProductCategories = () => {
-    router.push(`/product-management/view/${data}`); 
+  const viewProduct = () => {
+    router.push(`/product/view/${data._id}`); 
   };
 
   const updateProductAvailability = () => {
@@ -69,14 +69,11 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem onClick={handleEditProduct}>
             <Edit className="mr-2 h-4 w-4" /> Edit Product Details
           </DropdownMenuItem>
-          {/* <DropdownMenuItem onClick={manageProductCategories}>
-            <Eye className="mr-2 h-4 w-4" /> Manage Product Categories
-          </DropdownMenuItem> */}
+          <DropdownMenuItem onClick={viewProduct}>
+            <Eye className="mr-2 h-4 w-4" /> View Product
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={updateProductAvailability}>
             <UserCheck className="mr-2 h-4 w-4" /> Update Product Availability
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="mr-2 h-4 w-4" /> Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

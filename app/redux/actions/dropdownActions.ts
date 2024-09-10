@@ -140,7 +140,7 @@ export const deleteProductType = createAsyncThunk<
   'productType/delete',
   async (productTypeId, { rejectWithValue }) => {
     try {
-      const response: AxiosResponse<{ message: string }> = await apiCall('DELETE', `/dropDown/productType/${productTypeId}`);
+      const response:any= await apiCall('DELETE', `/dropDown/productType/${productTypeId}`);
       return productTypeId; // Return the product type ID after successful deletion
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Failed to delete product type'); // Return the error message

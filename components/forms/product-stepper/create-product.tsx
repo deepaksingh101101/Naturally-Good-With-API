@@ -40,41 +40,40 @@ import { createProductType, createRosterType, createSeasonType, deleteProductTyp
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ProductType } from '@/types/Dropdown';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
+import { createProduct, updateProduct } from '@/app/redux/actions/productActions';
 
 interface ProductFormType {
   initialData: any | null;
+  isDisabled?:boolean;
 }
 
 const productFormSchema = z.object({
-  productName: z.string().min(1, 'Product Name is required'),
-  description: z.string().min(1, 'Description is required'),
-  productImage: z.object({}).optional(),
-  visibility: z.string().min(1, 'Visibility is required'),
-  unitType: z.string().min(1, 'Unit Type is required'),
-  minUnit: z.number().min(1, 'Minimum Quantity is required'),
-  maxUnit: z.number().min(1, 'Maximum Quantity is required'),
-  available: z.string().min(1, 'Please Enter availability'),
-  productPrice: z.number().min(1, 'Product Price is required'),
-  type: z.string().min(1, 'Type is required'),
-  subtype: z.string().min(1, 'Subtype is required'),
-  group: z.string().min(1, 'Group is required'),
-  season: z.string().min(1, 'Season is required'),
-  priority: z.string().min(1, 'Priority is required'),
-  roster: z.string().min(1, 'Roster is required'),
-  veggieNameInHindi: z.string().min(1, 'Veggie Name in Hindi is required'),
-  unitQuantity: z.number().positive('Unit Quantity must be greater than zero'),
-  pieces: z.number().positive('Pieces must be greater than zero'),
-  buffer: z.number().positive('Buffer Percentage must be greater than zero'),
+  ProductName: z.string().min(1, 'Product Name is required'),
+  Description: z.string().optional(),
+  ImageURL: z.object({}).optional(),
+  Visibility: z.string().min(1, 'Visibility is required'),
+  // unitType: z.string().min(1, 'Unit Type is required'),
+  MinimumUnits: z.number().min(1, 'Minimum Quantity is required'),
+  MaximumUnits: z.number().min(1, 'Maximum Quantity is required'),
+  Available: z.string().min(1, 'Please Enter availability'),
+  Price: z.number().min(1, 'Product Price is required'),
+  Type: z.string().min(1, 'Type is required'),
+  Group: z.string().min(1, 'Group is required'),
+  Season: z.string().min(1, 'Season is required'),
+  Priority: z.string().min(1, 'Priority is required'),
+  Roster: z.string().min(1, 'Roster is required'),
+  VeggieNameInHindi: z.string().min(1, 'Veggie Name in Hindi is required'),
+  UnitQuantity: z.number().positive('Unit Quantity must be greater than zero'),
+  Buffer: z.number().positive('Buffer Percentage must be greater than zero'),
 });
 
 export type ProductFormValues = z.infer<typeof productFormSchema>;
 
-export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) => {
+export const CreateProductForm: React.FC<ProductFormType> = ({ initialData,isDisabled }) => {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [typeModalOpen, setTypeModalOpen] = useState(false);
-  const [subtypeModalOpen, setSubtypeModalOpen] = useState(false);
   const [seasonModalOpen, setSeasonModalOpen] = useState(false);
   const [rosterModalOpen, setRosterModalOpen] = useState(false);
   const { loading } = useSelector((state: RootState) => state.auth);
@@ -92,13 +91,6 @@ const [seasonToDelete, setSeasonToDelete] = useState<string | null>(null);
   }
 
   // Define the ProductTypeInterface with expected types
-
-
-  interface RosterInterface {
-    _id: string;
-    Name: string;
-    SortOrder:number;
-  }
   interface SeasonType {
     _id: string;
     Name: string;
@@ -165,8 +157,7 @@ useEffect(() => {
       try {
         dispatch(setLoading(true));
         const response = await dispatch(deleteRosterType(rosterToDelete)); // Dispatch the delete action
-  
-        if (response.type === 'roster/delete/fulfilled') {
+        if (response.type === 'rosterType/delete/fulfilled') {
           setFetchedRosters((prev) => prev.filter((roster) => roster._id !== rosterToDelete)); // Update the roster state
           ToastAtTopRight.fire({
             icon: 'success',
@@ -180,7 +171,6 @@ useEffect(() => {
           });
         }
       } catch (error) {
-        console.error('Error deleting roster:', error);
       } finally {
         dispatch(setLoading(false));
         setDeleteRosterModalOpen(false); // Close the delete confirmation modal
@@ -196,29 +186,13 @@ useEffect(() => {
     { value: 'Exotic Salads', label: 'Exotic Salads' },
     { value: 'Add Ons', label: 'Add Ons' },
   ]);
-  const [subtypes, setSubtypes] = useState([
-    { value: 'Staples', label: 'Staples' },
-    { value: 'Regular Veggie', label: 'Regular Veggie' },
-    { value: 'Exotics Veggies', label: 'Exotics Veggies' },
-    { value: 'Salads', label: 'Salads' },
-    { value: 'Exotic Salads', label: 'Exotic Salads' },
-    { value: 'Add Ons', label: 'Add Ons' },
-  ]);
+
 
   const [seasons, setSeasons] = useState([
     { value: 'Summer', label: 'Summer' },
-    { value: 'Winter', label: 'Winter' },
-    { value: 'Monsoon', label: 'Monsoon' },
-    { value: 'All', label: 'All' },
   ]);
   const [rosters, setRosters] = useState([
     { value: 'Mandatory', label: 'Mandatory' },
-    { value: 'Recommended Veggie', label: 'Recommended Veggie' },
-    { value: 'optional Veggies', label: 'optional Veggies' },
-    { value: 'Herbs', label: 'Herbs' },
-    { value: 'Add on', label: 'Add on' },
-    { value: 'Trial', label: 'Trial' },
-    { value: 'Inactive', label: 'Inactive' },
   ]);
   const [unitTypes, setUnitTypes] = useState([
     { value: 'grams', label: 'Grams' },
@@ -232,16 +206,40 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
   const [newSeason, setNewSeason] = useState('');
   const [newRoster, setNewRoster] = useState('');
 
-  const title = initialData ? 'Edit Item' : 'Create New Item';
-  const description = initialData
-    ? 'Edit Item details.'
-    : 'To create a new Items, fill in the required information.';
+  const title = (isDisabled && initialData) ? 'View Product' :(isDisabled===false && initialData)? 'Edit Product':"Create Product"
+  const description=(isDisabled && initialData) ? 'Details of Employee' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below" ;
+
   const toastMessage = initialData ? 'Item updated.' : 'Item created.';
   const action = initialData ? 'Save changes' : 'Create';
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     mode: 'onChange',
+    defaultValues:initialData
+    ? {
+        ...initialData,
+        Type: initialData.Type._id,  // Adjust to store ID
+        Season: initialData.Season._id, // Adjust to store ID
+        Roster: initialData.Roster._id, // Adjust to store ID
+        Available: initialData.Available ? 'true' : 'false',
+      }
+    : {
+          ProductName: '',
+          Description: '',
+          ImageURL: '',
+          Visibility: '',
+          MinimumUnits: '',
+          MaximumUnits: '',
+          Available: new Date(),
+          Price: '',
+          Type: '',
+          Group: '',
+          Season: '',
+          Roster:'',
+          VeggieNameInHindi:'',
+          UnitQuantity:'',
+          Buffer:'',
+        },
   });
 
   const {
@@ -252,22 +250,50 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
     setValue,
   } = form;
 
-  const selectedUnitType=watch('unitType')
+  // const selectedUnitType=watch('unitType')
 
-  const onSubmit = async (data: ProductFormValues) => {
+  const onSubmit = async (data:any) => {
     try {
-      setLoading(true);
-      if (initialData) {
-        // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
+      dispatch(setLoading(true)); // Set loading state
+      if ((isDisabled===false && initialData)) {
+        // Update existing product
+        const response = await dispatch(updateProduct({ id: initialData._id, productData: data }));
+        if (response.type === 'products/update/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: toastMessage, // 'Item updated.'
+          });
+          router.push('/dashboard/product')
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to update product',
+          });
+        }
       } else {
-        // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
+        // Create new product
+        const response = await dispatch(createProduct(data));
+        if (response.type === 'products/create/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: toastMessage, // 'Item created.'
+          });
+          form.reset(); // Clear all fields in the form only on successful creation 
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to create product',
+          });
+        }
       }
-      router.refresh();
-      router.push(`/dashboard/products`);
     } catch (error: any) {
+      console.error('Submit Error:', error);
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: 'An error occurred while submitting the form',
+      });
     } finally {
-      setLoading(false);
+      dispatch(setLoading(false)); // Reset loading state
     }
   };
 
@@ -345,12 +371,6 @@ const addRoster = async () => {
   
   
 
-  const addSubtype = () => {
-    if (newSubtype.trim()) {
-      setSubtypes([...subtypes, { value: newSubtype, label: newSubtype }]);
-      setNewSubtype('');
-    }
-  };
 
   const addSeason = async () => {
     if (newSeason.trim()) {
@@ -400,9 +420,7 @@ const addRoster = async () => {
     }
   };
 
-  const deleteSubtype = (subtypeToDelete: string) => {
-    setSubtypes(subtypes.filter(subtype => subtype.value !== subtypeToDelete));
-  };
+
 
   const confirmDeleteSeason = async () => {
     if (seasonToDelete) {
@@ -431,9 +449,7 @@ const addRoster = async () => {
     }
   };
 
-  const deleteRoster = (rosterToDelete: string) => {
-    setRosters(rosters.filter(roster => roster.value !== rosterToDelete));
-  };
+
 
   return (
     <>
@@ -496,42 +512,7 @@ const addRoster = async () => {
         </div>
       </DialogContent>
     </Dialog>
-  );
-
-
-      <Dialog open={subtypeModalOpen} onOpenChange={setSubtypeModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Subtypes</DialogTitle>
-            <DialogDescription>Add or remove product subtypes.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-          <div className="flex justify-between">
-
-            <Input
-              placeholder="New Subtype"
-              value={newSubtype}
-              onChange={(e) => setNewSubtype(e.target.value)}
-            />
-            <Button  className='ms-3' onClick={addSubtype}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {subtypes.map((subtype) => (
-                <div key={subtype.value} className="flex justify-between items-center">
-                  <span>{subtype.label}</span>
-                  <Button variant="destructive" onClick={() => deleteSubtype(subtype.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setSubtypeModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
+  )
       <Dialog open={seasonModalOpen} onOpenChange={setSeasonModalOpen}>
   <DialogContent className="max-w-lg">
     <DialogHeader>
@@ -637,16 +618,6 @@ const addRoster = async () => {
 
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {initialData && (
-          <Button
-            disabled={loading}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
       <Form {...form}>
@@ -659,13 +630,13 @@ const addRoster = async () => {
 
             <FormField
               control={form.control}
-              name="productName"
+              name="ProductName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Item Name</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                    disabled={isDisabled||loading}
                       placeholder="Enter Item Name"
                       {...field}
                     />
@@ -676,7 +647,7 @@ const addRoster = async () => {
             />
 <FormField
   control={form.control}
-  name="type"
+  name="Type"
   render={({ field }) => {
     const options: any[] = fetchedProductType?.map(type => ({
       value: type._id, // Assuming _id is guaranteed to be a string
@@ -687,13 +658,13 @@ const addRoster = async () => {
       <FormItem>
         <div className="flex items-center">
           <FormLabel>Type</FormLabel>
-          <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setTypeModalOpen(true)} />
-        </div>
+{!(isDisabled && initialData) &&       <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setTypeModalOpen(true)} />
+}        </div>
         <FormControl>
           <ReactSelect
             isSearchable
             options={options} // Use the newly defined options
-            isDisabled={loading}
+            isDisabled={isDisabled||loading}
             onChange={(selected) => field.onChange(selected ? selected.value : '')} // Handle selection
             value={options?.find(option => option.value === field.value) ?? null} // Safely access selected value
           />
@@ -705,20 +676,20 @@ const addRoster = async () => {
 />
              <FormField
               control={form.control}
-              name="season"
+              name="Season"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex items-center">
                     <FormLabel>Season</FormLabel>
-                    <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setSeasonModalOpen(true)}/>
-                  </div>
+{!(isDisabled && initialData) &&  <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setSeasonModalOpen(true)}/>
+}                  </div>
                   <FormControl>
                     <ReactSelect
                       isSearchable
                       options={seasons}
                       getOptionLabel={(option) => option.label}
                       getOptionValue={(option) => option.value}
-                      isDisabled={loading}
+                      isDisabled={isDisabled||loading}
                       onChange={(selected) => field.onChange(selected ? selected.value : '')}
                       value={seasons.find(option => option.value === field.value)}
                     />
@@ -729,14 +700,14 @@ const addRoster = async () => {
             />
   <FormField
               control={form.control}
-              name="priority"
+              name="Priority"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Priority</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
-                      placeholder="Enter priority"
+                    disabled={isDisabled||loading}
+                    placeholder="Enter priority"
                       {...field}
                     />
                   </FormControl>
@@ -747,25 +718,25 @@ const addRoster = async () => {
 
 <FormField
   control={form.control}
-  name="roster"
+  name="Roster"
   render={({ field }) => (
     <FormItem>
       <div className="flex items-center">
         <FormLabel>Roster</FormLabel>
-        <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRosterModalOpen(true)} />
-      </div>
+{!(isDisabled && initialData) &&  <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRosterModalOpen(true)} />
+}      </div>
       <FormControl>
         <ReactSelect
           isSearchable
-          options={fetchedRosters.map((roster) => ({
+          options={fetchedRosters?.map((roster) => ({
             value: roster._id, // Use the unique identifier
             label: roster.Name, // Use the name for the label
           }))}
-          isDisabled={loading}
+          isDisabled={isDisabled||loading}
           onChange={(selected) => field.onChange(selected ? selected.value : '')} // Handle selection
-          value={fetchedRosters.find((roster) => roster._id === field.value) ? {
-            value: fetchedRosters.find((roster) => roster._id === field.value)._id,
-            label: fetchedRosters.find((roster) => roster._id === field.value).Name,
+          value={fetchedRosters?.find((roster) => roster._id === field.value) ? {
+            value: fetchedRosters?.find((roster) => roster._id === field.value)._id,
+            label: fetchedRosters?.find((roster) => roster._id === field.value).Name,
           } : null} // Adjust value for the selected option
         />
       </FormControl>
@@ -776,14 +747,14 @@ const addRoster = async () => {
 
 <FormField
               control={form.control}
-              name="group"
+              name="Group"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Group</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
-                      placeholder="Enter Group"
+                    disabled={isDisabled||loading}
+                    placeholder="Enter Group"
                       {...field}
                     />
                   </FormControl>
@@ -794,14 +765,14 @@ const addRoster = async () => {
 
 <FormField
               control={form.control}
-              name="veggieNameInHindi"
+              name="VeggieNameInHindi"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Veggie Name in Hindi</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
-                      placeholder="Enter Veggie Name in Hindi"
+                    disabled={isDisabled||loading}
+                    placeholder="Enter Veggie Name in Hindi"
                       {...field}
                     />
                   </FormControl>
@@ -811,7 +782,7 @@ const addRoster = async () => {
             />
              {/* <FormField
               control={control}
-              name="unitType"
+              name="UnitType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit Type</FormLabel>
@@ -826,21 +797,21 @@ const addRoster = async () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.available?.message}</FormMessage>
+                  <FormMessage>{errors.UnitType?.message}</FormMessage>
                 </FormItem>
               )}
             /> */}
 
 <FormField
               control={form.control}
-              name="unitQuantity"
+              name="UnitQuantity"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Unit Quantity (gms)</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Unit Quantity"
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
@@ -883,14 +854,14 @@ const addRoster = async () => {
 
  <FormField
               control={form.control}
-              name="minUnit"
+              name="MinimumUnits"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Minimum Units</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Minimum Units"
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
@@ -902,14 +873,14 @@ const addRoster = async () => {
             />
             <FormField
               control={form.control}
-              name="maxUnit"
+              name="MaximumUnits"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Maximum Units</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Maximum Unit "
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
@@ -922,14 +893,14 @@ const addRoster = async () => {
 
 <FormField
               control={form.control}
-              name="productPrice"
+              name="Price"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Item Price</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Item Price"
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
@@ -943,12 +914,12 @@ const addRoster = async () => {
           
           <FormField
               control={form.control}
-              name="visibility"
+              name="Visibility"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Item Visibility</FormLabel>
                   <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                    <Select disabled={isDisabled||loading} onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Visibility" />
                       </SelectTrigger>
@@ -958,75 +929,47 @@ const addRoster = async () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.visibility?.message}</FormMessage>
+                  <FormMessage>{errors.Visibility?.message}</FormMessage>
                 </FormItem>
               )}
             />
-          
-            {/* <FormField
-              control={form.control}
-              name="subtype"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Subtype</FormLabel>
-                    <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setSubtypeModalOpen(true)}/>
-                  </div>
-                  <FormControl>
-                    <ReactSelect
-                      isSearchable
-                      options={subtypes}
-                      getOptionLabel={(option) => option.label}
-                      getOptionValue={(option) => option.value}
-                      isDisabled={loading}
-                      onChange={(selected) => field.onChange(selected ? selected.value : '')}
-                      value={subtypes.find(option => option.value === field.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */}
-        
-           
-           
+           <FormField
+  control={control}
+  name="Available"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Item Availability</FormLabel>
+      <FormControl>
+        <Select
+          disabled={isDisabled || loading}
+          onValueChange={field.onChange} // Handle the value change as string
+          value={field.value} // Ensure this is a string ('true' or 'false')
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Available</SelectItem>
+            <SelectItem value="false">Unavailable</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormControl>
+      <FormMessage>{errors.Available?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
 
-           
-         
-           
-           
-            <FormField
-              control={control}
-              name="available"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Item Availability</FormLabel>
-                  <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Available">Available</SelectItem>
-                        <SelectItem value="Unavailable">Unavailable</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage>{errors.available?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
 
 <FormField
               control={form.control}
-              name="buffer"
+              name="Buffer"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Buffer Percentage</FormLabel>
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Buffer Units "
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
@@ -1060,7 +1003,7 @@ const addRoster = async () => {
             /> */}
            
             <Controller
-              name="productImage"
+              name="ImageURL"
               control={control}
               render={({ field }) => (
                 <FormItem>
@@ -1068,7 +1011,8 @@ const addRoster = async () => {
                   <FormControl>
                     <Input
                       type="file"
-                      disabled={form.formState.isSubmitting}
+                      // disabled={form.formState.isSubmitting}
+                      disabled={isDisabled||loading}
                       onChange={(e) => {
                         if (e.target.files && e.target.files.length > 0) {
                           field.onChange(e.target.files[0]);
@@ -1076,20 +1020,20 @@ const addRoster = async () => {
                       }}
                     />
                   </FormControl>
-                  {errors.productImage && <FormMessage>{errors.productImage.message}</FormMessage>}
+                  {errors.ImageURL && <FormMessage>{errors.ImageURL.message}</FormMessage>}
                 </FormItem>
               )}
             />
           </div>
           <FormField
             control={form.control}
-            name="description"
+            name="Description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Item Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    disabled={loading}
+                    disabled={isDisabled||loading}
                     rows={5}
                     placeholder="Enter Description"
                     {...field}
@@ -1099,29 +1043,50 @@ const addRoster = async () => {
               </FormItem>
             )}
           />
-          <Button type="submit" disabled={loading}>
-            {action}
-          </Button>
+
+{
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
+
+          {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
+            { initialData? 'Save Product':"Create Product"}     
+            </Button>}
         </form>
       </Form>
-      {initialData && (
-        <div className="mt-8 pt-5 border-t border-gray-200">
-          <div className="flex justify-between">
-            <Heading
-              title="Delete Product"
-              description="This action cannot be undone."
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={onDelete}
-              disabled={loading}
-            >
-              Delete Product
-            </Button>
-          </div>
-        </div>
-      )}
+     
     </>
   );
 };

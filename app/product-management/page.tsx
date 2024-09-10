@@ -11,14 +11,14 @@ const breadcrumbItems = [{ title: 'Item Management', link: '/dashboard/product-m
 export default function ProductManagementPage() {
   return (
     <ProtectedRoute>
-      <IsHavePermission requiredRoute="/product-management">
+      {/* <IsHavePermission requiredRoute="/product-management"> */}
       <MainLayout meta={{ title: 'Item Management' }}>
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
         <ProductManagementClient  />
       </div>
     </MainLayout>
-      </IsHavePermission>
+      {/* </IsHavePermission> */}
     </ProtectedRoute>
    
   );
