@@ -149,30 +149,6 @@ export const deleteProductType = createAsyncThunk<
 );
 
 
-
-
-export const getAllSeasonType = createAsyncThunk<
-  AxiosResponse<SeasonType[]>, // Return type is the entire Axios response
-  void, // No input parameters
-  { rejectValue: any } // Reject value type
->(
-  'seasonType/getAll',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await apiCall('GET', '/dropDown/seasons');
-      // Return the entire response object
-      return response; // Return the full response
-    } catch (error: any) {
-      return rejectWithValue(error); // Return the error directly
-    }
-  }
-);
-
-
-
-
-
-
 // Roster started
 // Action to fetch all roster types
 export const getAllRosterType = createAsyncThunk<
@@ -221,6 +197,59 @@ export const deleteRosterType = createAsyncThunk<
       return rosterId; // Return the ID of the deleted roster type
     } catch (error: any) {
       return rejectWithValue(error);
+    }
+  }
+);
+
+
+// Season started
+// Action to fetch all season types
+export const getAllSeasonType = createAsyncThunk<
+  AxiosResponse<SeasonType[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'seasonType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/seasons');
+      return response; // Return the entire response object
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+// Action to create a new season type
+export const createSeasonType = createAsyncThunk<
+  AxiosResponse<SeasonType>, // Return type is the created season
+  Omit<SeasonType, '_id'>, // Input type is the season data without the ID
+  { rejectValue: any } // Reject value type
+>(
+  'seasonType/create',
+  async (seasonData, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('POST', '/dropDown/season', seasonData);
+      return response; // Return the created season response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error
+    }
+  }
+);
+
+// Action to delete a season type
+export const deleteSeasonType = createAsyncThunk<
+  string, // Return type is the ID of the deleted season type
+  string, // Input type is the season type ID
+  { rejectValue: any } // Reject value type
+>(
+  'seasonType/delete',
+  async (seasonId, { rejectWithValue }) => {
+    try {
+      await apiCall('DELETE', `/dropDown/season/${seasonId}`);
+      return seasonId; // Return the season type ID after successful deletion
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to delete season type'); // Return the error message
     }
   }
 );

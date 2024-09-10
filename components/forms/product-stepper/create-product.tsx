@@ -36,7 +36,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 import ReactSelect from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/redux/store';
-import { createProductType, createRosterType, deleteProductType, deleteRosterType, getAllProductType, getAllRosterType } from '@/app/redux/actions/dropdownActions';
+import { createProductType, createRosterType, createSeasonType, deleteProductType, deleteRosterType, deleteSeasonType, getAllProductType, getAllRosterType, getAllSeasonType } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ProductType } from '@/types/Dropdown';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
@@ -83,7 +83,8 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
 const [deleteRosterModalOpen, setDeleteRosterModalOpen] = useState(false);
 const [rosterToDelete, setRosterToDelete] = useState<string | null>(null);
 const [fetchedRosters, setFetchedRosters] = useState<any[]>([]);
-
+const [deleteSeasonModalOpen, setDeleteSeasonModalOpen] = useState(false);
+const [seasonToDelete, setSeasonToDelete] = useState<string | null>(null);
   interface ProductTypeInterface {
     _id?: string;
     Name: string;
@@ -98,10 +99,11 @@ const [fetchedRosters, setFetchedRosters] = useState<any[]>([]);
     Name: string;
     SortOrder:number;
   }
-  interface SeasonInterface {
+  interface SeasonType {
     _id: string;
     Name: string;
   }
+
   const [fetchedProductType, setFetchedProductType] = useState<ProductTypeInterface[]>([]); // Specify the type here
 
 
@@ -125,6 +127,32 @@ useEffect(() => {
   fetchRosters();
   dispatch(setLoading(false));
 }, []);
+
+useEffect(() => {
+  const fetchSeasons = async () => {
+    dispatch(setLoading(true)); // Set loading state
+      const response = await dispatch(getAllSeasonType());
+      if (response.type === 'seasonType/getAll/fulfilled') {
+        // Ensure the response payload is correctly typed
+        const fetchedSeasons: SeasonType[] = response.payload.data;
+
+        // Map the seasons to the desired format
+        setSeasons(fetchedSeasons.map((season: SeasonType) => ({
+          value: season._id, // Use the _id for the value
+          label: season.Name // Use the Name for the label
+        })));
+      } else {
+        ToastAtTopRight.fire({
+          icon: 'error',
+          title: response.payload.message || 'Failed to fetch seasons',
+        });
+      }
+      dispatch(setLoading(false));
+  };
+
+  fetchSeasons(); // Call the fetch function
+}, [dispatch]); // Include dispatch in the dependency array
+
 
   const confirmDeleteType = async () => {
     if (typeToDelete) {
@@ -324,12 +352,32 @@ const addRoster = async () => {
     }
   };
 
-  const addSeason = () => {
+  const addSeason = async () => {
     if (newSeason.trim()) {
-      setSeasons([...seasons, { value: newSeason, label: newSeason }]);
-      setNewSeason('');
+      try {
+        dispatch(setLoading(true));
+        const response = await dispatch(createSeasonType({ Name: newSeason }));
+        if (response.type === 'seasonType/create/fulfilled') {
+          setSeasons([...seasons, { value: response.payload.data._id, label: newSeason }]);
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Season added!',
+          });
+          setNewSeason(''); // Clear the input field
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to add season',
+          });
+        }
+      } catch (error) {
+        console.error('Error adding season:', error);
+      } finally {
+        dispatch(setLoading(false));
+      }
     }
   };
+
 
 
   const  deleteType = async (typeToDelete: string) => {
@@ -356,8 +404,31 @@ const addRoster = async () => {
     setSubtypes(subtypes.filter(subtype => subtype.value !== subtypeToDelete));
   };
 
-  const deleteSeason = (seasonToDelete: string) => {
-    setSeasons(seasons.filter(season => season.value !== seasonToDelete));
+  const confirmDeleteSeason = async () => {
+    if (seasonToDelete) {
+      try {
+        dispatch(setLoading(true));
+        const response = await dispatch(deleteSeasonType(seasonToDelete));
+        if (response.type === 'seasonType/delete/fulfilled') {
+          setSeasons(seasons.filter(season => season.value !== seasonToDelete)); // Update the seasons state
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Season deleted!',
+          });
+          setSeasonToDelete(null); // Clear the selected season to delete
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to delete season',
+          });
+        }
+      } catch (error) {
+        console.error('Error deleting season:', error);
+      } finally {
+        dispatch(setLoading(false));
+        setDeleteSeasonModalOpen(false); // Close the confirmation modal
+      }
+    }
   };
 
   const deleteRoster = (rosterToDelete: string) => {
@@ -410,7 +481,6 @@ const addRoster = async () => {
                 <span className='w-full' >{type.SortOrder}</span> {/* Display Sort Order */}
                 <Button 
   variant="destructive" 
-  disabled={loading}
   onClick={() => {
     if (type._id) { // Ensure _id is defined
       setTypeToDelete(type._id); // Set the type ID to delete
@@ -463,37 +533,52 @@ const addRoster = async () => {
       </Dialog>
 
       <Dialog open={seasonModalOpen} onOpenChange={setSeasonModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Seasons</DialogTitle>
-            <DialogDescription>Add or remove product seasons.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-          <div className="flex justify-between">
-
-            <Input
-              placeholder="New Season"
-              value={newSeason}
-              onChange={(e) => setNewSeason(e.target.value)}
-            />
-            <Button className='ms-2' onClick={addSeason}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {seasons.map((season) => (
-                <div key={season.value} className="flex justify-between items-center">
-                  <span>{season.label}</span>
-                  <Button variant="destructive" onClick={() => deleteSeason(season.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Manage Seasons</DialogTitle>
+      <DialogDescription>Add or remove product seasons.</DialogDescription>
+    </DialogHeader>
+    <div className="space-y-4">
+      <div className="flex justify-between">
+        <Input
+          placeholder="New Season"
+          value={newSeason}
+          onChange={(e) => setNewSeason(e.target.value)}
+        />
+        <Button className="ms-2" onClick={addSeason}>Add</Button>
+      </div>
+      <div className="space-y-2">
+        {seasons.map((season) => (
+          <div key={season.value} className="flex justify-between items-center">
+            <span>{season.label}</span>
+            <Button variant="destructive" onClick={() => {
+              setSeasonToDelete(season.value); // Set the season to delete
+              setDeleteSeasonModalOpen(true); // Open the confirmation modal
+            }}>
+              Delete
+            </Button>
           </div>
-          <DialogFooter>
-            <Button onClick={() => setSeasonModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+
+{/* Confirmation Modal for Deleting Season */}
+<Dialog open={deleteSeasonModalOpen} onOpenChange={setDeleteSeasonModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this season? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteSeason} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteSeasonModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       <Dialog open={rosterModalOpen} onOpenChange={setRosterModalOpen}>
   <DialogContent className="max-w-lg">

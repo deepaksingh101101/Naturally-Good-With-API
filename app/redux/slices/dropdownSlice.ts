@@ -1,18 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
-import { createProductType, createRosterType, deleteProductType, deleteRosterType } from '../actions/dropdownActions';
-import { ProductType, RosterType } from '@/types/Dropdown'; // Adjust the import according to your project structure
+import { createProductType, createRosterType, createSeasonType, deleteProductType, deleteRosterType, deleteSeasonType } from '../actions/dropdownActions';
+import { ProductType, RosterType, SeasonType } from '@/types/Dropdown'; // Adjust the import according to your project structure
 
 interface ProductTypeState {
     loading: boolean;
     productTypes: ProductType[]; // Array to store product types
     rosters: RosterType[]; // Array to store roster types
+    seasons: SeasonType[]; // Array to store roster types
     error: string | null;
 }
 
 const initialState: ProductTypeState = {
     loading: false,
     productTypes: [],
+    seasons: [],
     rosters: [], // Initialize rosters array
     error: null,
 };
@@ -72,6 +74,32 @@ const productTypeSlice = createSlice({
                 state.rosters = state.rosters.filter(roster => roster._id !== action.payload);
             })
             .addCase(deleteRosterType.rejected, (state, action: PayloadAction<any>) => {
+                state.loading = false; // Set loading to false on rejection
+                state.error = action.payload; // Set the error message from the payload
+            });
+            // Season actions
+            builder
+            .addCase(createSeasonType.pending, (state) => {
+                state.loading = true; // Set loading to true when the request is pending
+            })
+            .addCase(createSeasonType.fulfilled, (state, action: PayloadAction<AxiosResponse<SeasonType>>) => {
+                state.loading = false; // Set loading to false when the request is fulfilled
+                const season = action.payload.data; // Extract the roster data from the response
+                state.seasons.push(season); // Add the new roster to the rosters array
+            })
+            .addCase(createSeasonType.rejected, (state, action: PayloadAction<any>) => {
+                state.loading = false; // Set loading to false on rejection
+                state.error = action.payload; // Set the error message from the payload
+            })
+            .addCase(deleteSeasonType.pending, (state) => {
+                state.loading = true; // Set loading to true when the delete request is pending
+            })
+            .addCase(deleteSeasonType.fulfilled, (state, action: PayloadAction<string>) => {
+                state.loading = false; // Set loading to false when the delete request is fulfilled
+                // Remove the deleted roster from the state array
+                state.seasons = state.seasons.filter(season => season._id !== action.payload);
+            })
+            .addCase(deleteSeasonType.rejected, (state, action: PayloadAction<any>) => {
                 state.loading = false; // Set loading to false on rejection
                 state.error = action.payload; // Set the error message from the payload
             });
