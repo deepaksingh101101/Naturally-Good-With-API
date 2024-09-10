@@ -50,7 +50,7 @@ interface ProductFormType {
 const productFormSchema = z.object({
   ProductName: z.string().min(1, 'Product Name is required'),
   Description: z.string().optional(),
-  ImageURL: z.object({}).optional(),
+  ImageURL: z.string().optional(),
   Visibility: z.string().min(1, 'Visibility is required'),
   // unitType: z.string().min(1, 'Unit Type is required'),
   MinimumUnits: z.number().min(1, 'Minimum Quantity is required'),
@@ -218,15 +218,15 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
     defaultValues:initialData
     ? {
         ...initialData,
-        Type: initialData.Type._id,  // Adjust to store ID
-        Season: initialData.Season._id, // Adjust to store ID
-        Roster: initialData.Roster._id, // Adjust to store ID
-        Available: initialData.Available ? 'true' : 'false',
+        Type: initialData?.Type?._id,  // Adjust to store ID
+        Season: initialData?.Season?._id, // Adjust to store ID
+        Roster: initialData?.Roster?._id, // Adjust to store ID
+        Available: initialData?.Available ? 'true' : 'false',
       }
     : {
           ProductName: '',
           Description: '',
-          ImageURL: '',
+          ImageURL: 'https://as2.ftcdn.net/v2/jpg/07/51/48/59/1000_F_751485962_KRHodHm6qZVlHP6CEotajjBSLqImseez.webp',
           Visibility: '',
           MinimumUnits: '',
           MaximumUnits: '',
@@ -263,7 +263,6 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
             icon: 'success',
             title: toastMessage, // 'Item updated.'
           });
-          router.push('/dashboard/product')
         } else {
           ToastAtTopRight.fire({
             icon: 'error',
@@ -279,6 +278,8 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
             title: toastMessage, // 'Item created.'
           });
           form.reset(); // Clear all fields in the form only on successful creation 
+          router.push('/dashboard/product')
+
         } else {
           ToastAtTopRight.fire({
             icon: 'error',
@@ -1004,7 +1005,7 @@ const addRoster = async () => {
            
             <Controller
               name="ImageURL"
-              control={control}
+              control={form.control}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Item Image</FormLabel>
