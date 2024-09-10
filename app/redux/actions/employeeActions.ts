@@ -7,6 +7,7 @@ import { AxiosResponse } from 'axios';
 
 
 // Action to create a new employee
+// Action to create a new employee
 export const createEmployee = createAsyncThunk<
   AxiosResponse<Employee>, // Change this to AxiosResponse<Employee>
   Employee,

@@ -34,7 +34,8 @@ const employeeFormSchema = z.object({
   FirstName: z.string().min(1, 'First Name is required'),
   LastName: z.string().min(1, 'Last Name is required'),
   RoleId: z.string().min(1, 'Role is required'),
-  IsActive: z.string().min(1, 'Status is required'),
+  // IsActive: z.string().min(1, 'Status is required'),
+  IsActive: z.boolean().optional(),
   Email: z.string().email('Invalid email format').min(1, 'Email is required'),
   PhoneNumber: z.string().length(10, 'Phone number must be exactly 10 characters long'),
   Password: z.string().min(6, 'Password must be at least 6 characters long'),
@@ -52,6 +53,8 @@ interface Role {
   roleName: string;
 }
 
+type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
+
 export const CreateEmployeeForm: React.FC<EmployeeFormType> = ({ initialData ,isDisabled}) => {
   const [showPassword, setShowPassword] = useState(false);
   const [fetchedRoles, setFetchedRoles] = useState<Role[]>([]); // Specify the type here
@@ -61,9 +64,7 @@ const form = useForm({
   defaultValues: initialData
   ? {
       ...initialData,
-      RoleId: initialData.Role
-        ? { value: initialData.Role._id, label: initialData.Role.roleName } // Assign as an object
-        : null,
+      RoleId: initialData.Role ? initialData.Role._id : '',
       Dob: new Date(initialData.Dob), // Convert the Dob string to a Date object
     }
   :{
@@ -78,7 +79,7 @@ const form = useForm({
         State: '',
         StreetAddress: '',
         Gender: '',
-        IsActive: '',
+        IsActive: true,
       },
 });
 
@@ -97,7 +98,7 @@ const form = useForm({
 
   }, []);
 
-  // const onSubmit: SubmitHandler<typeof employeeFormSchema._type> = async (data) => {
+  // const onSubmit= async (data:EmployeeFormValues) => {
   //   try {
   //     if (initialData) {
   //       dispatch(setLoading(true)); 
@@ -180,7 +181,10 @@ const form = useForm({
       dispatch(setLoading(false));
     }
   };
+  
+  
   const renderErrorMessage = (error: any) => {
+    console.log(error)
     if (!error) return null;
     if (typeof error === 'string') return error;
     if (error.message) return error.message;
@@ -281,7 +285,7 @@ const form = useForm({
         <Heading title={isDisabled && initialData ? 'View Employee' :(isDisabled===false && initialData)? 'Edit Employee':"Create Employee"} description={isDisabled && initialData ? 'Details of Employee' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below"} />
         <Separator />
         <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-3">
               <FormField
                 control={control}
@@ -430,7 +434,7 @@ const form = useForm({
                   </FormItem>
                 )}
               />
-<FormField
+{/* <FormField
   control={control}
   name="RoleId"
   render={({ field }) => (
@@ -457,7 +461,41 @@ const form = useForm({
       <FormMessage>{renderErrorMessage(errors.Role)}</FormMessage>
     </FormItem>
   )}
+/> */}
+
+<FormField
+  control={control}
+  name="RoleId"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex items-center">
+
+      <FormLabel>Role</FormLabel>
+      {!(isDisabled && initialData) &&  <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRoleModalOpen(true)} />
+}</div>
+      <FormControl>
+        <Controller
+          name="RoleId"
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <ReactSelect<Role>
+              value={fetchedRoles.find(role => role._id === value) || null} // Setting value as Role type
+              onChange={(selectedOption) => onChange(selectedOption ? selectedOption._id : '')}
+              options={fetchedRoles} // Passing Role objects directly
+              getOptionLabel={(role) => role.roleName} // How to display the option label
+              getOptionValue={(role) => role._id} // The unique value for each option
+              isDisabled={isDisabled || loading}
+              placeholder="Select Role"
+            />
+          )}
+        />
+      </FormControl>
+      <FormMessage>{renderErrorMessage(errors.RoleId)}</FormMessage>
+    </FormItem>
+  )}
 />
+
+
 <FormField
   control={control}
   name="Dob"
@@ -507,8 +545,8 @@ const form = useForm({
         <FormControl>
           <Select
             disabled={isDisabled || loading}
-            onValueChange={field.onChange}
-            value={field.value || initialData.IsActive ? "true" : "false"} // Set default value based on initialData
+            onValueChange={(value) => field.onChange(value === "true")} // Convert string to boolean
+            value={field.value !== undefined ? (field.value ? "true" : "false") : (initialData.IsActive ? "true" : "false")} // Convert boolean to string
           >
             <SelectTrigger>
               <SelectValue placeholder="Select Status" />
@@ -526,7 +564,7 @@ const form = useForm({
 )}
             </div>
           {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
-            {(isDisabled===false && initialData)? 'Save Employee':"Create Employee"}     
+            { initialData? 'Save Employee':"Create Employee"}     
             </Button>}
           </form>
         </Form>

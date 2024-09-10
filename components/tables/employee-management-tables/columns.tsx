@@ -34,9 +34,9 @@ export const columns: ColumnDef<any>[] = [ // Adjust type if you have a specific
           className="flex items-center justify-center w-8 h-8 rounded-full mr-2"
           style={{ backgroundColor: getRandomColor(), color: 'white' }}
         >
-          {row.original.FirstName.charAt(0)}
+          {row?.original?.FirstName?.charAt(0)}
         </div>
-        <span>{row.original.FirstName}</span>
+        <span>{row?.original?.FirstName}</span>
       </div>
     ),
     enableSorting: true,
@@ -44,6 +44,9 @@ export const columns: ColumnDef<any>[] = [ // Adjust type if you have a specific
   {
     accessorKey: 'LastName', // Updated to match API response
     header: 'Last Name',
+    cell: ({ row }) => (
+      <span>{row?.original?.LastName}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'PhoneNumber', // Updated to match API response
@@ -51,7 +54,7 @@ export const columns: ColumnDef<any>[] = [ // Adjust type if you have a specific
     cell: ({ row }) => (
       <div className="flex items-center mt-1">
         <Phone className="text-green-500 mr-2" width={10} height={10} />
-        <span>{row.original.PhoneNumber}</span>
+        <span>{row?.original?.PhoneNumber}</span>
       </div>
     )
   },
@@ -61,33 +64,51 @@ export const columns: ColumnDef<any>[] = [ // Adjust type if you have a specific
     cell: ({ row }) => (
       <div className="flex items-center mt-1">
         <Mail className="text-blue-500 mr-2" width={10} height={10} />
-        <span>{row.original.Email}</span>
+        <span>{row?.original?.Email}</span>
       </div>
     )
   },
   {
     accessorKey: 'Dob', // Updated to match API response
-    header: 'Date of Birth'
+    header: 'Date of Birth',
+    cell: ({ row }) => (
+      <span>{row?.original?.Dob}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'Gender', // Updated to match API response
-    header: 'Gender'
+    header: 'Gender',
+    cell: ({ row }) => (
+      <span>{row?.original?.Gender}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'StreetAddress', // Assuming this is a direct property
-    header: 'Street Address'
+    header: 'Street Address',
+    cell: ({ row }) => (
+      <span>{row?.original?.StreetAddress}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'City', // Updated to match API response
-    header: 'City'
+    header: 'City',
+    cell: ({ row }) => (
+      <span>{row?.original?.City}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'State', // Updated to match API response
-    header: 'State'
+    header: 'State',
+    cell: ({ row }) => (
+      <span>{row?.original?.State}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     accessorKey: 'Role.roleName', // Updated to match API response
-    header: 'Role'
+    header: 'Role',
+    cell: ({ row }) => (
+      <span>{row?.original?.Role.roleName}</span> // Display the index of the row + 1 for serial number
+    ),
   },
   {
     id: 'actions',
