@@ -36,7 +36,7 @@ import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 import ReactSelect from 'react-select';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/redux/store';
-import { createProductType, deleteProductType, getAllProductType } from '@/app/redux/actions/dropdownActions';
+import { createProductType, createRosterType, deleteProductType, deleteRosterType, getAllProductType, getAllRosterType } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ProductType } from '@/types/Dropdown';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
@@ -80,6 +80,10 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
   const { loading } = useSelector((state: RootState) => state.auth);
   const [deleteTypeModalOpen, setDeleteTypeModalOpen] = useState(false);
   const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
+const [deleteRosterModalOpen, setDeleteRosterModalOpen] = useState(false);
+const [rosterToDelete, setRosterToDelete] = useState<string | null>(null);
+const [fetchedRosters, setFetchedRosters] = useState<any[]>([]);
+
   interface ProductTypeInterface {
     _id?: string;
     Name: string;
@@ -111,10 +115,48 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
     dispatch(setLoading(false)); 
 
   }, []);
+
+  // Fetch rosters in useEffect
+useEffect(() => {
+  const fetchRosters = async () => {
+    const rosters = await dispatch(getAllRosterType());
+    setFetchedRosters(rosters.payload.data);
+  };
+  fetchRosters();
+  dispatch(setLoading(false));
+}, []);
+
   const confirmDeleteType = async () => {
     if (typeToDelete) {
       await deleteType(typeToDelete);
       setDeleteTypeModalOpen(false); // Close the modal
+    }
+  };
+  const confirmDeleteRoster = async () => {
+    if (rosterToDelete) {
+      try {
+        dispatch(setLoading(true));
+        const response = await dispatch(deleteRosterType(rosterToDelete)); // Dispatch the delete action
+  
+        if (response.type === 'roster/delete/fulfilled') {
+          setFetchedRosters((prev) => prev.filter((roster) => roster._id !== rosterToDelete)); // Update the roster state
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Roster deleted!',
+          });
+          setRosterToDelete(null); // Clear the selected roster to delete
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to delete roster',
+          });
+        }
+      } catch (error) {
+        console.error('Error deleting roster:', error);
+      } finally {
+        dispatch(setLoading(false));
+        setDeleteRosterModalOpen(false); // Close the delete confirmation modal
+      }
     }
   };
 
@@ -156,7 +198,8 @@ export const CreateProductForm: React.FC<ProductFormType> = ({ initialData }) =>
   ]);
 
   const [newType, setNewType] = useState('');
-const [sortOrder, setSortOrder] = useState(1); // Default sort order
+const [sortOrderForType, setSortOrderForType] = useState(1); // Default sort order
+const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort order
   const [newSubtype, setNewSubtype] = useState('');
   const [newSeason, setNewSeason] = useState('');
   const [newRoster, setNewRoster] = useState('');
@@ -214,16 +257,16 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
   };
 
   const addType = async () => {
-    if (newType.trim() && sortOrder >= 0) { // Ensure sort order is non-negative
+    if (newType.trim() && sortOrderForType >= 0) { // Ensure sort order is non-negative
         try {
             dispatch(setLoading(true));
-            const response = await dispatch(createProductType({ Name: newType, SortOrder: sortOrder })); // Include SortOrder
+            const response = await dispatch(createProductType({ Name: newType, SortOrder: sortOrderForType })); // Include SortOrder
 
             if (response.type === 'productType/create/fulfilled') {
                 const newProductType: ProductTypeInterface = {
                     _id: response.payload.data._id, // Ensure this is a string
                     Name: newType,
-                    SortOrder: sortOrder, // Use the specified sort order
+                    SortOrder: sortOrderForType, // Use the specified sort order
                 };
                 setFetchedProductType((prev: ProductTypeInterface[]) => [...prev, newProductType]); // Ensure prev is of the correct type
                 ToastAtTopRight.fire({
@@ -231,7 +274,7 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
                     title: 'New product type created!',
                 });
                 setNewType(''); // Clear the input field
-                setSortOrder(1); // Reset sort order to default
+                setSortOrderForType(1); // Reset sort order to default
             } else {
                 ToastAtTopRight.fire({
                     icon: 'error',
@@ -244,6 +287,32 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
             dispatch(setLoading(false));
         }
     }
+};
+
+const addRoster = async () => {
+  if (newRoster.trim()&& sortOrderForRoster >= 0) {
+    try {
+      dispatch(setLoading(true));
+      const response = await dispatch(createRosterType({ Name: newRoster,SortOrder: sortOrderForRoster  }));
+
+      if (response.type === 'rosterType/create/fulfilled') {
+        setFetchedRosters((prev) => [...prev, response.payload.data]);
+        ToastAtTopRight.fire({ icon: 'success', title: 'New roster created!' });
+        setNewRoster('');
+        setSortOrderForRoster(1);
+      } else {
+        // Handle error
+        ToastAtTopRight.fire({
+          icon: 'error',
+          title: response.payload.message || 'Failed to add product type',
+      });
+      }
+    } catch (error) {
+      console.error('Error adding roster:', error);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }
 };
   
   
@@ -262,12 +331,6 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
     }
   };
 
-  const addRoster = () => {
-    if (newRoster.trim()) {
-      setRosters([...rosters, { value: newRoster, label: newRoster }]);
-      setNewRoster('');
-    }
-  };
 
   const  deleteType = async (typeToDelete: string) => {
     if (typeToDelete) {
@@ -279,7 +342,7 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
             title: 'Product type deleted!',
         });
         setNewType(''); // Clear the input field
-        setSortOrder(1); // Reset sort order to default
+        setSortOrderForType(1); // Reset sort order to default
     } else {
         ToastAtTopRight.fire({
             icon: 'error',
@@ -334,8 +397,8 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
             <Input
               placeholder="Sort Order"
               type="number" // Ensure this is a number input
-              value={sortOrder}
-              onChange={(e) => setSortOrder(Number(e.target.value))}
+              value={sortOrderForType}
+              onChange={(e) => setSortOrderForType(Number(e.target.value))}
               className="mb-4 ms-2"
             />
             <Button className='ms-3' onClick={addType}>Add</Button>
@@ -433,37 +496,59 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
       </Dialog>
 
       <Dialog open={rosterModalOpen} onOpenChange={setRosterModalOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Rosters</DialogTitle>
-            <DialogDescription>Add or remove product rosters.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-          <div className="flex justify-between">
-
-            <Input
-              placeholder="New Roster"
-              value={newRoster}
-              onChange={(e) => setNewRoster(e.target.value)}
-            />
-            <Button  className='ms-3' onClick={addRoster}>Add</Button>
-            </div>
-            <div className="space-y-2">
-              {rosters.map((roster) => (
-                <div key={roster.value} className="flex justify-between items-center">
-                  <span>{roster.label}</span>
-                  <Button variant="destructive" onClick={() => deleteRoster(roster.value)}>
-                    Delete
-                  </Button>
-                </div>
-              ))}
-            </div>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Manage Rosters</DialogTitle>
+      <DialogDescription>Add or remove product rosters.</DialogDescription>
+    </DialogHeader>
+    <div className="space-y-4">
+      <div className="flex justify-between">
+        <Input
+          placeholder="New Roster"
+          value={newRoster}
+          onChange={(e) => setNewRoster(e.target.value)}
+        />
+        <Input
+          placeholder="Sort Order"
+          type="number"
+          value={sortOrderForRoster}
+          onChange={(e) => setSortOrderForRoster(Number(e.target.value))}
+          className="ms-2"
+        />
+        <Button className="ms-3" onClick={addRoster}>Add</Button>
+      </div>
+      <div className="space-y-2">
+        {fetchedRosters?.map((roster) => (
+          <div key={roster._id} className="flex justify-between items-center">
+            <span className='w-full' >{roster.Name}</span>
+            <span className='w-full' >{roster.SortOrder}</span> {/* Display Sort Order */}
+            <Button variant="destructive" onClick={() => {
+              setRosterToDelete(roster._id);
+              setDeleteRosterModalOpen(true);
+            }}>
+              Delete
+            </Button>
           </div>
-          <DialogFooter>
-            <Button onClick={() => setRosterModalOpen(false)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        ))}
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+
+<Dialog open={deleteRosterModalOpen} onOpenChange={setDeleteRosterModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this roster? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteRoster} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteRosterModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
@@ -576,29 +661,33 @@ const [sortOrder, setSortOrder] = useState(1); // Default sort order
             />
 
 <FormField
-              control={form.control}
-              name="roster"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center">
-                    <FormLabel>Roster</FormLabel>
-                    <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRosterModalOpen(true)}/>
-                  </div>
-                  <FormControl>
-                    <ReactSelect
-                      isSearchable
-                      options={rosters}
-                      getOptionLabel={(option) => option.label}
-                      getOptionValue={(option) => option.value}
-                      isDisabled={loading}
-                      onChange={(selected) => field.onChange(selected ? selected.value : '')}
-                      value={rosters.find(option => option.value === field.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+  control={form.control}
+  name="roster"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex items-center">
+        <FormLabel>Roster</FormLabel>
+        <Edit className="text-red-500 ms-1" height={15} width={15} onClick={() => setRosterModalOpen(true)} />
+      </div>
+      <FormControl>
+        <ReactSelect
+          isSearchable
+          options={fetchedRosters.map((roster) => ({
+            value: roster._id, // Use the unique identifier
+            label: roster.Name, // Use the name for the label
+          }))}
+          isDisabled={loading}
+          onChange={(selected) => field.onChange(selected ? selected.value : '')} // Handle selection
+          value={fetchedRosters.find((roster) => roster._id === field.value) ? {
+            value: fetchedRosters.find((roster) => roster._id === field.value)._id,
+            label: fetchedRosters.find((roster) => roster._id === field.value).Name,
+          } : null} // Adjust value for the selected option
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
 <FormField
               control={form.control}

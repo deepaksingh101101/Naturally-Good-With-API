@@ -168,21 +168,59 @@ export const getAllSeasonType = createAsyncThunk<
   }
 );
 
+
+
+
+
+
+// Roster started
+// Action to fetch all roster types
 export const getAllRosterType = createAsyncThunk<
-  AxiosResponse<RosterType[]>, // Return type is the entire Axios response
-  void, // No input parameters
-  { rejectValue: any } // Reject value type
+  AxiosResponse<RosterType[]>, 
+  void, 
+  { rejectValue: any }
 >(
   'rosterType/getAll',
   async (_, { rejectWithValue }) => {
     try {
       const response = await apiCall('GET', '/dropDown/rosters');
-      // Return the entire response object
-      return response; // Return the full response
+      return response; 
     } catch (error: any) {
-      return rejectWithValue(error); // Return the error directly
+      return rejectWithValue(error);
     }
   }
 );
 
+// Action to create a new roster type
+export const createRosterType = createAsyncThunk<
+  AxiosResponse<RosterType>, 
+  Omit<RosterType, '_id'>, 
+  { rejectValue: any }
+>(
+  'rosterType/create',
+  async (rosterData, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('POST', '/dropDown/roster', rosterData);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
 
+// Action to delete a roster type
+export const deleteRosterType = createAsyncThunk<
+  string, 
+  string, 
+  { rejectValue: any }
+>(
+  'rosterType/delete',
+  async (rosterId, { rejectWithValue }) => {
+    try {
+      await apiCall('DELETE', `/dropDown/roster/${rosterId}`);
+      return rosterId; // Return the ID of the deleted roster type
+    } catch (error: any) {
+      return rejectWithValue(error);
+    }
+  }
+);
