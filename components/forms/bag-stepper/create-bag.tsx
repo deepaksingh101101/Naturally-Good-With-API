@@ -49,7 +49,7 @@ const bagFormSchema = z.object({
   BagMaxWeight: z.number().min(1, 'Maximum bag weight is required'), // Ensure this is present and clear
   });
 
-export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
+export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ initialData,isDisabled }) => {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [bagItems, setBagItems] = useState<AllowedItem[]>(initialData?.AllowedItems || []);
@@ -57,7 +57,47 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
   const [rowSearchTerms, setRowSearchTerms] = useState<string[]>(Array(bagItems.length).fill(''));
   const [selectedProducts, setSelectedProducts] = useState<any[]>(Array(bagItems.length).fill(null));
   const router = useRouter();
+  interface AllowedItemInterface {
+    _id: string;
+    ProductName: string;
+    UnitQuantity: number;
+    Price: number;
+    MinimumUnits: number;
+    MaximumUnits: number;
+    // Add any other fields that are relevant to the AllowedItem
+  }
+
+  const runUseEffectForEditValues =()=>{
+        if (initialData) {
+      // Map initial allowed items into the form structure
+      const initialAllowedItems = initialData.AllowedItems.map((item: AllowedItemInterface) => ({
+        itemName: item.ProductName,
+        itemPrice: item.Price,
+        unitQuantity: item.UnitQuantity,
+        maximumQuantity: item.MaximumUnits,
+        minimumQuantity: item.MinimumUnits,
+      }));
+      setBagItems(initialAllowedItems);
   
+      // Set the selectedProducts state based on the initial data
+      const initialSelectedProducts = initialData.AllowedItems.map((product: AllowedItemInterface) => ({
+        value: product._id,
+        label: product.ProductName,
+      }));
+      setSelectedProducts(initialSelectedProducts);
+    }
+  }
+
+  useEffect(() => {
+    if (initialData) {
+      runUseEffectForEditValues()
+    }
+    else{
+      return
+    }
+  }, []);
+
+
   const form = useForm<Bag>({
     resolver: zodResolver(bagFormSchema),
     defaultValues: initialData || {
@@ -71,6 +111,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     },
   });
 
+
   const getProduct = async (query: string) => {
     try {
       const response = await apiCall('get', `/product/filter?ProductName=${query}`);
@@ -80,9 +121,9 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     }
   };
 
-  useEffect(() => {
-    // Initial load if needed
-  }, []);
+  // useEffect(() => {
+  //   // Initial load if needed
+  // }, []);
 
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
 
@@ -129,9 +170,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
           });
         }
       }
-      
       // Optionally refresh or navigate after successful create/update
-      router.refresh(); // or use router.push('/path') to navigate
+      // router.refresh(); // or use router.push('/path') to navigate
     } catch (error) {
       console.error('Error occurred while submitting the bag:', error);
     } finally {
@@ -220,8 +260,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
 
   return (
     <div className="container mx-auto p-4">
-      <Heading title={initialData ? 'Edit Bag' : 'Create Bag'} description="Fill in the details below" />
-      <Separator />
+        <Heading title={isDisabled && initialData ? 'View Bag' :(isDisabled===false && initialData)? 'Edit Bag':"Create Bag"} description={isDisabled && initialData ? 'Details of Bag' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below"} />
+        <Separator />
       <div className="mt-2">
         <ul className="flex gap-4">
           {steps.map((step, index) => (
@@ -260,7 +300,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                         <Input
                           name="BagName"
                           type="text"
-                          disabled={loading}
+                          disabled={isDisabled||loading}
                           placeholder="Enter Bag Name"
                           onChange={(e) => field.onChange(e.target.value === '' ? undefined : e.target.value)}
                           value={field.value || ''}
@@ -280,7 +320,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
         <Input
           name="BagMaxWeight"
           type="number"
-          disabled={loading}
+          disabled={isDisabled||loading}
           placeholder="Enter Total Weight"
           onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)} // Allow undefined if empty
           value={field.value || ''}
@@ -297,7 +337,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                     <FormItem>
                       <FormLabel>Bag Visibility</FormLabel>
                       <FormControl>
-                        <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                        <Select disabled={isDisabled||loading} onValueChange={field.onChange} value={field.value}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select Visibility" />
                           </SelectTrigger>
@@ -318,7 +358,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     <FormItem>
       <FormLabel>Status</FormLabel>
       <FormControl>
-        <Select disabled={loading} onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)}>
+        <Select disabled={isDisabled||loading} onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)}>
           <SelectTrigger>
             <SelectValue placeholder="Select Status" />
           </SelectTrigger>
@@ -341,7 +381,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                       <FormControl>
                         <Input
                           type="file"
-                          disabled={loading}
+                          disabled={isDisabled||loading}
                           onChange={(e) => {
                             if (e.target.files && e.target.files.length > 0) {
                               field.onChange(e.target.files[0]);
@@ -361,7 +401,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                       <FormLabel>Bag Description</FormLabel>
                       <FormControl>
                         <Textarea
-                          disabled={loading}
+                          disabled={isDisabled||loading}
                           rows={5}
                           placeholder="Enter Description"
                           {...field}
@@ -445,6 +485,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                                     });
                                   }
                                 }}
+                                isDisabled={isDisabled||loading}
+
                                 onInputChange={(inputValue) => handleInputChange(inputValue, index)} // Use the debounced input change
                                 value={selectedProduct} // Maintain selected product
                               />
@@ -457,7 +499,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.minimumQuantity}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.maximumQuantity}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button type="button" onClick={() => handleRemoveItem(index)} className="text-red-600 hover:text-red-900">
+                        <button type="button" disabled={isDisabled||loading} onClick={() => handleRemoveItem(index)} className="text-red-600 hover:text-red-900">
                           Remove
                         </button>
                       </td>
@@ -469,7 +511,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
           </div>
           <div className="mt-8 pt-5">
             <div className="flex justify-between">
-              <Button
+             {(isDisabled===false)&& <Button
                 type="button"
                 onClick={prev}
                 disabled={currentStep === 0}
@@ -489,8 +531,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                     d="M15.75 19.5L8.25 12l7.5-7.5"
                   />
                 </svg>
-              </Button>
-              {currentStep !== 1 && (
+              </Button>}
+              {currentStep !== 1 && (isDisabled===false) && (
                 <Button
                   type="button"
                   onClick={next}
@@ -517,34 +559,14 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
           </div>
           {currentStep === 1 && (
             <div className="mt-4">
-              <Button
-                type="submit"
-                className="w-full disabled:cursor-not-allowed"
-              >
-                Submit
-              </Button>
+             {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
+            { initialData? 'Save Bag':"Create Bag"}     
+            </Button>}
             </div>
           )}
         </form>
       </Form>
-      {initialData && (
-        <div className="mt-8 pt-5 border-t border-gray-200">
-          <div className="flex justify-between">
-            <Heading
-              title="Delete Bag"
-              description="This action cannot be undone."
-            />
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {} /* Add your delete logic here */}
-              disabled={loading}
-            >
-              Delete Bag
-            </Button>
-          </div>
-        </div>
-      )}
+ 
     </div>
   );
 };
