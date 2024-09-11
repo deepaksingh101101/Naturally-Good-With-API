@@ -11,6 +11,15 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => row.index + 1,
   },
   {
+    accessorKey: 'ImageURL',
+    header: 'Image',
+    cell: ({ row }) => (
+      <div className="flex items-center">
+{      row?.original?.ImageURL?<img src={row?.original?.ImageURL} alt={row?.original?.ProductName} width={50} height={50} />:"No Image"
+}      </div>
+    ),
+  },
+  {
     accessorKey: 'ProductName',
     header: 'Item Name',
     cell: ({ row }) => (
@@ -115,11 +124,11 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => (
       <div
         style={{ borderRadius: '20px' }}
-        className={`flex items-center px-2 py-1 ${
+        className={`flex items-center justify-center px-2 py-1 ${
           row?.original?.Available ? 'bg-green-400' : 'bg-red-400'
         }`}
       >
-        <span className="text-black bold">{row?.original?.Available ? 'Yes' : 'No'}</span>
+        <span className="text-black  bold">{row?.original?.Available ? 'Yes' : 'No'}</span>
       </div>
     ),
   },
@@ -139,15 +148,7 @@ export const columns: ColumnDef<any>[] = [
       </div>
     ),
   },
-  // {
-  //   accessorKey: 'ImageURL',
-  //   header: 'Image',
-  //   cell: ({ row }) => (
-  //     <div className="flex items-center">
-  //       <Image src={row?.original?.ImageURL} alt={row?.original?.ProductName} width={50} height={50} />
-  //     </div>
-  //   ),
-  // },
+
   {
     accessorKey: 'Description',
     header: 'Description',

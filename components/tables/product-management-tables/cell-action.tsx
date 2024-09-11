@@ -2,6 +2,7 @@
 
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,50 +10,117 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { ProductManagement } from '@/constants/product-management-data';
-import { Edit, MoreHorizontal, Trash, Eye, UserPlus, UserCheck } from 'lucide-react';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Edit, MoreHorizontal, Eye, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm, FormProvider } from 'react-hook-form'; // Import for form control
+import { z } from 'zod';
 
 interface CellActionProps {
-  data: any;
+  data: any;  // Adjusted to receive full product data object
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
+  const [toggleModelOpen, setToggleModelOpen] = useState(false);
   const router = useRouter();
+
+  // Accessing the product from Redux state (already received `data` prop)
+  const productId = data._id; // Product ID extracted from `data` prop
+
+  const productFormSchema = z.object({
+    Available: z.string().min(1, 'Please Enter availability'),
+  });
+
+  // Initialize useForm hook with default values from data prop
+  const methods = useForm({
+    resolver: zodResolver(productFormSchema),
+    defaultValues: {
+      Available: data?.Available ? 'true' : 'false', // Pre-fill based on product availability
+    },
+  });
+
+  const { control, handleSubmit, setValue, formState: { errors } } = methods;
+
+  useEffect(() => {
+    // Set form values when the product changes
+    if (data) {
+      setValue('Available', data.Available ? 'true' : 'false');
+    }
+  }, [data, setValue]);
 
   const onConfirm = async () => {
     // Your confirm logic here
   };
 
-  // const handleRegisterNewSubscription = () => {
-  //   router.push('/product-management/register'); 
-  // };
-
   const handleEditProduct = () => {
-    router.push(`/product/edit/${data._id}`); 
+    router.push(`/product/edit/${productId}`);
   };
 
   const viewProduct = () => {
-    router.push(`/product/view/${data._id}`); 
+    router.push(`/product/view/${productId}`);
   };
 
-  const updateProductAvailability = () => {
-    router.push(`/product-management/toggleDeliveryDays/${data}`); 
+  const updateProductAvailability = (formData: any) => {
+    console.log('Updating product availability to:', formData.Available);
+    // Implement your availability update logic here
   };
-
-
 
   return (
     <>
-      <AlertModal
-        isOpen={open}
-        onClose={() => setOpen(false)}
-        onConfirm={onConfirm}
-        loading={loading}
-      />
+      <Form {...methods}>
+          <AlertModal
+            isOpen={open}
+            onClose={() => setOpen(false)}
+            onConfirm={onConfirm}
+            loading={loading}
+          />
+          <Dialog open={toggleModelOpen} onOpenChange={setToggleModelOpen}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Toggle Product Availability</DialogTitle>
+                <DialogDescription>Changing availability to no, cause product not listed anywhere</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <form onSubmit={handleSubmit(updateProductAvailability)}>
+                  <div className="flex flex-row items-end justify-between">
+                    <FormField
+                      control={control}
+                      name="Available"
+                      render={({ field }) => (
+                        <FormItem className='w-full' >
+                          <FormLabel>Item Availability</FormLabel>
+                          <FormControl>
+                            <Select
+                              disabled={loading}
+                              onValueChange={field.onChange} // Handle the value change as a string
+                              value={field.value} // Ensure this is a string ('true' or 'false')
+                            >
+                              <SelectTrigger>
+                                {field.value === 'true' ? 'Available' : 'Unavailable'}
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="true">Available</SelectItem>
+                                <SelectItem value="false">Unavailable</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage>{errors.Available?.message}</FormMessage>
+                        </FormItem>
+                      )}
+                    />
+                  <Button className='ms-2 mb-1' type="submit">Submit</Button>
+                  </div>
+                </form>
+              </div>
+            </DialogContent>
+          </Dialog>
+      </Form>
+
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0">
@@ -62,17 +130,13 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-          {/* <DropdownMenuItem onClick={handleRegisterNewSubscription}>
-            <UserPlus className="mr-2 h-4 w-4" /> Create New Subscription
-          </DropdownMenuItem> */}
           <DropdownMenuItem onClick={handleEditProduct}>
             <Edit className="mr-2 h-4 w-4" /> Edit Product Details
           </DropdownMenuItem>
           <DropdownMenuItem onClick={viewProduct}>
             <Eye className="mr-2 h-4 w-4" /> View Product
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={updateProductAvailability}>
+          <DropdownMenuItem onClick={() => setToggleModelOpen(true)}>
             <UserCheck className="mr-2 h-4 w-4" /> Update Product Availability
           </DropdownMenuItem>
         </DropdownMenuContent>
