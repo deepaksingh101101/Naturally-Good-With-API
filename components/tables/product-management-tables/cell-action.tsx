@@ -1,5 +1,7 @@
 'use client';
 
+import { updateProductAvailability } from '@/app/redux/actions/productActions';
+import { AppDispatch } from '@/app/redux/store';
 import { AlertModal } from '@/components/modal/alert-modal';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -12,11 +14,13 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Edit, MoreHorizontal, Eye, UserCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form'; // Import for form control
+import { useDispatch } from 'react-redux';
 import { z } from 'zod';
 
 interface CellActionProps {
@@ -65,10 +69,28 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     router.push(`/product/view/${productId}`);
   };
 
-  const updateProductAvailability = (formData: any) => {
-    console.log('Updating product availability to:', formData.Available);
-    // Implement your availability update logic here
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+
+  const updateAvailability = async (formData: any) => {
+    setLoading(true);
+    const response = await dispatch(updateProductAvailability({ id: data._id, available: formData.Available === 'true' }));
+  
+    if (response.type === "products/updateAvailability/fulfilled") {
+      ToastAtTopRight.fire({
+        icon: 'success',
+        title: 'Availability updated!',
+      });
+    } else if (response.type === "products/updateAvailability/rejected") {
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: response.payload.message || 'Failed to update product availability',
+      });
+    }
+    
+    setLoading(false);
+    setToggleModelOpen(false); // Close the dialog after processing
   };
+  
 
   return (
     <>
@@ -86,7 +108,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                 <DialogDescription>Changing availability to no, cause product not listed anywhere</DialogDescription>
               </DialogHeader>
               <div className="space-y-4">
-                <form onSubmit={handleSubmit(updateProductAvailability)}>
+                <form onSubmit={handleSubmit(updateAvailability)}>
                   <div className="flex flex-row items-end justify-between">
                     <FormField
                       control={control}
@@ -113,7 +135,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                         </FormItem>
                       )}
                     />
-                  <Button className='ms-2 mb-1' type="submit">Submit</Button>
+                  <Button className='ms-2' disabled={loading} type="submit">Submit</Button>
                   </div>
                 </form>
               </div>

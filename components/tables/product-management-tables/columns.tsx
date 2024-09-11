@@ -39,7 +39,7 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: 'Season.Name',
     header: 'Season',
     cell: ({ row }) => (
-      <span className="ml-2">{row?.original?.Season.Name}</span>
+      <span className="ml-2">{row?.original?.Season?.Name}</span>
   ),
   },
   {
@@ -63,7 +63,7 @@ export const columns: ColumnDef<any>[] = [
     accessorKey: 'Roster.Name',
     header: 'Roster',
     cell: ({ row }) => (
-      <span className="ml-2">{row?.original?.Roster.Name}</span>
+      <span className="ml-2">{row?.original?.Roster?.Name}</span>
   ),
   },
   {

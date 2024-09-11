@@ -100,3 +100,24 @@ export const getAllProducts = createAsyncThunk<
     }
   }
 );
+
+
+// Action to update the availability of a product
+export const updateProductAvailability = createAsyncThunk<
+  AxiosResponse<any>, // Return type is the entire Axios response
+  { id: string; available: boolean }, // Input type includes product ID and availability status
+  { rejectValue: any } // Reject value type
+>(
+  'products/updateAvailability',
+  async ({ id, available }, { rejectWithValue }) => {
+    try {
+      // Make API call to update product availability
+      const response = await apiCall<any>('PUT', `/product//toggleAvailability/${id}`, { Available: available });
+      console.log('API Response for updating availability:', response); // Log the response for debugging
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error || 'Failed to update product availability');
+    }
+  }
+);

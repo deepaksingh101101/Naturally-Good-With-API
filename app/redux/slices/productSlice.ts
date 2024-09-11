@@ -1,6 +1,6 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
-import { createProduct, getAllProducts, getProductById, updateProduct } from '../actions/productActions';
+import { createProduct, getAllProducts, getProductById, updateProduct, updateProductAvailability } from '../actions/productActions';
 
 interface ProductState {
   loading: boolean;
@@ -79,13 +79,29 @@ const productSlice = createSlice({
         state.products = state.products.map(product =>
           product._id === updatedProduct._id ? updatedProduct : product
         );
-        state.selectedProduct = updatedProduct;
+        if (state.selectedProduct && state.selectedProduct._id === updatedProduct._id) {
+          state.selectedProduct = updatedProduct;
+        }
       })
       .addCase(updateProduct.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(updateProductAvailability.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateProductAvailability.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        const updatedProduct = action.payload;
 
+        state.products = state.products.map(product =>
+          product._id === updatedProduct?.data?._id ? updatedProduct?.data : product
+        );
+      })
+      .addCase(updateProductAvailability.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
