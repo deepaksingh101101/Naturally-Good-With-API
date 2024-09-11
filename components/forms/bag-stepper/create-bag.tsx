@@ -9,85 +9,75 @@ import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactSelect from 'react-select';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-import { MultiSelect } from '@/components/ui/MultiSelect';
 import { Textarea } from '@/components/ui/textarea';
-import { StaticImageData } from 'next/image';
-import { Label } from 'recharts';
-import { Checkbox } from '@/components/ui/checkbox';
+import apiCall from '@/lib/axios';
 
-export interface BagItem {
+export interface Bag {
+  BagName: string;
+  AllowedItems: AllowedItem[];
+  Status: 'Active' | 'Inactive';
+  BagVisibility?: string;
+  BagImageUrl?: string;
+  BagDescription: string;
+  BagMaxWeight: number;
+}
+
+interface AllowedItem {
   itemName: string;
   itemPrice: number;
   unitQuantity: number;
   maximumQuantity: number;
   minimumQuantity: number;
-  totalItemPrice?: number;
 }
-
-export interface Bag {
-  bagName: string;
-  bagItems: BagItem[];
-  totalPrice: number;
-  createdDate: string;
-  updatedDate?: string;
-  status: 'Active' | 'Inactive';
-  visibility?: string;
-  bagImage?: StaticImageData;
-  description: string;
-  totalWeight:number;
-}
-
-const dummyItems = [
-  { value: 'Carrot', label: 'Carrot', price: 20, unit: "grams", unitQuantity: 200, maximumQuantity: 4, minimumQuantity: 8 },
-  { value: 'Broccoli', label: 'Broccoli', price: 17, unit: "pieces", unitQuantity: 500, maximumQuantity: 3, minimumQuantity: 2 },
-  { value: 'Potato', label: 'Potato', price: 34, unit: "grams", unitQuantity: 600, maximumQuantity: 9, minimumQuantity: 8 },
-];
 
 const bagFormSchema = z.object({
-  bagName: z.string().min(1, 'Bag name is required'),
-  visibility: z.string().min(1, 'Visibility is required'),
-  bagImage: z.object({}).optional(),
-  // description: z.string().min(1, 'Description is required'),
-  bagItems: z.array(
-    z.object({
-      itemName: z.string().min(1, 'Item name is required'),
-      itemPrice: z.number().nonnegative(),
-      unitQuantity: z.number().nonnegative(),
-      maximumQuantity: z.number().nonnegative(),
-      minimumQuantity: z.number().nonnegative(),
-      totalItemPrice: z.number().optional(),
-    })
-  ).min(1, 'At least one item is required'),
-  totalPrice: z.number().nonnegative(),
-  updatedDate: z.string().optional(),
-  status: z.enum(['Active', 'Inactive']),
-  totalWeight: z.number().min(1, 'Total weight is required'), // Added field
+  BagName: z.string().min(1, 'Bag name is required'),
+  BagVisibility: z.string().min(1, 'Visibility is required'),
+  BagImageUrl: z.string().optional(),
+  BagDescription: z.string().optional(),
+  AllowedItems: z.array(z.string()).min(1, 'At least one item is required'),
+  Status: z.enum(['Active', 'Inactive']),
+  BagMaxWeight: z.number().min(1, 'Maximum bag weight is required'),
 });
 
 export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [bagItems, setBagItems] = useState<BagItem[]>(initialData?.bagItems || []);
+  const [bagItems, setBagItems] = useState<AllowedItem[]>(initialData?.AllowedItems || []);
+  const [productList, setProductList] = useState<any[]>([]);
+  const [rowSearchTerms, setRowSearchTerms] = useState<string[]>(Array(bagItems.length).fill(''));
+  const [selectedProducts, setSelectedProducts] = useState<any[]>(Array(bagItems.length).fill(null));
+  const router = useRouter();
+
   const form = useForm<Bag>({
     resolver: zodResolver(bagFormSchema),
     defaultValues: initialData || {
-      bagName: '',
-      visibility: "Admin",
-      description: '',
-      bagItems: [],
-      totalPrice: 0,
-      createdDate: '',
-      status: 'Active',
-      totalWeight:0
+      BagName: '',
+      BagVisibility: 'Admin',
+      BagDescription: '',
+      AllowedItems: [],
+      Status: 'Active',
+      BagMaxWeight: 0,
+      BagImageUrl: '',
     },
   });
 
-  const { control, handleSubmit, formState: { errors }, setValue, watch, reset } = form;
-  const router = useRouter();
+  const getProduct = async (query: string) => {
+    try {
+      const response = await apiCall('get', `/product/filter?ProductName=${query}`);
+      setProductList(response.data.products);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    // Initial load if needed
+  }, []);
 
   const onSubmit: SubmitHandler<Bag> = async (data) => {
     try {
@@ -97,7 +87,6 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
       } else {
         // Create new bag
       }
-      // Refresh or redirect after submission
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -106,42 +95,28 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     }
   };
 
-  const processForm: SubmitHandler<Bag> = (data) => {
-    // Process form data
-  };
-
-  const steps = [
+  const steps: { id: string; name: string; fields: (keyof Bag)[] }[] = [
     {
       id: 'Step 1',
       name: 'Bag Details',
-      fields: ['bagName', 'status', 'description', 'bagImage']
+      fields: ['BagName', 'Status', 'BagDescription', 'BagImageUrl'],
     },
     {
       id: 'Step 2',
       name: 'Bag Items',
-      fields: ['bagItems']
-    }];
-
-  const visibilityOption = [
-    { id: '1', name: 'Admin' },
-    { id: '2', name: 'Customer' }
+      fields: ['AllowedItems'],
+    },
   ];
-
-  type FieldName = keyof Bag;
 
   const next = async () => {
     const fields = steps[currentStep].fields;
-
-    const output = await form.trigger(fields as FieldName[], {
-      shouldFocus: true
+    const output = await form.trigger(fields, {
+      shouldFocus: true,
     });
 
     if (!output) return;
 
     if (currentStep < steps.length - 1) {
-      if (currentStep === steps.length - 2) {
-        await form.handleSubmit(processForm)();
-      }
       setCurrentStep((step) => step + 1);
     }
   };
@@ -154,127 +129,107 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
 
   const handleAddItem = () => {
     setBagItems([...bagItems, { itemName: '', itemPrice: 0, unitQuantity: 0, maximumQuantity: 0, minimumQuantity: 0 }]);
+    setRowSearchTerms([...rowSearchTerms, '']); // Add a new entry for the new row
+    setSelectedProducts([...selectedProducts, null]); // Add a new entry for the new row
   };
 
   const handleRemoveItem = (index: number) => {
     const updatedBagItems = bagItems.filter((_, i) => i !== index);
     setBagItems(updatedBagItems);
+    const updatedSearchTerms = rowSearchTerms.filter((_, i) => i !== index);
+    setRowSearchTerms(updatedSearchTerms); // Remove search term for the removed row
+    const updatedSelectedProducts = selectedProducts.filter((_, i) => i !== index);
+    setSelectedProducts(updatedSelectedProducts); // Remove selected product for the removed row
   };
 
-  const handleItemChange = (index: number, field: string, value: any) => {
-    const updatedBagItems = [...bagItems];
-    updatedBagItems[index] = { ...updatedBagItems[index], [field]: value };
-
-    setBagItems(updatedBagItems);
-  };
-
-  const handleItemChanges = (index: number, changes: Partial<BagItem>) => {
+  const handleItemChanges = (index: number, changes: Partial<AllowedItem>) => {
     const updatedBagItems = [...bagItems];
     updatedBagItems[index] = { ...updatedBagItems[index], ...changes };
-
     setBagItems(updatedBagItems);
   };
 
-  // Calculate totals
-  const totalItems = bagItems.length;
-  const totalPrice = bagItems.reduce((acc, item) => acc + item.itemPrice, 0);
+  const getFilteredProducts = (currentIndex: number) => {
+    const selectedProductIds = selectedProducts.map((product) => product?.value);
+    return productList.filter(product => !selectedProductIds.includes(product._id) || selectedProductIds[currentIndex] === product._id);
+  };
+
+  const { handleSubmit, control, formState: { errors } } = form;
 
   return (
     <div className="container mx-auto p-4">
       <Heading title={initialData ? 'Edit Bag' : 'Create Bag'} description="Fill in the details below" />
       <Separator />
-      <div className='mt-2'>
+      <div className="mt-2">
         <ul className="flex gap-4">
           {steps.map((step, index) => (
             <li key={step.name} className="md:flex-1">
-              {currentStep > index ? (
-                <div className="group flex w-full flex-col border-l-4 border-[#04894D] py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                  <span className="text-sm font-medium text-[#04894D] transition-colors ">
-                    {step.id}
-                  </span>
-                  <span className="text-sm font-medium my-2">{step.name}</span>
-                </div>
-              ) : currentStep === index ? (
-                <div
-                  className="flex w-full flex-col border-l-4 border-[#04894D] py-2 pl-4 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4"
-                  aria-current="step"
-                >
-                  <span className="text-sm font-medium text-[#04894D]">
-                    {step.id}
-                  </span>
-                  <span className="text-sm font-medium my-2">{step.name}</span>
-                </div>
-              ) : (
-                <div className="group flex h-full w-full flex-col border-l-4 border-gray-200 py-2 pl-4 transition-colors md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4">
-                  <span className="text-sm font-medium text-gray-500 transition-colors">
-                    {step.id}
-                  </span>
-                  <span className="text-sm font-medium">{step.name}</span>
-                </div>
-              )}
+              <div
+                className={cn(
+                  'group flex w-full flex-col py-2 pl-4 md:pb-0 md:pl-0 md:pt-4',
+                  currentStep > index ? 'border-l-4 border-[#04894D] md:border-t-4' :
+                  currentStep === index ? 'border-l-4 border-[#04894D] md:border-t-4' :
+                  'border-l-4 border-gray-200 md:border-t-4'
+                )}
+                aria-current={currentStep === index ? 'step' : undefined}
+              >
+                <span className={cn('text-sm font-medium', currentStep > index ? 'text-[#04894D]' : 'text-gray-500')}>
+                  {step.id}
+                </span>
+                <span className="text-sm font-medium my-2">{step.name}</span>
+              </div>
             </li>
           ))}
         </ul>
       </div>
       <Separator />
       <Form {...form}>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="w-full space-y-8"
-        >
-          <div
-            className={cn(
-              currentStep === 1
-                ? 'w-full mt-5'
-                : 'gap-8 md:grid md:grid-cols-2 mt-5'
-            )}
-          >
+        <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-8">
+          <div className={cn(currentStep === 1 ? 'w-full mt-5' : 'gap-8 md:grid md:grid-cols-2 mt-5')}>
             {currentStep === 0 && (
               <>
                 <FormField
                   control={form.control}
-                  name="bagName"
+                  name="BagName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bag Name</FormLabel>
                       <FormControl>
                         <Input
-                          name="bagName"
-                          type='text'
+                          name="BagName"
+                          type="text"
                           disabled={loading}
                           placeholder="Enter Bag Name"
                           onChange={(e) => field.onChange(e.target.value === '' ? undefined : e.target.value)}
                           value={field.value || ''}
                         />
                       </FormControl>
-                      <FormMessage>{errors.bagName?.message}</FormMessage>
+                      <FormMessage>{form.formState.errors.BagName?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
-                  <FormField
-  control={form.control}
-  name="totalWeight"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Total Maximum Weight(gms)</FormLabel>
-      <FormControl>
-        <Input
-          name="totalWeight"
-          type="number"
-          disabled={loading}
-          placeholder="Enter Total Weight"
-          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-          value={field.value || ''}
-        />
-      </FormControl>
-      <FormMessage>{errors.totalWeight?.message}</FormMessage>
-    </FormItem>
-  )}
-/>
-
                 <FormField
                   control={form.control}
-                  name="visibility"
+                  name="BagMaxWeight"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Total Maximum Weight(gms)</FormLabel>
+                      <FormControl>
+                        <Input
+                          name="BagMaxWeight"
+                          type="number"
+                          disabled={loading}
+                          placeholder="Enter Total Weight"
+                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <FormMessage>{form.formState.errors.BagMaxWeight?.message}</FormMessage>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="BagVisibility"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Bag Visibility</FormLabel>
@@ -289,14 +244,13 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormMessage>{errors.visibility?.message}</FormMessage>
+                      <FormMessage>{form.formState.errors.BagVisibility?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
-
                 <FormField
-                  control={control}
-                  name="status"
+                  control={form.control}
+                  name="Status"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Status</FormLabel>
@@ -311,13 +265,12 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                           </SelectContent>
                         </Select>
                       </FormControl>
-                      <FormMessage>{errors.status?.message}</FormMessage>
+                      <FormMessage>{form.formState.errors.Status?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
-
                 <Controller
-                  name="bagImage"
+                  name="BagImageUrl"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
@@ -325,7 +278,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                       <FormControl>
                         <Input
                           type="file"
-                          disabled={form.formState.isSubmitting}
+                          disabled={loading}
                           onChange={(e) => {
                             if (e.target.files && e.target.files.length > 0) {
                               field.onChange(e.target.files[0]);
@@ -333,53 +286,36 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                           }}
                         />
                       </FormControl>
-                      {errors.bagImage && <FormMessage>{errors.bagImage.message}</FormMessage>}
+                      <FormMessage>{form.formState.errors.BagImageUrl?.message}</FormMessage>
                     </FormItem>
                   )}
                 />
-             
-
-               
-
-<FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bag Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    disabled={loading}
-                    rows={5}
-                    
-                    placeholder="Enter Description"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-            />
+                <FormField
+                  control={form.control}
+                  name="BagDescription"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bag Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          disabled={loading}
+                          rows={5}
+                          placeholder="Enter Description"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </>
             )}
             {currentStep === 1 && (
-              <>
-                <div className="mt-4 flex justify-between">
-                  <Button
-                    type="button"
-                    onClick={handleAddItem}
-                    disabled={loading}
-                    className="mt-2"
-                  >
-                    Add Item
-                  </Button>
-                  {/* <div className="flex items-center">
-                    <Checkbox  />
-                    <p className='text-black dark:text-white mx-2' >Mark If Its a Addon Bag</p>
-                  </div> */}
-                  {/* Give here a checkbox if its a addon bag */}
-                </div>
-              </>
+              <div className="mt-4 flex justify-between">
+                <Button type="button" onClick={handleAddItem} disabled={loading} className="mt-2">
+                  Add Item
+                </Button>
+              </div>
             )}
           </div>
           <div className="mt-8">
@@ -411,72 +347,59 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                   {bagItems.map((item, index) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <FormField
-                          control={control}
-                          name={`bagItems.${index}.itemName` as const}
-                          render={({ field }) => (
-                            <FormControl>
-                              <Controller
-                                control={control}
-                                name={`bagItems.${index}.itemName` as const}
-                                render={({ field }) => (
-                                  <ReactSelect
-                                    isClearable
-                                    isSearchable
-                                    options={dummyItems.map(item => ({
-                                      value: item.value,
-                                      label: item.label,
-                                      price: item.price,
-                                      unit: item.unit,
-                                      unitQuantity: item.unitQuantity,
-                                      maximumQuantity: item.maximumQuantity,
-                                      minimumQuantity: item.minimumQuantity
-                                    }))}
-                                    formatOptionLabel={({ value, label, price }) => (
-                                      <div className="flex justify-between">
-                                        <span>{label}</span>
-                                        {/* <span>₹{price}</span> */}
-                                      </div>
-                                    )}
-                                    isDisabled={loading}
-                                    onChange={(selected) => {
-                                      field.onChange(selected?.value);
-                                      const selectedItem = dummyItems.find(item => item.value === selected?.value);
-                                      if (selectedItem) {
-                                        handleItemChanges(index, {
-                                          itemPrice: selectedItem.price,
-                                          unitQuantity: selectedItem.unitQuantity,
-                                          maximumQuantity: selectedItem.maximumQuantity,
-                                          minimumQuantity: selectedItem.minimumQuantity
-                                        });
-                                      }
-                                    }}
-                                    value={dummyItems.find((option) => option.value === field.value)}
-                                  />
-                                )}
+                        <Controller
+                          control={form.control}
+                          name={`AllowedItems.${index}` as const}
+                          render={({ field }) => {
+                            const selectedProduct = selectedProducts[index]; // Use state for selected product
+                            return (
+                              <ReactSelect
+                                isClearable
+                                isSearchable
+                                options={getFilteredProducts(index).map(product => ({
+                                  value: product._id,
+                                  label: product.ProductName,
+                                  price: product.Price,
+                                  unitQuantity: product.UnitQuantity,
+                                  maximumQuantity: product.MaximumUnits,
+                                  minimumQuantity: product.MinimumUnits,
+                                }))}
+                                onChange={(selected) => {
+                                  field.onChange(selected ? selected.value : null);
+                                  setSelectedProducts(prev => {
+                                    const newSelected = [...prev];
+                                    newSelected[index] = selected; // Update selected product for this row
+                                    return newSelected;
+                                  });
+                                  const selectedItem = productList.find(product => product._id === selected?.value);
+                                  if (selectedItem) {
+                                    handleItemChanges(index, {
+                                      itemName: selectedItem.ProductName,
+                                      itemPrice: selectedItem.Price,
+                                      unitQuantity: selectedItem.UnitQuantity,
+                                      maximumQuantity: selectedItem.MaximumUnits,
+                                      minimumQuantity: selectedItem.MinimumUnits,
+                                    });
+                                  }
+                                }}
+                                onInputChange={(inputValue) => {
+                                  const updatedRowSearchTerms = [...rowSearchTerms];
+                                  updatedRowSearchTerms[index] = inputValue; // Set search term for the specific row
+                                  setRowSearchTerms(updatedRowSearchTerms);
+                                  getProduct(inputValue); // Call API with specific row's search term
+                                }}
+                                value={selectedProduct} // Maintain selected product
                               />
-                            </FormControl>
-                          )}
+                            );
+                          }}
                         />
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ₹{item.itemPrice}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.unitQuantity}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.minimumQuantity}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {item.maximumQuantity}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₹{item.itemPrice}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.unitQuantity}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.minimumQuantity}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.maximumQuantity}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItem(index)}
-                          className="text-red-600 hover:text-red-900"
-                        >
+                        <button type="button" onClick={() => handleRemoveItem(index)} className="text-red-600 hover:text-red-900">
                           Remove
                         </button>
                       </td>
