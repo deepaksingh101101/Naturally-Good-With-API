@@ -66,9 +66,8 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
     MaximumUnits: number;
     // Add any other fields that are relevant to the AllowedItem
   }
-
-  const runUseEffectForEditValues =()=>{
-        if (initialData) {
+  const runUseEffectForEditValues = () => {
+    if (initialData) {
       // Map initial allowed items into the form structure
       const initialAllowedItems = initialData.AllowedItems.map((item: AllowedItemInterface) => ({
         itemName: item.ProductName,
@@ -85,8 +84,20 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
         label: product.ProductName,
       }));
       setSelectedProducts(initialSelectedProducts);
+  
+      // Reset form with initial data
+      form.reset({
+        BagName: initialData.BagName,
+        BagVisibility: initialData.BagVisibility,
+        BagDescription: initialData.BagDescription,
+        AllowedItems: initialData.AllowedItems.map(item => item._id), // Assuming _id is used here
+        Status: initialData.Status,
+        BagMaxWeight: initialData.BagMaxWeight,
+        BagImageUrl: initialData.BagImageUrl,
+      });
     }
-  }
+  };
+ 
 
   useEffect(() => {
     if (initialData) {
@@ -110,7 +121,15 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
       BagImageUrl: '',
     },
   });
-
+  
+  // Use effect to monitor form state
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      console.log("Current form values:", values);
+    });
+  
+    return () => subscription.unsubscribe(); // Clean up the subscription on unmount
+  }, [form]);
 
   const getProduct = async (query: string) => {
     try {
@@ -126,18 +145,15 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
   // }, []);
 
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
-
-
   const onSubmit: SubmitHandler<Bag> = async (data) => {
     try {
-      setLoading(true);
       if (initialData) {
         // Update existing bag
         const updatedBagData = {
           ...data,
           AllowedItems: data.AllowedItems.map(item => ({ itemId: item })), // Adjust based on your data structure
         };
-  
+  console.log(updatedBagData)
         // Dispatch the update action
        const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
        if (response.type === 'bags/update/fulfilled') {
