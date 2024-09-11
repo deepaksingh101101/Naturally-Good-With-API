@@ -9,7 +9,7 @@ import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import ReactSelect from 'react-select';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
@@ -52,7 +52,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
   const [rowSearchTerms, setRowSearchTerms] = useState<string[]>(Array(bagItems.length).fill(''));
   const [selectedProducts, setSelectedProducts] = useState<any[]>(Array(bagItems.length).fill(null));
   const router = useRouter();
-
+  
   const form = useForm<Bag>({
     resolver: zodResolver(bagFormSchema),
     defaultValues: initialData || {
@@ -154,6 +154,24 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
   };
 
   const { handleSubmit, control, formState: { errors } } = form;
+
+  // Debouncing logic
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleInputChange = (inputValue: string, index: number) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      setRowSearchTerms(prev => {
+        const updated = [...prev];
+        updated[index] = inputValue;
+        return updated;
+      });
+      getProduct(inputValue);
+    }, 300); // Adjust the debounce delay as needed
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -382,12 +400,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                                     });
                                   }
                                 }}
-                                onInputChange={(inputValue) => {
-                                  const updatedRowSearchTerms = [...rowSearchTerms];
-                                  updatedRowSearchTerms[index] = inputValue; // Set search term for the specific row
-                                  setRowSearchTerms(updatedRowSearchTerms);
-                                  getProduct(inputValue); // Call API with specific row's search term
-                                }}
+                                onInputChange={(inputValue) => handleInputChange(inputValue, index)} // Use the debounced input change
                                 value={selectedProduct} // Maintain selected product
                               />
                             );
