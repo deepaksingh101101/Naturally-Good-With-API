@@ -92,7 +92,7 @@ export const getAllProducts = createAsyncThunk<
   'products/getAll',
   async ({ page, limit }, { rejectWithValue }) => {
     try {
-      const response = await apiCall('GET', `/admin/product?page=${page}&limit=${limit}`);
+      const response = await apiCall('GET', `/product?page=${page}&limit=${limit}`);
       console.log('API Response for all products:', response); // Log the response for debugging
       return response; // Return the full response including products and pagination data
     } catch (error: any) {

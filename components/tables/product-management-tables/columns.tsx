@@ -3,191 +3,162 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ProductManagement } from '@/constants/product-management-data';
-import Image from 'next/image'; // Import Image component
 
-import vegetable from '@/public/assets/vegetables_862860.png'; 
-import fruit from '@/public/assets/strawberry_13643533.png'; 
-
-export const columns: ColumnDef<ProductManagement>[] = [
+export const columns: ColumnDef<any>[] = [
   {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: true,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'sno',
+    accessorKey: '_id',
     header: 'Sno',
     cell: ({ row }) => row.index + 1,
   },
   {
-    accessorKey: 'itemName',
-    header: 'Item Name'
+    accessorKey: 'ProductName',
+    header: 'Item Name',
+    cell: ({ row }) => (
+        <span className="ml-2">{row?.original?.ProductName}</span>
+    ),
   },
   {
-    accessorKey: 'type',
+    accessorKey: 'Type.Name',
     header: 'Type',
     cell: ({ row }) => (
       <div className="flex items-center me-9">
-        {row.original.type === 'Vegetable' && (
-          <Image src={vegetable} alt="Vegetable" width={20} height={20} />
-        )}
-        {row.original.type === 'Fruit' && (
-          <Image src={fruit} alt="Fruit" width={20} height={20} />
-        )}
-        <span className="ml-2">{row.original.type}</span>
+        <span className="ml-2">{row?.original?.Type?.Name}</span>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'season',
-    header: 'Season'
+    accessorKey: 'Season.Name',
+    header: 'Season',
+    cell: ({ row }) => (
+      <span className="ml-2">{row?.original?.Season.Name}</span>
+  ),
   },
-
   {
-    accessorKey: 'priority',
+    accessorKey: 'Priority',
     header: 'Priority',
     cell: ({ row }) => (
-      <div 
-        style={{ borderRadius: "20px" }}
+      <div
+        style={{ borderRadius: '20px' }}
         className={`flex items-center px-2 py-1 ${
-          row.original.priority === 'High' ? 'bg-red-400' :
-          row.original.priority === 'Low' ? 'bg-yellow-400' :
-          row.original.priority === 'Medium' ? 'bg-green-400' :
+          row?.original?.Priority === 'High' ? 'bg-red-400' :
+          row?.original?.Priority === 'Low' ? 'bg-yellow-400' :
+          row?.original?.Priority === 'Medium' ? 'bg-green-400' :
           'bg-red-400'
         }`}
       >
-        <span className='text-black bold text-center ms-2'>{row.original.priority}</span>
+        <span className="text-black bold text-center ms-2">{row?.original?.Priority}</span>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'roster',
-    header: 'Roster'
+    accessorKey: 'Roster.Name',
+    header: 'Roster',
+    cell: ({ row }) => (
+      <span className="ml-2">{row?.original?.Roster.Name}</span>
+  ),
   },
   {
-    accessorKey: 'veggieNameInHindi',
+    accessorKey: 'VeggieNameInHindi',
     header: 'Veggie Name in Hindi',
     cell: ({ row }) => (
       <div className="text-center">
-        {row.original.veggieNameInHindi}
+        {row?.original?.VeggieNameInHindi}
       </div>
-    )
+    ),
   },
-  
   {
-    accessorKey: 'unitQuantity',
+    accessorKey: 'UnitQuantity',
     header: 'Unit Quantity',
     cell: ({ row }) => (
       <div className="text-center">
-        {row.original.unitQuantity} gms 
+        {row?.original?.UnitQuantity} gms
       </div>
-    )
+    ),
   },
-
- 
   {
-    accessorKey: 'price',
+    accessorKey: 'Price',
     header: 'Item Price',
     cell: ({ row }) => (
       <div className="text-center">
-       ₹{row.original.price}
+        ₹{row?.original?.Price}
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'minUnit',
+    accessorKey: 'MinimumUnits',
     header: 'Min Unit',
     cell: ({ row }) => (
       <div className="text-center">
-        {row.original.minUnit} 
+        {row?.original?.MinimumUnits}
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'maxUnit',
+    accessorKey: 'MaximumUnits',
     header: 'Max Unit',
     cell: ({ row }) => (
       <div className="text-center">
-        {row.original.maxUnit} 
+        {row?.original?.MaximumUnits}
       </div>
-    )
+    ),
   },
-
-    // {
-  //   accessorKey: 'subType',
-  //   header: 'Sub Type'},
   {
-    accessorKey: 'group',
-    header: 'Group'
+    accessorKey: 'Group',
+    header: 'Group',
+    cell: ({ row }) => (
+      <span className="ml-2">{row?.original?.Group}</span>
+  ),
   },
-
   {
-    accessorKey: 'available',
+    accessorKey: 'Available',
     header: 'Available',
     cell: ({ row }) => (
-      <div 
-        style={{ borderRadius: "20px" }}
+      <div
+        style={{ borderRadius: '20px' }}
         className={`flex items-center px-2 py-1 ${
-          row.original.available === 'Yes' ? 'bg-green-400' :
-          'bg-red-400'
+          row?.original?.Available ? 'bg-green-400' : 'bg-red-400'
         }`}
       >
-        <span className='text-black bold'>{row.original.available}</span>
+        <span className="text-black bold">{row?.original?.Available ? 'Yes' : 'No'}</span>
       </div>
-    )
+    ),
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'Visibility',
     header: 'Visibility',
     cell: ({ row }) => (
-      <div 
-        style={{ borderRadius: "20px" }}
+      <div
+        style={{ borderRadius: '20px' }}
         className={`flex items-center px-2 py-1 ${
-          row.original.visibility === 'Admin' ? 'bg-red-400' :
-          row.original.visibility === 'Customer+Admin' ? 'bg-green-400' :
+          row?.original?.Visibility === 'Admin' ? 'bg-red-400' :
+          row?.original?.Visibility === 'Customer+Admin' ? 'bg-green-400' :
           'bg-red-400'
         }`}
       >
-        <span className='text-black bold'>{row.original.visibility === 'Admin' ? "Admin" : "Public"}</span>
+        <span className="text-black bold">{row?.original?.Visibility === 'Admin' ? 'Admin' : 'Public'}</span>
       </div>
-    )
+    ),
   },
+  // {
+  //   accessorKey: 'ImageURL',
+  //   header: 'Image',
+  //   cell: ({ row }) => (
+  //     <div className="flex items-center">
+  //       <Image src={row?.original?.ImageURL} alt={row?.original?.ProductName} width={50} height={50} />
+  //     </div>
+  //   ),
+  // },
   {
-    accessorKey: 'image',
-    header: 'Image',
-    cell: ({ row }) => (
-      <div className="flex items-center">
-        <Image src={row.original.image} alt={row.original.itemName} width={50} height={50} />
-      </div>
-    )
-  },
-
-  {
-    accessorKey: 'description',
+    accessorKey: 'Description',
     header: 'Description',
     cell: ({ row }) => (
       <div className="text-start">
-        {row.original.description.split(' ').slice(0, 10).join(' ')}...
+        {row?.original?.Description?.split(' ').slice(0, 10).join(' ')}...
       </div>
-    )
+    ),
   },
   {
     id: 'actions',
-    cell: ({ row }) => <CellAction data={row.original} />
-  }
+    cell: ({ row }) => <CellAction data={row.original} />,
+  },
 ];

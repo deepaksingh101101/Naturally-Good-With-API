@@ -15,7 +15,7 @@ import { AppDispatch, RootState } from '@/app/redux/store';
 export const EmployeeManagementClient: React.FC = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { employees, loading, error, currentPage, totalPages } = useSelector((state: RootState) => state.employees);
+  const { employees, loading, error, currentPage,totalEmployees, totalPages } = useSelector((state: RootState) => state.employees);
 
   const [data, setData] = useState<any[]>([]);
   const [limit] = useState(5); // Fixed limit for items per page
@@ -67,7 +67,7 @@ export const EmployeeManagementClient: React.FC = () => {
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`Employee (${data.length})`}
+          title={`Employee (${totalEmployees})`}
           description="Manage Employee (Client side table functionalities.)"
         />
         <Button

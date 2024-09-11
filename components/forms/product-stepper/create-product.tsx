@@ -263,6 +263,7 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
             icon: 'success',
             title: toastMessage, // 'Item updated.'
           });
+          router.push('/product')
         } else {
           ToastAtTopRight.fire({
             icon: 'error',
@@ -278,7 +279,7 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
             title: toastMessage, // 'Item created.'
           });
           form.reset(); // Clear all fields in the form only on successful creation 
-          router.push('/dashboard/product')
+          router.push('/product')
 
         } else {
           ToastAtTopRight.fire({
