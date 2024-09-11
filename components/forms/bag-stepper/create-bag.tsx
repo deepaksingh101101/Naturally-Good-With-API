@@ -184,8 +184,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
               <div
                 className={cn(
                   'group flex w-full flex-col py-2 pl-4 md:pb-0 md:pl-0 md:pt-4',
-                  currentStep > index ? 'border-l-4 border-[#04894D] md:border-t-4' :
-                  currentStep === index ? 'border-l-4 border-[#04894D] md:border-t-4' :
+                  currentStep > index ? 'border-e-4 border-[green]' :
+                  currentStep === index ? '' :
                   'border-l-4 border-gray-200 md:border-t-4'
                 )}
                 aria-current={currentStep === index ? 'step' : undefined}
