@@ -15,11 +15,16 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Textarea } from '@/components/ui/textarea';
 import apiCall from '@/lib/axios';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/app/redux/store';
+import { createBag, updateBag } from '@/app/redux/actions/bagActions';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
 
 export interface Bag {
+  _id:string,
   BagName: string;
   AllowedItems: AllowedItem[];
-  Status: 'Active' | 'Inactive';
+  Status: Boolean;
   BagVisibility?: string;
   BagImageUrl?: string;
   BagDescription: string;
@@ -40,9 +45,9 @@ const bagFormSchema = z.object({
   BagImageUrl: z.string().optional(),
   BagDescription: z.string().optional(),
   AllowedItems: z.array(z.string()).min(1, 'At least one item is required'),
-  Status: z.enum(['Active', 'Inactive']),
-  BagMaxWeight: z.number().min(1, 'Maximum bag weight is required'),
-});
+  Status: z.boolean().default(true),
+  BagMaxWeight: z.number().min(1, 'Maximum bag weight is required'), // Ensure this is present and clear
+  });
 
 export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
@@ -60,8 +65,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
       BagVisibility: 'Admin',
       BagDescription: '',
       AllowedItems: [],
-      Status: 'Active',
-      BagMaxWeight: 0,
+      Status: true,
+      BagMaxWeight: undefined,
       BagImageUrl: '',
     },
   });
@@ -79,17 +84,56 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     // Initial load if needed
   }, []);
 
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+
+
   const onSubmit: SubmitHandler<Bag> = async (data) => {
     try {
       setLoading(true);
       if (initialData) {
         // Update existing bag
+        const updatedBagData = {
+          ...data,
+          AllowedItems: data.AllowedItems.map(item => ({ itemId: item })), // Adjust based on your data structure
+        };
+  
+        // Dispatch the update action
+       const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
+       if (response.type === 'bags/update/fulfilled') {
+        ToastAtTopRight.fire({
+          icon: 'success',
+          title: "Bag Updated Successfully!", // 'Item updated.'
+        });
+        router.push('/bag')
       } else {
-        // Create new bag
+        ToastAtTopRight.fire({
+          icon: 'error',
+          title: response.payload.message || 'Failed to update bag',
+        });
       }
-      router.refresh();
+      } else {
+        // Create new bag  
+        // Dispatch the create action
+        let response:any=await dispatch(createBag(data));
+        if (response.type === 'bags/create/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: "Bag created Successfully", // 'Item created.'
+          });
+          form.reset(); // Clear all fields in the form only on successful creation 
+          router.push('/bag')
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to create bag',
+          });
+        }
+      }
+      
+      // Optionally refresh or navigate after successful create/update
+      router.refresh(); // or use router.push('/path') to navigate
     } catch (error) {
-      console.error(error);
+      console.error('Error occurred while submitting the bag:', error);
     } finally {
       setLoading(false);
     }
@@ -110,7 +154,8 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
 
   const next = async () => {
     const fields = steps[currentStep].fields;
-    const output = await form.trigger(fields, {
+    // Include 'BagMaxWeight' in the fields to be validated when moving to the next step
+    const output = await form.trigger([...fields, 'BagMaxWeight'], {
       shouldFocus: true,
     });
 
@@ -119,7 +164,7 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
     if (currentStep < steps.length - 1) {
       setCurrentStep((step) => step + 1);
     }
-  };
+};
 
   const prev = () => {
     if (currentStep > 0) {
@@ -184,16 +229,16 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
               <div
                 className={cn(
                   'group flex w-full flex-col py-2 pl-4 md:pb-0 md:pl-0 md:pt-4',
-                  currentStep > index ? 'border-e-4 border-[green]' :
-                  currentStep === index ? '' :
-                  'border-l-4 border-gray-200 md:border-t-4'
+                  currentStep > index ? 'border-e-4 border-[green] ' :
+                  currentStep === index ? 'border-[green]' :
+                  'border-l-4 border-[green] '
                 )}
                 aria-current={currentStep === index ? 'step' : undefined}
               >
-                <span className={cn('text-sm font-medium', currentStep > index ? 'text-[#04894D]' : 'text-gray-500')}>
+                <span className={cn('text-sm ps-2 font-medium', currentStep > index ? 'text-[#04894D]' : 'text-gray-500')}>
                   {step.id}
                 </span>
-                <span className="text-sm font-medium my-2">{step.name}</span>
+                <span className="text-sm ps-2 font-medium my-2">{step.name}</span>
               </div>
             </li>
           ))}
@@ -225,26 +270,26 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="BagMaxWeight"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Total Maximum Weight(gms)</FormLabel>
-                      <FormControl>
-                        <Input
-                          name="BagMaxWeight"
-                          type="number"
-                          disabled={loading}
-                          placeholder="Enter Total Weight"
-                          onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                          value={field.value || ''}
-                        />
-                      </FormControl>
-                      <FormMessage>{form.formState.errors.BagMaxWeight?.message}</FormMessage>
-                    </FormItem>
-                  )}
-                />
+            <FormField
+  control={form.control}
+  name="BagMaxWeight"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Total Maximum Weight (gms)</FormLabel>
+      <FormControl>
+        <Input
+          name="BagMaxWeight"
+          type="number"
+          disabled={loading}
+          placeholder="Enter Total Weight"
+          onChange={(e) => field.onChange(parseFloat(e.target.value) || undefined)} // Allow undefined if empty
+          value={field.value || ''}
+        />
+      </FormControl>
+      <FormMessage>{form.formState.errors.BagMaxWeight?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
                 <FormField
                   control={form.control}
                   name="BagVisibility"
@@ -266,27 +311,27 @@ export const BagForm: React.FC<{ initialData?: Bag }> = ({ initialData }) => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="Status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <FormControl>
-                        <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Active">Active</SelectItem>
-                            <SelectItem value="Inactive">Inactive</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage>{form.formState.errors.Status?.message}</FormMessage>
-                    </FormItem>
-                  )}
-                />
+              <FormField
+  control={form.control}
+  name="Status"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Status</FormLabel>
+      <FormControl>
+        <Select disabled={loading} onValueChange={(value) => field.onChange(value === 'true')} value={String(field.value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="true">Active</SelectItem>
+            <SelectItem value="false">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+      </FormControl>
+      <FormMessage>{form.formState.errors.Status?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
                 <Controller
                   name="BagImageUrl"
                   control={form.control}
