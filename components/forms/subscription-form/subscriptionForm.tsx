@@ -37,7 +37,7 @@ import { MultiSelect } from '@/components/ui/MultiSelect';
 import { Textarea } from '@/components/ui/textarea';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/app/redux/store';
-import { createSubscriptionType, deleteSubscriptionType, getAllProductType, getAllSubscriptionType } from '@/app/redux/actions/dropdownActions';
+import { createFrequencyType, createSubscriptionType, deleteFrequencyType, deleteSubscriptionType, getAllFrequencyType, getAllProductType, getAllSubscriptionType } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
 
@@ -119,18 +119,36 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
     Name: string;
     Value:number;
   }
+  interface FrequencyTypeInterface {
+    _id?: string;
+    Name: string;
+    Value:number;
+    DayBasis:number;
+  }
 
+  const [deleteFrequencyModalOpen, setDeleteFrequencyModalOpen] = useState(false);
+const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
   const [fetchedSubscriptionType, setFetchedSubscriptionType] = useState<SubscriptionTypeInterface[]>([]); // Specify the type here
+  const [fetchedFrequencyType, setFetchedFrequencyType] = useState<FrequencyTypeInterface[]>([]); // Specify the type here
+
   const { loading } = useSelector((state: RootState) => state.auth);
-
-
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
   useEffect(() => {
-    const fetchProductType = async () => {
+    const fetchSubscriptionType = async () => {
     const subscriptionTypes=  await dispatch(getAllSubscriptionType());
     setFetchedSubscriptionType(subscriptionTypes.payload.data)
     };
-    fetchProductType();
+    fetchSubscriptionType();
+    dispatch(setLoading(false)); 
+
+  }, []);
+
+  useEffect(() => {
+    const fetchFrequencyType = async () => {
+    const frequencyTypes=  await dispatch(getAllFrequencyType());
+    setFetchedFrequencyType(frequencyTypes.payload.data)
+    };
+    fetchFrequencyType();
     dispatch(setLoading(false)); 
 
   }, []);
@@ -190,17 +208,43 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
   };
 
 
+ 
 
-  const addFrequency = () => {
-    if (newFrequency) {
-      setFrequencies([...frequencies, newFrequency]);
-      setNewFrequency('');
+  const addFrequency = async () => {
+    if (newFrequencyName.trim() && newFrequencyValue >= 0 && newFrequencyDayBasis >= 0) {
+      try {
+        dispatch(setLoading(true));
+        const response = await dispatch(createFrequencyType({
+          Name: newFrequencyName,
+          Value: newFrequencyValue,
+          DayBasis: newFrequencyDayBasis,
+        }));
+  
+        console.log(response)
+        if (response.type === 'frequencyType/create/fulfilled') {
+          setFetchedFrequencyType((prev) => [...prev, response.payload.data]); // Update state with the new frequency
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'New frequency created!',
+          });
+          // Clear the input fields
+          setNewFrequencyName('');
+          setNewFrequencyValue(0);
+          setNewFrequencyDayBasis(0);
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to add frequency',
+          });
+        }
+      } catch (error) {
+        console.error('Error adding frequency:', error);
+      } finally {
+        dispatch(setLoading(false));
+      }
     }
   };
 
-  const deleteFrequency = (index: number) => {
-    setFrequencies(frequencies.filter((_, i) => i !== index));
-  };
 
   const price = watch('OriginalPrice');
   const offers = watch('Offer');
@@ -279,7 +323,33 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
         }
     }
 };
+const [newFrequencyName, setNewFrequencyName] = useState('');
+const [newFrequencyValue, setNewFrequencyValue] = useState(0); // Default to 0 or appropriate starting value
+const [newFrequencyDayBasis, setNewFrequencyDayBasis] = useState(0); // Default to 0
+const deleteFrequency = async (frequencyId: string) => {
+  try {
+    dispatch(setLoading(true));
+    const response = await dispatch(deleteFrequencyType(frequencyId)); // Call your delete action
 
+    if (response.type === 'frequencyType/delete/fulfilled') {
+      // Update state to remove the deleted frequency
+      setFetchedFrequencyType((prev) => prev.filter(freq => freq._id !== frequencyId));
+      ToastAtTopRight.fire({
+        icon: 'success',
+        title: 'Frequency deleted successfully!',
+      });
+    } else {
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: response.payload.message || 'Failed to delete frequency',
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting frequency:', error);
+  } finally {
+    dispatch(setLoading(false));
+  }
+};
   return (
     <>
 
@@ -294,6 +364,26 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
     <DialogFooter>
       <Button onClick={confirmDeleteType} variant="destructive">Delete</Button>
       <Button onClick={() => setDeleteTypeModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
+<Dialog open={deleteFrequencyModalOpen} onOpenChange={setDeleteFrequencyModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this frequency? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={() => {
+        if (frequencyToDelete) {
+          deleteFrequency(frequencyToDelete); // Call the deletion function
+        }
+        setDeleteFrequencyModalOpen(false); // Close modal
+      }} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteFrequencyModalOpen(false)}>Cancel</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -356,45 +446,73 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
           </div>
         </DialogContent>
       </Dialog>
+
       <Dialog open={isFrequencyModalOpen} onOpenChange={(open) => !open && closeFrequencyModal()}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Manage Frequencies</DialogTitle>
-            <DialogDescription>You can manage frequencies here.</DialogDescription>
-          </DialogHeader>
-          <div>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {frequencies.map((freq, index) => (
-                  <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq}</td>
-                    <td className="px-6 py-4 flex justify-end whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteFrequency(index)} className="cursor-pointer text-red-500" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex mt-4">
-              <Input
-                type="text"
-                placeholder="Add new frequency"
-                value={newFrequency}
-                onChange={(e) => setNewFrequency(e.target.value)}
-              />
-              <Button onClick={addFrequency} className="ml-2">
-                Add
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Manage Frequencies</DialogTitle>
+      <DialogDescription>You can manage frequencies here.</DialogDescription>
+    </DialogHeader>
+    <div>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead>
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Frequency</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day Basis</th>
+            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="bg-white divide-y divide-gray-200">
+          {fetchedFrequencyType.map((freq) => (
+            <tr key={freq._id}>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq.Name}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq.Value}</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq.DayBasis}</td>
+              <td className="px-6 py-4 flex justify-end whitespace-nowrap text-right text-sm font-medium">
+              <Trash 
+    onClick={() => {
+      if (freq._id) { // Ensure _id is defined
+        setFrequencyToDelete(freq._id); // Set the frequency ID to delete
+        setDeleteFrequencyModalOpen(true); // Open the confirmation modal
+      }
+    }} 
+    className="cursor-pointer text-red-500" 
+  />
+                 </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="flex mt-4">
+        <Input
+          type="text"
+          placeholder="Frequency Name"
+          value={newFrequencyName}
+          onChange={(e) => setNewFrequencyName(e.target.value)}
+          className="mb-2 me-2"
+        />
+        <Input
+          type="number"
+          placeholder="Value"
+          value={newFrequencyValue}
+          onChange={(e) => setNewFrequencyValue(Number(e.target.value))}
+          className="mb-2 me-2"
+        />
+        <Input
+          type="number"
+          placeholder="Day Basis"
+          value={newFrequencyDayBasis}
+          onChange={(e) => setNewFrequencyDayBasis(Number(e.target.value))}
+          className="mb-2 me-2"
+        />
+        <Button onClick={addFrequency} className="ml-2">Add</Button>
+      </div>
+    </div>
+  </DialogContent>
+</Dialog>
+
+
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-8">
           <div className="gap-8 md:grid md:grid-cols-3">
@@ -421,8 +539,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
           </SelectTrigger>
         </FormControl>
         <SelectContent>
-          {fetchedSubscriptionType
-            .filter(type => type._id) // Ensure _id is defined
+          {fetchedSubscriptionType?.filter(type => type._id) // Ensure _id is defined
             .map((type) => {
               const itemValue = JSON.stringify({ id: type._id, value: type.Value }); // Create the object as a JSON string
               return (

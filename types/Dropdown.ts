@@ -31,3 +31,9 @@ export interface SubscriptionType {
     Name: string;
     value: number;
 }
+export interface FrequencyType {
+    _id?: string;
+    Name: string;
+    Value: number;
+    DayBasis: number;
+}

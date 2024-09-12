@@ -6,6 +6,7 @@ import employeeReducer from './slices/employeeSlice'; // Import employee reducer
 import productReducer from './slices/productSlice'; // Import employee reducer
 import bagReducer from './slices/bagSlice'; // Import employee reducer
 import SubscriptionTypeReducer from './slices/subscriptionTypeSlice'; // Import employee reducer
+import FrequencyTypeReducer from './slices/frequencyTypeSlice'; // Import employee reducer
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     products: productReducer, // Add employee reducer
     bags: bagReducer, 
     subscriptionType: SubscriptionTypeReducer, 
+    frequencyType: FrequencyTypeReducer, 
   },
 });
 

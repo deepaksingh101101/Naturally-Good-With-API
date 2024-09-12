@@ -308,7 +308,63 @@ export const deleteSubscriptionType = createAsyncThunk<
       const response:any = await apiCall('DELETE', `/dropDown/subscriptiontype/${subscriptionTypeId}`);
       return subscriptionTypeId; 
     } catch (error: any) {
-      return rejectWithValue(error?.response?.data || 'Failed to delete subscription type'); // Return the error message
+      return rejectWithValue(error || 'Failed to delete subscription type'); // Return the error message
+    }
+  }
+);
+
+
+// Frequency type
+export const getAllFrequencyType = createAsyncThunk<
+  AxiosResponse<any[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'frequencyType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/frequencytypes');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+export const deleteFrequencyType = createAsyncThunk<
+ string,
+  string , // Return type is an object with the response and the deleted ID
+  { rejectValue: any } // Reject value type
+>(
+  'frequencyType/delete',
+  async (frequencyTypeId, { rejectWithValue }) => {
+    try {
+      const response:any = await apiCall('DELETE', `/dropDown/frequencytype/${frequencyTypeId}`);
+      return frequencyTypeId; 
+    } catch (error: any) {
+      return rejectWithValue(error || 'Failed to delete subscription type'); // Return the error message
+    }
+  }
+);
+
+
+export const createFrequencyType = createAsyncThunk<
+  AxiosResponse<any>, // Return type is the entire Axios response
+  Omit<any, '_id'>, // Input type excluding '_id'
+  { rejectValue: any } // Reject value type
+>(
+  'frequencyType/create',
+  async (frequencyTypeData, { rejectWithValue }) => {
+    try {
+      // Make API call to create a role
+      const response = await apiCall('POST', '/dropDown/frequencytype', frequencyTypeData);
+
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error);
     }
   }
 );
