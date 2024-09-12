@@ -145,57 +145,147 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
   // }, []);
 
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  // const onSubmit: SubmitHandler<Bag> = async (data) => {
+  //   try {
+  //     if (initialData) {
+  //       // Update existing bag
+  //       const updatedBagData = {
+  //         ...data,
+  //         AllowedItems: data.AllowedItems.map(item => ({ itemId: item })), // Adjust based on your data structure
+  //       };
+  // console.log(updatedBagData)
+  //       // Dispatch the update action
+  //      const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
+  //      console.log(response)
+  //      if (response.type === 'bags/update/fulfilled') {
+  //       ToastAtTopRight.fire({
+  //         icon: 'success',
+  //         title: "Bag Updated Successfully!", // 'Item updated.'
+  //       });
+  //       router.push('/bag')
+  //     } else {
+  //       ToastAtTopRight.fire({
+  //         icon: 'error',
+  //         title: response.payload.message || 'Failed to update bag',
+  //       });
+  //     }
+  //     } else {
+  //       // Create new bag  
+  //       // Dispatch the create action
+  //       let response:any=await dispatch(createBag(data));
+  //       if (response.type === 'bags/create/fulfilled') {
+  //         ToastAtTopRight.fire({
+  //           icon: 'success',
+  //           title: "Bag created Successfully", // 'Item created.'
+  //         });
+  //         form.reset(); // Clear all fields in the form only on successful creation 
+  //         router.push('/bag')
+  //       } else {
+  //         ToastAtTopRight.fire({
+  //           icon: 'error',
+  //           title: response.payload.message || 'Failed to create bag',
+  //         });
+  //       }
+  //     }
+  //     // Optionally refresh or navigate after successful create/update
+  //     // router.refresh(); // or use router.push('/path') to navigate
+  //   } catch (error) {
+  //     console.error('Error occurred while submitting the bag:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const onSubmit: SubmitHandler<Bag> = async (data) => {
+  //   try {
+  //     // Ensure AllowedItems only contains the current state
+  //     const allowedItems = data.AllowedItems.map(item => ({ itemId: item })); // Adjust based on your data structure
+  //     const updatedBagData = {
+  //       ...data,
+  //       AllowedItems: allowedItems,
+  //     };
+  
+  //     if (initialData) {
+  //       // Update existing bag
+  //       const response: any = await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();        console.log(response)
+  //       console.log(response)
+  //       if (response.type === 'bags/update/fulfilled') {
+  //         ToastAtTopRight.fire({
+  //           icon: 'success',
+  //           title: "Bag Updated Successfully!",
+  //         });
+  //         router.push('/bag');
+  //       } else {
+  //         ToastAtTopRight.fire({
+  //           icon: 'error',
+  //           title: response.payload.message || 'Failed to update bag',
+  //         });
+  //       }
+  //     } else {
+  //       // Create new bag
+  //       let response: any = await dispatch(createBag(updatedBagData)).unwrap();
+  //       if (response.type === 'bags/create/fulfilled') {
+  //         ToastAtTopRight.fire({
+  //           icon: 'success',
+  //           title: "Bag created Successfully",
+  //         });
+  //         form.reset(); // Clear all fields in the form only on successful creation 
+  //         router.push('/bag');
+  //       } else {
+  //         ToastAtTopRight.fire({
+  //           icon: 'error',
+  //           title: response.payload.message || 'Failed to create bag',
+  //         });
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Error occurred while submitting the bag:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
   const onSubmit: SubmitHandler<Bag> = async (data) => {
+    setLoading(true); // Start loading state
     try {
+      const allowedItems = data.AllowedItems.map(item => ({ itemId: item }));
+      const updatedBagData = { ...data, AllowedItems: allowedItems };
+  
       if (initialData) {
-        // Update existing bag
-        const updatedBagData = {
-          ...data,
-          AllowedItems: data.AllowedItems.map(item => ({ itemId: item })), // Adjust based on your data structure
-        };
-  console.log(updatedBagData)
-        // Dispatch the update action
-       const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
-       console.log(response)
-       if (response.type === 'bags/update/fulfilled') {
+        const response: any = await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
+        
+        // Log the response
+        console.log('Update Bag Response:', response); 
+  
+        // Since the state update is handled in the slice, you don't need to check response type here
         ToastAtTopRight.fire({
           icon: 'success',
-          title: "Bag Updated Successfully!", // 'Item updated.'
+          title: "Bag Updated Successfully!",
         });
-        router.push('/bag')
+        router.push('/bag');
       } else {
+        // Handle creation of a new bag
+        let response: any = await dispatch(createBag(updatedBagData)).unwrap();
+        console.log('Create Bag Response:', response); // Log the response for creation
+  
         ToastAtTopRight.fire({
-          icon: 'error',
-          title: response.payload.message || 'Failed to update bag',
+          icon: 'success',
+          title: "Bag created Successfully",
         });
+        form.reset(); // Clear all fields in the form only on successful creation 
+        router.push('/bag');
       }
-      } else {
-        // Create new bag  
-        // Dispatch the create action
-        let response:any=await dispatch(createBag(data));
-        if (response.type === 'bags/create/fulfilled') {
-          ToastAtTopRight.fire({
-            icon: 'success',
-            title: "Bag created Successfully", // 'Item created.'
-          });
-          form.reset(); // Clear all fields in the form only on successful creation 
-          router.push('/bag')
-        } else {
-          ToastAtTopRight.fire({
-            icon: 'error',
-            title: response.payload.message || 'Failed to create bag',
-          });
-        }
-      }
-      // Optionally refresh or navigate after successful create/update
-      // router.refresh(); // or use router.push('/path') to navigate
     } catch (error) {
       console.error('Error occurred while submitting the bag:', error);
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: 'Failed to update bag',
+      });
     } finally {
-      setLoading(false);
+      setLoading(false); // Reset loading state
     }
   };
-
+  
   const steps: { id: string; name: string; fields: (keyof Bag)[] }[] = [
     {
       id: 'Step 1',
@@ -238,10 +328,10 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
   const handleRemoveItem = (index: number) => {
     const updatedBagItems = bagItems.filter((_, i) => i !== index);
     setBagItems(updatedBagItems);
-    const updatedSearchTerms = rowSearchTerms.filter((_, i) => i !== index);
-    setRowSearchTerms(updatedSearchTerms); // Remove search term for the removed row
-    const updatedSelectedProducts = selectedProducts.filter((_, i) => i !== index);
-    setSelectedProducts(updatedSelectedProducts); // Remove selected product for the removed row
+  
+    // Update the form to remove the corresponding AllowedItem
+    const updatedAllowedItems = form.getValues("AllowedItems").filter((_, i) => i !== index);
+    form.setValue("AllowedItems", updatedAllowedItems); // Update the form state
   };
 
   const handleItemChanges = (index: number, changes: Partial<AllowedItem>) => {

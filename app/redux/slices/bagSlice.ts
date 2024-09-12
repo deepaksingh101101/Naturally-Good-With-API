@@ -74,13 +74,15 @@ const bagSlice = createSlice({
         state.loading = true;
       })
       .addCase(updateBag.fulfilled, (state, action: PayloadAction<AxiosResponse<any>>) => {
-        state.loading = false;
-        const updatedBag = action.payload.data;
-        state.bags = state.bags.map(bag =>
-          bag._id === updatedBag._id ? updatedBag : bag
-        );
+        state.loading = false; // Set loading to false
+        const updatedBag = action.payload.data; // Access the data field correctly
+      
+        // Update the bags array
+        state.bags = state.bags.map(bag => (bag._id === updatedBag._id ? updatedBag : bag));
+      
+        // Update selectedBag if it matches the updated bag
         if (state.selectedBag && state.selectedBag._id === updatedBag._id) {
-          state.selectedBag = updatedBag;
+          state.selectedBag = updatedBag; // Update selected bag
         }
       })
       .addCase(updateBag.rejected, (state, action: PayloadAction<any>) => {

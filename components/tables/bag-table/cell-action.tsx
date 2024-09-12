@@ -48,9 +48,7 @@ export const BagCellAction: React.FC<BagCellActionProps> = ({ data }) => {
       Status: data?.Status ? 'true' : 'false', // Pre-fill based on product availability
     },
   });
-
   const { control, handleSubmit, setValue, formState: { errors } } = methods;
-
   useEffect(() => {
     // Set form values when the product changes
     if (data) {

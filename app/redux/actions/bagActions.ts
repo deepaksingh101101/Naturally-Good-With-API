@@ -47,9 +47,10 @@ export const updateBag = createAsyncThunk<
   async ({ id, bagData }, { rejectWithValue }) => {
     try {
       const response = await apiCall<any>('PUT', `/bag/${id}`, bagData);
-      console.log('API Response:', response);
-      return response;
+      console.log('API Response:', response); // Ensure this logs the full response
+      return response; // Return the entire response
     } catch (error: any) {
+      console.error('Failed to update bag:', error); // Log error for debugging
       return rejectWithValue(error || 'Failed to update bag');
     }
   }

@@ -36,7 +36,7 @@ export default function Page() {
         <div className="flex-1 min-h-screen space-y-4 p-4 pt-6 md:p-8">
           <BreadCrumb items={breadcrumbItems} />
           {loading ? ( // Show loading state if data is being fetched
-            <p>Loading employee data...</p>
+            <p>Loading Bag data...</p>
           ) : (
             <BagForm initialData={bags} isDisabled={isDisabled}/>
           )}
