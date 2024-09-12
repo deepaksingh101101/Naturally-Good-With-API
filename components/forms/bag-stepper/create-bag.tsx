@@ -140,111 +140,9 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
     }
   };
 
-  // useEffect(() => {
-  //   // Initial load if needed
-  // }, []);
 
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
-  // const onSubmit: SubmitHandler<Bag> = async (data) => {
-  //   try {
-  //     if (initialData) {
-  //       // Update existing bag
-  //       const updatedBagData = {
-  //         ...data,
-  //         AllowedItems: data.AllowedItems.map(item => ({ itemId: item })), // Adjust based on your data structure
-  //       };
-  // console.log(updatedBagData)
-  //       // Dispatch the update action
-  //      const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
-  //      console.log(response)
-  //      if (response.type === 'bags/update/fulfilled') {
-  //       ToastAtTopRight.fire({
-  //         icon: 'success',
-  //         title: "Bag Updated Successfully!", // 'Item updated.'
-  //       });
-  //       router.push('/bag')
-  //     } else {
-  //       ToastAtTopRight.fire({
-  //         icon: 'error',
-  //         title: response.payload.message || 'Failed to update bag',
-  //       });
-  //     }
-  //     } else {
-  //       // Create new bag  
-  //       // Dispatch the create action
-  //       let response:any=await dispatch(createBag(data));
-  //       if (response.type === 'bags/create/fulfilled') {
-  //         ToastAtTopRight.fire({
-  //           icon: 'success',
-  //           title: "Bag created Successfully", // 'Item created.'
-  //         });
-  //         form.reset(); // Clear all fields in the form only on successful creation 
-  //         router.push('/bag')
-  //       } else {
-  //         ToastAtTopRight.fire({
-  //           icon: 'error',
-  //           title: response.payload.message || 'Failed to create bag',
-  //         });
-  //       }
-  //     }
-  //     // Optionally refresh or navigate after successful create/update
-  //     // router.refresh(); // or use router.push('/path') to navigate
-  //   } catch (error) {
-  //     console.error('Error occurred while submitting the bag:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const onSubmit: SubmitHandler<Bag> = async (data) => {
-  //   try {
-  //     // Ensure AllowedItems only contains the current state
-  //     const allowedItems = data.AllowedItems.map(item => ({ itemId: item })); // Adjust based on your data structure
-  //     const updatedBagData = {
-  //       ...data,
-  //       AllowedItems: allowedItems,
-  //     };
-  
-  //     if (initialData) {
-  //       // Update existing bag
-  //       const response: any = await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();        console.log(response)
-  //       console.log(response)
-  //       if (response.type === 'bags/update/fulfilled') {
-  //         ToastAtTopRight.fire({
-  //           icon: 'success',
-  //           title: "Bag Updated Successfully!",
-  //         });
-  //         router.push('/bag');
-  //       } else {
-  //         ToastAtTopRight.fire({
-  //           icon: 'error',
-  //           title: response.payload.message || 'Failed to update bag',
-  //         });
-  //       }
-  //     } else {
-  //       // Create new bag
-  //       let response: any = await dispatch(createBag(updatedBagData)).unwrap();
-  //       if (response.type === 'bags/create/fulfilled') {
-  //         ToastAtTopRight.fire({
-  //           icon: 'success',
-  //           title: "Bag created Successfully",
-  //         });
-  //         form.reset(); // Clear all fields in the form only on successful creation 
-  //         router.push('/bag');
-  //       } else {
-  //         ToastAtTopRight.fire({
-  //           icon: 'error',
-  //           title: response.payload.message || 'Failed to create bag',
-  //         });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error occurred while submitting the bag:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-  
+ 
   const onSubmit: SubmitHandler<Bag> = async (data) => {
     setLoading(true); // Start loading state
     try {
@@ -285,7 +183,7 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
       setLoading(false); // Reset loading state
     }
   };
-  
+
   const steps: { id: string; name: string; fields: (keyof Bag)[] }[] = [
     {
       id: 'Step 1',
