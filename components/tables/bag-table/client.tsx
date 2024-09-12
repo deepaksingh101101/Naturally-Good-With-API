@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Heading } from '@/components/ui/heading';
@@ -9,47 +9,51 @@ import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { columns } from './columns';
 import { Bag, BagData } from '@/constants/bag-data';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { getAllBags } from '@/app/redux/actions/bagActions';
 
 export const BagClient: React.FC = () => {
   const router = useRouter();
-  const initialData: Bag[] = BagData;
-  const [data, setData] = useState<Bag[]>(initialData);
+  const dispatch = useDispatch<AppDispatch>();
+  const { bags, loading, error, currentPage,totalBags, totalPages } = useSelector((state: RootState) => state.bags);
 
-  const updateData = (rowIndex: number, columnId: string, value: any) => {
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    );
-  };
+  const [data, setData] = useState<any[]>([]);
+  const [limit] = useState(5); // Fixed limit for items per page
+  // Fetch data on component mount and when currentPage changes
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      await dispatch(getAllBags({ page: currentPage, limit })); // Pass page and limit as parameters
+    };
+    fetchEmployees();
+  }, [dispatch, currentPage, limit]);
 
-  const updateColumnData = (columnId: string, value: any) => {
-    setData((old) =>
-      old.map((row) => ({
-        ...row,
-        [columnId]: value,
-      }))
-    );
-  };
+  // Effect to update local state when employee data changes
+  useEffect(() => {
+    if (bags) {
+      setData(bags);
+    }
+  }, [bags]);
 
   const handleSearch = (searchValue: string) => {
-    const filteredData = initialData.filter(item =>
+    const filteredData = bags?.filter(item =>
       item.bagName.toLowerCase().includes(searchValue.toLowerCase())
     );
     setData(filteredData);
   };
 
-  const handleSave = () => {
-    // Save the data to the server or localStorage or any persistence storage
-    console.log('Data saved:', data);
-    // Implement the logic to save the data
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      dispatch(getAllBags({ page: currentPage + 1, limit }));
+    }
   };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      dispatch(getAllBags({ page: currentPage - 1, limit }));
+    }
+  };
+
 
   const filters = [
     {
@@ -62,7 +66,7 @@ export const BagClient: React.FC = () => {
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`Bags (${data.length})`}
+          title={`Bags (${totalBags})`}
           description="Manage Bags (Client side table functionalities.)"
         />
         <Button
@@ -78,10 +82,18 @@ export const BagClient: React.FC = () => {
         columns={columns}
         data={data}
         onSearch={handleSearch}
-        meta={{ updateData, updateColumnData }}
         filters={filters}
       />
-      <Button onClick={handleSave}>Save Changes</Button>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="space-x-2">
+          <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1}>
+            Previous
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Next
+          </Button>
+        </div>
+      </div>
     </>
   );
 };

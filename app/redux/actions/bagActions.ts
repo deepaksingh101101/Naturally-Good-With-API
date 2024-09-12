@@ -82,7 +82,7 @@ export const getAllBags = createAsyncThunk<
   'bags/getAll',
   async ({ page, limit }, { rejectWithValue }) => {
     try {
-      const response = await apiCall('GET', `/bag?page=${page}&limit=${limit}`);
+      const response = await apiCall('GET', `/bag/bags?page=${page}&limit=${limit}`);
       console.log('API Response for all bags:', response);
       return response;
     } catch (error: any) {
@@ -94,13 +94,13 @@ export const getAllBags = createAsyncThunk<
 // Action to update the status of a bag
 export const updateBagStatus = createAsyncThunk<
   AxiosResponse<any>, // Return type is the entire Axios response
-  { id: string; available: boolean }, // Input type includes bag ID and availability status
+  { id: string; Status: boolean }, // Input type includes bag ID and availability status
   { rejectValue: any } // Reject value type
 >(
   'bags/updateStatus',
-  async ({ id, available }, { rejectWithValue }) => {
+  async ({ id, Status }, { rejectWithValue }) => {
     try {
-      const response = await apiCall<any>('PUT', `/bag/toggleAvailability/${id}`, { Available: available });
+      const response = await apiCall<any>('PUT', `/bag/toggleStatus/${id}`, { Status: Status });
       console.log('API Response for updating status:', response);
       return response;
     } catch (error: any) {

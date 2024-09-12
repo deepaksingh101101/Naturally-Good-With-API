@@ -90,7 +90,7 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
         BagName: initialData.BagName,
         BagVisibility: initialData.BagVisibility,
         BagDescription: initialData.BagDescription,
-        AllowedItems: initialData.AllowedItems.map(item => item._id), // Assuming _id is used here
+        AllowedItems: initialData.AllowedItems.map((item: AllowedItemInterface) => item._id), // Specify type for item here
         Status: initialData.Status,
         BagMaxWeight: initialData.BagMaxWeight,
         BagImageUrl: initialData.BagImageUrl,
@@ -156,6 +156,7 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
   console.log(updatedBagData)
         // Dispatch the update action
        const response:any= await dispatch(updateBag({ id: initialData._id, bagData: updatedBagData })).unwrap();
+       console.log(response)
        if (response.type === 'bags/update/fulfilled') {
         ToastAtTopRight.fire({
           icon: 'success',
@@ -583,6 +584,42 @@ export const BagForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ i
         </form>
       </Form>
  
+      {
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
     </div>
   );
 };

@@ -104,12 +104,16 @@ const bagSlice = createSlice({
       })
       .addCase(updateBagStatus.fulfilled, (state, action: PayloadAction<AxiosResponse<any>>) => {
         state.loading = false;
-        const updatedBag = action.payload.data;
+        const updatedBag = action.payload.data; // This should now include full bag details with allowed items
+      
+        // Update the bags array with the full details of the updated bag
         state.bags = state.bags.map(bag =>
-          bag._id === updatedBag._id ? updatedBag : bag
+          bag._id === updatedBag._id ? { ...bag, Status: updatedBag.Status } : bag
         );
+      
+        // Update selectedBag if it matches the updated bag
         if (state.selectedBag && state.selectedBag._id === updatedBag._id) {
-          state.selectedBag = updatedBag;
+          state.selectedBag = { ...state.selectedBag, Status: updatedBag.Status };
         }
       })
       .addCase(updateBagStatus.rejected, (state, action: PayloadAction<any>) => {

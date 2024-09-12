@@ -1,25 +1,42 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Bag } from '@/constants/bag-data';
 import { BagCellAction } from './cell-action';
-import Image from 'next/image';
+
+interface AllowedItem {
+  ProductName?: string;
+  Price?: number;
+  UnitQuantity?: number;
+  MinimumUnits?: number;
+  MaximumUnits?: number;
+}
+
+// Update your Bag type to include AllowedItems
+interface Bag {
+  BagName?: string;
+  BagImageUrl?: string;
+  AllowedItems?: AllowedItem[];
+  BagMaxWeight?: number;
+  BagVisibility?: string;
+  Status?: boolean;
+  BagDescription?: string;
+}
 
 export const columns: ColumnDef<Bag>[] = [
   {
-    accessorKey: 'bagName',
+    accessorKey: 'BagName',
     header: 'Bag Name',
-    cell: ({ row }) => <span>{row.original.bagName}</span>,
+    cell: ({ row }) => <span>{row?.original?.BagName ?? '-'}</span>,
   },
   {
-    accessorKey: 'image',
+    accessorKey: 'BagImageUrl',
     header: 'Image',
     cell: ({ row }) => (
       <div className="flex justify-center">
-        <Image src={row.original.image} alt={row.original.bagName} width={50} height={50} />
+        <img src={row?.original?.BagImageUrl ?? '/default-image.jpg'} alt={row?.original?.BagName ?? 'Bag Image'} width={50} height={50} />
       </div>
     ),
   },
   {
-    accessorKey: 'bagItems',
+    accessorKey: 'AllowedItems',
     header: 'Bag Items',
     cell: ({ row }) => (
       <table className="min-w-full divide-y divide-gray-200">
@@ -33,109 +50,72 @@ export const columns: ColumnDef<Bag>[] = [
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {row.original.bagItems.map((item, index) => (
+          {row?.original?.AllowedItems?.map((item, index) => (
             <tr key={index} className={index % 2 === 0 ? 'bg-blue-100' : 'bg-blue-200'}>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item.itemName}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item.itemPrice}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item.unitQuantity ?? '-'}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item.minimumQuantity ?? '-'}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item.maximumQuantity ?? '-'}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item?.ProductName ?? '-'}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item?.Price ?? '-'}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item?.UnitQuantity ?? '-'}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item?.MinimumUnits ?? '-'}</td>
+              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{item?.MaximumUnits ?? '-'}</td>
             </tr>
           ))}
         </tbody>
       </table>
     ),
   },
-  // {
-  //   accessorKey: 'totalPrice',
-  //   header: 'Total Price (₹)',
-  //   cell: ({ row }) => (
-  //     <div className="flex justify-center">
-  //       <span className='text-center'>{row.original.totalPrice}</span>
-  //     </div>
-  //   ),
-  // },
   {
-    accessorKey: 'totalWeight',
-    header: 'Total Maximum Weight (gms)',
+    accessorKey: 'BagMaxWeight',
+    header: 'Bag Maximum Weight (gms)',
     cell: ({ row }) => (
       <div className="flex justify-center">
-        <span className='text-center'>{row.original.totalWeight ?? '-'}</span>
+        <span className='text-center'>{row?.original?.BagMaxWeight ?? '-'}</span>
       </div>
     ),
   },
-  // {
-  //   accessorKey: 'totalPieces',
-  //   header: 'Total Pieces',
-  //   cell: ({ row }) => (
-  //     <div className="flex justify-center">
-  //       <span className='text-center'>{row.original.totalPieces ?? '-'}</span>
-  //     </div>
-  //   ),
-  // },
+ 
   {
-    accessorKey: 'createdBy',
-    header: 'Created By',
-    cell: ({ row }) => (
-      <div 
-        style={{ borderRadius: "20px" }}
-        className={`flex items-center px-2 py-1 ${
-          row.original.createdBy.role === 'Admin' ? 'bg-red-400' :
-          row.original.createdBy.role === 'Customer' ? 'bg-green-400' :
-          row.original.createdBy.role === 'Employee' ? 'bg-yellow-400' :
-          'bg-red-400'
-        }`}
-      >
-        <span className='text-black bold'>{`${row.original.createdBy.role} - ${row.original.createdBy.name}`}</span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'visibility',
+    accessorKey: 'BagVisibility',
     header: 'Visibility',
     cell: ({ row }) => (
       <div 
         style={{ borderRadius: "20px" }}
         className={`flex items-center px-2 py-1 ${
-          row.original.visibility === 'Admin' ? 'bg-red-400' :
-          row.original.visibility === 'Customer' ? 'bg-green-400' :
+          row?.original?.BagVisibility === 'Admin' ? 'bg-red-400' :
+          row?.original?.BagVisibility === 'Public' ? 'bg-green-400' :
           'bg-red-400'
         }`}
       >
-        <span className='text-black bold'>{row.original.visibility === 'Admin' ? "Admin" : "Public"}</span>
+        <span className='text-black font-bold'>{row?.original?.BagVisibility ?? 'Unknown'}</span>
       </div>
     )
   },
   {
-    accessorKey: 'createdDate',
-    header: 'Created At',
+    accessorKey: 'Status',
+    header: 'Status',
     cell: ({ row }) => (
-      <div className="flex">
-        <span className=''>{row.original.createdDate}</span>
+      <div
+        style={{ borderRadius: "20px" }}
+        className={`flex items-center px-2 py-1 ${
+          row?.original?.Status ? 'bg-green-400' : 'bg-red-400'
+        }`}
+      >
+        <span className='text-black font-bold'>
+          {row?.original?.Status ? 'Active' : 'Inactive'}
+        </span>
       </div>
     ),
   },
   {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ row }) => (
-      <span className={`${row.original.status === 'Active' ? 'text-green-500' : 'text-red-500'}`}>
-        {row.original.status}
-      </span>
-    ),
-  },
-
-  {
-    accessorKey: 'description',
+    accessorKey: 'BagDescription',
     header: 'Description',
     cell: ({ row }) => (
       <div className="text-start">
-        {row.original.description.split(' ').slice(0, 10).join(' ')}...
+        {row?.original?.BagDescription?.split(' ').slice(0, 10).join(' ') ?? 'No description'}...
       </div>
     ),
   },
   {
     id: 'actions',
-    cell: ({ row }) => <BagCellAction data={row.original} />
+    cell: ({ row }) => <BagCellAction data={row?.original} />
   }
 ];
