@@ -44,21 +44,26 @@ import { ToastAtTopRight } from '@/lib/sweetAlert';
 const subscriptionFormSchema = z.object({
   SubscriptionTypeId: z.object({
     id: z.string().min(1, 'Subscription Type ID is required'),
-    value: z.number().positive('Subscription Type Value is required')
+    value: z.number().positive('Subscription Type Value is required'),
   }),
-    FrequencyId: z.string(),
+  FrequencyId: z.object({
+    id: z.string().min(1, 'Frequency ID is required'),
+    Name: z.string().min(1, 'Frequency Name is required'),
+    Value: z.number().positive('Frequency Value is required'),
+    DayBasis: z.number().positive('Day Basis must be greater than zero'),
+  }),
   TotalDeliveryNumber: z.number().positive('Total bags must be greater than zero'),
   Visibility: z.string().min(1, 'Visibility is required'),
   Status: z.boolean(),
   Bag: z.string().min(1, 'Bag Name is required'),
-  DeliveryDays: z.array(z.string()).min(1, 'Delivery Days is required'),
+  DeliveryDays: z.array(z.string()).min(1, 'Delivery Days are required'),
   OriginalPrice: z.number().positive('Price must be greater than zero'),
   Offer: z.number(),
   NetPrice: z.number().positive('Net Price must be greater than zero'),
   ImageUrl: z.object({}).optional(),
   Description: z.string().optional(),
   subscriptionStartDate: z.string().min(1, 'Subscription Start Date is required'),
-})
+});
 
 const visibilityOption = [
   { id: '1', name: 'Admin' },
@@ -101,7 +106,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
     mode: 'onChange',
     defaultValues: {
       SubscriptionTypeId: undefined,
-      FrequencyId:'Weekly',
+      FrequencyId:undefined,
       OriginalPrice:undefined,
       TotalDeliveryNumber: undefined,
       Offer: undefined,
@@ -464,7 +469,7 @@ const deleteFrequency = async (frequencyId: string) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {fetchedFrequencyType.map((freq) => (
+          {fetchedFrequencyType?.map((freq) => (
             <tr key={freq._id}>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq.Name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{freq.Value}</td>
@@ -554,37 +559,49 @@ const deleteFrequency = async (frequencyId: string) => {
     </FormItem>
   )}
 />
-            <FormField
-              control={control}
-              name="FrequencyId"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex">
-                    <div className="flex items-center">
-                      <FormLabel>Frequency</FormLabel>
-                      <Edit onClick={openFrequencyModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
-                    </div>
-                  </div>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Frequency" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {frequencies.map((freq, index) => (
-                        <SelectItem key={index} value={freq}>{freq}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+<FormField
+  control={form.control}
+  name="FrequencyId"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex">
+        <div className="flex items-center">
+          <FormLabel>Frequency</FormLabel>
+          <Edit onClick={openFrequencyModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
+        </div>
+      </div>
+      <Select
+        onValueChange={(value) => {
+          const parsedValue = JSON.parse(value); // Parse the JSON string back to an object
+          field.onChange(parsedValue); // Store the object in the form state
+        }}
+        value={ JSON.stringify(field.value)} // Convert the object to a string for the select
+        defaultValue={JSON.stringify(field.value)}
+
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Frequency" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {fetchedFrequencyType?.map((freq) => {
+            const itemValue = JSON.stringify({
+              id: freq._id,
+              Name: freq.Name,
+              Value: freq.Value,
+              DayBasis: freq.DayBasis
+            }); // Create the object as a JSON string
+            return (
+              <SelectItem key={freq._id} value={itemValue}>{freq.Name}</SelectItem>
+            );
+          })}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
             <FormField
               control={form.control}
               name="TotalDeliveryNumber"
