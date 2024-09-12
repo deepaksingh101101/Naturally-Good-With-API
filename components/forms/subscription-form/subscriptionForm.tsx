@@ -179,16 +179,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
   const [isSubscriptionTypeModalOpen, setIsSubscriptionTypeModalOpen] = useState(false);
   const [isFrequencyModalOpen, setIsFrequencyModalOpen] = useState(false);
 
-  const [frequencies, setFrequencies] = useState([
-    'Daily',
-    'Weekly',
-    'Monthly',
-    'Fortnightly',
-    'Biweekly'
-  ]);
-  const [newSubscriptionType, setNewSubscriptionType] = useState('');
-  const [newFrequency, setNewFrequency] = useState('');
-
   const openSubscriptionTypeModal = () => {
     setIsSubscriptionTypeModalOpen(true);
   };
@@ -205,15 +195,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
     setIsFrequencyModalOpen(false);
   };
 
-  const addSubscriptionType = () => {
-    // if (newSubscriptionType) {
-    //   setSubscriptionTypes([...subscriptionTypes, newSubscriptionType]);
-    //   setNewSubscriptionType('');
-    // }
-  };
-
-
- 
 
   const addFrequency = async () => {
     if (newFrequencyName.trim() && newFrequencyValue >= 0 && newFrequencyDayBasis >= 0) {
@@ -224,9 +205,7 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
           Value: newFrequencyValue,
           DayBasis: newFrequencyDayBasis,
         }));
-  
-        console.log(response)
-        if (response.type === 'frequencyType/create/fulfilled') {
+          if (response.type === 'frequencyType/create/fulfilled') {
           setFetchedFrequencyType((prev) => [...prev, response.payload.data]); // Update state with the new frequency
           ToastAtTopRight.fire({
             icon: 'success',
@@ -243,7 +222,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
           });
         }
       } catch (error) {
-        console.error('Error adding frequency:', error);
       } finally {
         dispatch(setLoading(false));
       }
@@ -253,9 +231,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
   const price = watch('OriginalPrice');
   const offers = watch('Offer');
-  const subscriptionType = watch('SubscriptionTypeId');
-  const frequency = watch('FrequencyId');
-  const selectedBags = watch('Bag');
 
   useEffect(() => {
     const netPrice = price - (price * (offers / 100));
@@ -322,7 +297,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
                 });
             }
         } catch (error) {
-            console.error('Error adding product type:', error);
         } finally {
             dispatch(setLoading(false));
         }
@@ -350,7 +324,6 @@ const deleteFrequency = async (frequencyId: string) => {
       });
     }
   } catch (error) {
-    console.error('Error deleting frequency:', error);
   } finally {
     dispatch(setLoading(false));
   }
