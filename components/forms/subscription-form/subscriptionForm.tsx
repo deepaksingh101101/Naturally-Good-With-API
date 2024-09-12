@@ -3,6 +3,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -34,26 +35,30 @@ import { Edit, Trash } from 'lucide-react';
 import ReactSelect from 'react-select';
 import { MultiSelect } from '@/components/ui/MultiSelect';
 import { Textarea } from '@/components/ui/textarea';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { createSubscriptionType, deleteSubscriptionType, getAllProductType, getAllSubscriptionType } from '@/app/redux/actions/dropdownActions';
+import { setLoading } from '@/app/redux/slices/authSlice';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
 
 const subscriptionFormSchema = z.object({
-  subscriptionType: z.string(),
-  SubscriptionImage: z.object({}).optional(),
-  description: z.string().optional(),
-  visibility: z.string().min(1, 'Visibility is required'),
-  totalDelivery: z.number().positive('Total bags must be greater than zero'),
-  frequency: z.string(),
-  deliveryDays: z.array(z.string()).min(1, 'Delivery Days is required'),
+  SubscriptionTypeId: z.object({
+    id: z.string().min(1, 'Subscription Type ID is required'),
+    value: z.number().positive('Subscription Type Value is required')
+  }),
+    FrequencyId: z.string(),
+  TotalDeliveryNumber: z.number().positive('Total bags must be greater than zero'),
+  Visibility: z.string().min(1, 'Visibility is required'),
+  Status: z.boolean(),
+  Bag: z.string().min(1, 'Bag Name is required'),
+  DeliveryDays: z.array(z.string()).min(1, 'Delivery Days is required'),
+  OriginalPrice: z.number().positive('Price must be greater than zero'),
+  Offer: z.number(),
+  NetPrice: z.number().positive('Net Price must be greater than zero'),
+  ImageUrl: z.object({}).optional(),
+  Description: z.string().optional(),
   subscriptionStartDate: z.string().min(1, 'Subscription Start Date is required'),
-  subscriptionEndDate: z.string().min(1, 'Subscription End Date is required'),
-  bagName: z.string().min(1, 'Bag Name is required'),
-  subscriptionStatus: z.enum(['Active', 'Inactive']),
-  price: z.number().positive('Price must be greater than zero'),
-  netPrice: z.number().positive('Net Price must be greater than zero'),
-  offers: z.number()
-}).refine((data) => data.totalDelivery % subscriptionTypeNumbers[data.subscriptionType] === 0, {
-  message: 'Total bags must be a multiple of the associated subscription type',
-  path: ['totalDelivery'],
-});
+})
 
 const visibilityOption = [
   { id: '1', name: 'Admin' },
@@ -64,22 +69,6 @@ type SubscriptionFormValues = z.infer<typeof subscriptionFormSchema>;
 interface SubscriptionFormType {
   initialData: any | null;
 }
-
-const subscriptionTypeNumbers: { [key: string]: number } = {
-  Trial: 1,
-  Monthly: 4,
-  Quarterly: 12,
-  'Semi-Annual': 24,
-  Annually: 48
-};
-const frequencyTypeNumbers: { [key: string]: number } = {
-  Daily: 1,
-  Weekly: 1,
-  Monthly: 1 / 4,
-  Fortnightly: 1 / 2,
-  Biweekly: 2
-};
-
 const deliveryDaysOptions = [
   { id: '1', name: 'Monday' },
   { id: '2', name: 'Tuesday' },
@@ -101,7 +90,6 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
   initialData
 }) => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const title = initialData ? 'Edit Subscription' : 'Create New Subscription';
   const description = initialData
     ? 'Edit the subscription details below.'
@@ -112,21 +100,41 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
     resolver: zodResolver(subscriptionFormSchema),
     mode: 'onChange',
     defaultValues: {
-      subscriptionType: initialData?.subscriptionType || 'Trial',
-      frequency: initialData?.frequency || 'Weekly',
-      price: initialData?.price || 0,
-      totalDelivery: initialData?.totalDelivery || 1,
-      offers: initialData?.offers || 0,
-      netPrice: initialData?.netPrice || 0,
-      deliveryDays: initialData?.deliveryDays || [],
-      bagName: initialData?.bagName || [],
-      subscriptionStatus: initialData?.subscriptionStatus || 'Active',
-      subscriptionStartDate: initialData?.subscriptionStartDate || '',
-      subscriptionEndDate: initialData?.subscriptionEndDate || '',
+      SubscriptionTypeId: undefined,
+      FrequencyId:'Weekly',
+      OriginalPrice:undefined,
+      TotalDeliveryNumber: undefined,
+      Offer: undefined,
+      NetPrice: undefined,
+      DeliveryDays:[],
+      Bag:'',
+      Status: true,
     }
   });
 
   const { handleSubmit, control, watch, setValue, formState: { errors } } = form;
+
+  interface SubscriptionTypeInterface {
+    _id?: string;
+    Name: string;
+    Value:number;
+  }
+
+  const [fetchedSubscriptionType, setFetchedSubscriptionType] = useState<SubscriptionTypeInterface[]>([]); // Specify the type here
+  const { loading } = useSelector((state: RootState) => state.auth);
+
+
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  useEffect(() => {
+    const fetchProductType = async () => {
+    const subscriptionTypes=  await dispatch(getAllSubscriptionType());
+    setFetchedSubscriptionType(subscriptionTypes.payload.data)
+    };
+    fetchProductType();
+    dispatch(setLoading(false)); 
+
+  }, []);
+
 
   const onSubmit: SubmitHandler<SubscriptionFormValues> = async (data) => {
     try {
@@ -147,13 +155,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
 
   const [isSubscriptionTypeModalOpen, setIsSubscriptionTypeModalOpen] = useState(false);
   const [isFrequencyModalOpen, setIsFrequencyModalOpen] = useState(false);
-  const [subscriptionTypes, setSubscriptionTypes] = useState([
-    'Trial',
-    'Monthly',
-    'Quarterly',
-    'Semi-Annual',
-    'Annually'
-  ]);
+
   const [frequencies, setFrequencies] = useState([
     'Daily',
     'Weekly',
@@ -181,15 +183,13 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
   };
 
   const addSubscriptionType = () => {
-    if (newSubscriptionType) {
-      setSubscriptionTypes([...subscriptionTypes, newSubscriptionType]);
-      setNewSubscriptionType('');
-    }
+    // if (newSubscriptionType) {
+    //   setSubscriptionTypes([...subscriptionTypes, newSubscriptionType]);
+    //   setNewSubscriptionType('');
+    // }
   };
 
-  const deleteSubscriptionType = (index: number) => {
-    setSubscriptionTypes(subscriptionTypes.filter((_, i) => i !== index));
-  };
+
 
   const addFrequency = () => {
     if (newFrequency) {
@@ -202,25 +202,101 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
     setFrequencies(frequencies.filter((_, i) => i !== index));
   };
 
-  const price = watch('price');
-  const offers = watch('offers');
-  const subscriptionType = watch('subscriptionType');
-  const frequency = watch('frequency');
-  const selectedBags = watch('bagName');
+  const price = watch('OriginalPrice');
+  const offers = watch('Offer');
+  const subscriptionType = watch('SubscriptionTypeId');
+  const frequency = watch('FrequencyId');
+  const selectedBags = watch('Bag');
 
   useEffect(() => {
     const netPrice = price - (price * (offers / 100));
-    setValue('netPrice', parseFloat(netPrice.toFixed(2)));
+    setValue('NetPrice', parseFloat(netPrice.toFixed(2)));
   }, [price, offers, setValue]);
 
-  useEffect(() => {
-    const totalDelivery =
-      subscriptionTypeNumbers[subscriptionType] * frequencyTypeNumbers[frequency];
-    setValue('totalDelivery', totalDelivery);
-  }, [subscriptionType, frequency, setValue]);
+
+  const [deleteTypeModalOpen, setDeleteTypeModalOpen] = useState(false);
+  const [typeToDelete, setTypeToDelete] = useState<string | null>(null);
+
+  const  deleteType = async (typeToDelete: string) => {
+    if (typeToDelete) {
+      const response=  await dispatch(deleteSubscriptionType(typeToDelete)); // Dispatch the delete action
+      if (response.type === 'subscriptionType/delete/fulfilled') {
+        setFetchedSubscriptionType((prev) => prev.filter(type => type._id !== typeToDelete));
+         ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Subscription type deleted!',
+        });
+        // setNewType(''); // Clear the input field
+        // setSortOrderForType(1); // Reset sort order to default
+    } else {
+        ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to add product type',
+        });
+    }
+    }
+  };
+
+  const confirmDeleteType = async () => {
+    if (typeToDelete) {
+      await deleteType(typeToDelete);
+      setDeleteTypeModalOpen(false); // Close the modal
+    }
+  };
+
+  const [newType, setNewType] = useState('');
+  const [subscriptionTypeValue, setSubscriptionTypeValue] = useState(1); // Default sort order
+
+  const addType = async () => {
+    if (newType.trim() && subscriptionTypeValue >= 0) { // Ensure sort order is non-negative
+        try {
+            dispatch(setLoading(true));
+            const response = await dispatch(createSubscriptionType({ Name: newType, Value: subscriptionTypeValue })); // Include SortOrder
+
+            if (response.type === 'subscriptionType/create/fulfilled') {
+                const newSubscriptionType: any = {
+                    _id: response.payload.data._id, // Ensure this is a string
+                    Name: newType,
+                    Value: subscriptionTypeValue, // Use the specified sort order
+                };
+                setFetchedSubscriptionType((prev: any) => [...prev, newSubscriptionType]); // Ensure prev is of the correct type
+                ToastAtTopRight.fire({
+                    icon: 'success',
+                    title: 'New Subscription type created!',
+                });
+                setNewType(''); // Clear the input field
+                setSubscriptionTypeValue(1); // Reset sort order to default
+            } else {
+                ToastAtTopRight.fire({
+                    icon: 'error',
+                    title: response.payload.message || 'Failed to add product type',
+                });
+            }
+        } catch (error) {
+            console.error('Error adding product type:', error);
+        } finally {
+            dispatch(setLoading(false));
+        }
+    }
+};
 
   return (
     <>
+
+<Dialog open={deleteTypeModalOpen} onOpenChange={setDeleteTypeModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this product type? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteType} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteTypeModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
@@ -236,28 +312,44 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
               <thead>
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subscription Type</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {subscriptionTypes.map((type, index) => (
+                {fetchedSubscriptionType?.map((type, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{type}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{type?.Name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{type?.Value}</td>
                     <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteSubscriptionType(index)} className="cursor-pointer text-red-500" />
+                      <Trash 
+                       onClick={() => {
+                        if (type._id) { // Ensure _id is defined
+                          setTypeToDelete(type._id); // Set the type ID to delete
+                          setDeleteTypeModalOpen(true); // Open the confirmation modal
+                        }
+                      }}
+                      className="cursor-pointer text-red-500" />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <div className="flex mt-4">
-              <Input
-                type="text"
-                placeholder="Add new subscription type"
-                value={newSubscriptionType}
-                onChange={(e) => setNewSubscriptionType(e.target.value)}
-              />
-              <Button onClick={addSubscriptionType} className="ml-2">
+            <Input
+              placeholder="Type Name"
+              value={newType}
+              onChange={(e) => setNewType(e.target.value)}
+              className="mb-2 me-2 "
+            />
+            <Input
+              placeholder="Value"
+              type="number" // Ensure this is a number input
+              value={subscriptionTypeValue}
+              onChange={(e) => setSubscriptionTypeValue(Number(e.target.value))}
+              className="mb-4 ms-2"
+            />
+              <Button onClick={addType} className="ml-2">
                 Add
               </Button>
             </div>
@@ -306,38 +398,48 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-8">
           <div className="gap-8 md:grid md:grid-cols-3">
+          <FormField
+  control={control}
+  name="SubscriptionTypeId"
+  render={({ field }) => (
+    <FormItem>
+      <div className="flex">
+        <FormLabel>Subscription Type</FormLabel>
+        <Edit onClick={openSubscriptionTypeModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
+      </div>
+      <Select
+        onValueChange={(value) => {
+          const parsedValue = JSON.parse(value); // Parse the JSON string back to an object
+          field.onChange(parsedValue); // Store the object in the form state
+        }}
+        value={JSON.stringify(field.value)} // Convert the object to a string for the select
+        defaultValue={JSON.stringify(field.value)}
+      >
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="Select Subscription Type" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          {fetchedSubscriptionType
+            .filter(type => type._id) // Ensure _id is defined
+            .map((type) => {
+              const itemValue = JSON.stringify({ id: type._id, value: type.Value }); // Create the object as a JSON string
+              return (
+                <SelectItem key={type._id} value={itemValue}> {/* Use JSON string as the value */}
+                  {type.Name}
+                </SelectItem>
+              );
+            })}
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
             <FormField
               control={control}
-              name="subscriptionType"
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex">
-                    <FormLabel>Subscription Type</FormLabel>
-                    <Edit onClick={openSubscriptionTypeModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
-                  </div>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Subscription Type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subscriptionTypes.map((type, index) => (
-                        <SelectItem key={index} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name="frequency"
+              name="FrequencyId"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex">
@@ -368,7 +470,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             />
             <FormField
               control={form.control}
-              name="totalDelivery"
+              name="TotalDeliveryNumber"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Total Delivery</FormLabel>
@@ -390,7 +492,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
           
       <Controller
   control={form.control}
-  name="bagName"
+  name="Bag"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Select Bag</FormLabel>
@@ -418,7 +520,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
 
             <Controller
               control={form.control}
-              name="deliveryDays"
+              name="DeliveryDays"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Delivery Days</FormLabel>
@@ -437,7 +539,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             />
             <FormField
               control={control}
-              name="price"
+              name="NetPrice"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
@@ -458,7 +560,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             />
             <FormField
               control={control}
-              name="offers"
+              name="Offer"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Offers (%)</FormLabel>
@@ -479,7 +581,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             />
             <FormField
               control={control}
-              name="netPrice"
+              name="NetPrice"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Net Price</FormLabel>
@@ -501,7 +603,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
 
 <FormField
               control={control}
-              name="visibility"
+              name="Visibility"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subscription Visibility</FormLabel>
@@ -519,34 +621,34 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.visibility?.message}</FormMessage>
+                  <FormMessage>{errors.Visibility?.message}</FormMessage>
                 </FormItem>
               )}
             />
            
             <FormField
               control={form.control}
-              name="subscriptionStatus"
+              name="Status"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subscription Status</FormLabel>
                   <Select
                     disabled={loading}
                     onValueChange={field.onChange}
-                    value={field.value}
-                    defaultValue={field.value}
+                    value={field.value.toString()}
+                    defaultValue={field.value.toString()}
                   >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue
-                          defaultValue={field.value}
+                          defaultValue={field.value.toString()}
                           placeholder="Select Subscription Status"
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="true">Active</SelectItem>
+                      <SelectItem value="false">Inactive</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -555,7 +657,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
             />
      
 <Controller
-          name="SubscriptionImage"
+          name="ImageUrl"
           control={control}
           render={({ field }) => (
             <FormItem>
@@ -571,7 +673,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
                   }}
                 />
               </FormControl>
-              {errors.SubscriptionImage && <FormMessage>{errors.SubscriptionImage.message}</FormMessage>}
+              {errors.ImageUrl && <FormMessage>{errors.ImageUrl.message}</FormMessage>}
             </FormItem>
           )}
         />
@@ -579,7 +681,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
           </div>
           <FormField
             control={form.control}
-            name="description"
+            name="Description"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Subscription Description</FormLabel>

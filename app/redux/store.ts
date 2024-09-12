@@ -5,6 +5,7 @@ import authReducer from './slices/authSlice';
 import employeeReducer from './slices/employeeSlice'; // Import employee reducer
 import productReducer from './slices/productSlice'; // Import employee reducer
 import bagReducer from './slices/bagSlice'; // Import employee reducer
+import SubscriptionTypeReducer from './slices/subscriptionTypeSlice'; // Import employee reducer
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     employees: employeeReducer, // Add employee reducer
     products: productReducer, // Add employee reducer
     bags: bagReducer, 
+    subscriptionType: SubscriptionTypeReducer, 
   },
 });
 

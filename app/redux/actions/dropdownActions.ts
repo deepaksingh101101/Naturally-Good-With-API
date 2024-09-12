@@ -253,3 +253,62 @@ export const deleteSeasonType = createAsyncThunk<
     }
   }
 );
+
+
+
+// Subscription type
+// Action to create a new role
+export const createSubscriptionType = createAsyncThunk<
+  AxiosResponse<any>, // Return type is the entire Axios response
+  Omit<any, '_id'>, // Input type excluding '_id'
+  { rejectValue: any } // Reject value type
+>(
+  'subscriptionType/create',
+  async (subscriptionTypeData, { rejectWithValue }) => {
+    try {
+      console.log(subscriptionTypeData)
+      // Make API call to create a role
+      const response = await apiCall('POST', '/dropDown/subscriptiontype', subscriptionTypeData);
+
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllSubscriptionType = createAsyncThunk<
+  AxiosResponse<any[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'subscriptionType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/subscriptiontypes');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+
+export const deleteSubscriptionType = createAsyncThunk<
+ string,
+  string , // Return type is an object with the response and the deleted ID
+  { rejectValue: any } // Reject value type
+>(
+  'subscriptionType/delete',
+  async (subscriptionTypeId, { rejectWithValue }) => {
+    try {
+      const response:any = await apiCall('DELETE', `/dropDown/subscriptiontype/${subscriptionTypeId}`);
+      return subscriptionTypeId; 
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data || 'Failed to delete subscription type'); // Return the error message
+    }
+  }
+);

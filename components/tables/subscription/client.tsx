@@ -81,7 +81,6 @@ export const SubscriptionClient: React.FC = () => {
         filters={filters}
 
       />
-      <Button onClick={handleSave}>Save Changes</Button>
     </>
   );
 };

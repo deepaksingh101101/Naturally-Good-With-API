@@ -23,3 +23,11 @@ export interface SeasonType {
     Name: string;
 }
 
+
+
+
+export interface SubscriptionType {
+    _id?: string;
+    Name: string;
+    value: number;
+}
