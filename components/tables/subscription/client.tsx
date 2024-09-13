@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Heading } from '@/components/ui/heading';
@@ -9,40 +9,39 @@ import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { columns } from './columns';
 import { Subscription, SubscriptionData } from '@/constants/subscription-data';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { getAllSubscriptions } from '@/app/redux/actions/subscriptionActions';
 
 export const SubscriptionClient: React.FC = () => {
   const router = useRouter();
-  const initialData: Subscription[] = SubscriptionData;
-  const [data, setData] = useState<Subscription[]>(initialData);
+  const { subscriptions, loading, error, currentPage, totalPages ,totalSubscriptions} = useSelector((state: RootState) => state.subscriptions);
 
-  const updateData = (rowIndex: number, columnId: string, value: any) => {
-    setData((old) =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    );
-  };
+  const [data, setData] = useState<any[]>([]);
+  const [limit] = useState(5); // Fixed limit for items per page
 
-  const updateColumnData = (columnId: string, value: any) => {
-    setData((old) =>
-      old.map((row) => ({
-        ...row,
-        [columnId]: value,
-      }))
-    );
-  };
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      await dispatch(getAllSubscriptions({ page: currentPage, limit })); // Pass page and limit as parameters
+    };
+    fetchSubscriptions();
+  }, [dispatch, currentPage, limit]);
+
+  // Effect to update local state when employee data changes
+  useEffect(() => {
+    if (subscriptions) {
+      setData(subscriptions);
+    }
+  }, [subscriptions]);
+
 
   const handleSearch = (searchValue: string) => {
-    const filteredData = initialData.filter(item =>
-      item.subscriptionType.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setData(filteredData);
+    // const filteredData = initialData.filter(item =>
+    //   item.subscriptionType.toLowerCase().includes(searchValue.toLowerCase())
+    // );
+    // setData(filteredData);
   };
 
   const handleSave = () => {
@@ -56,6 +55,17 @@ export const SubscriptionClient: React.FC = () => {
       subOptions: ['Trial', 'Weekly', 'Monthly', 'Fortnightly', 'Bi Weekly'],
     },
   ];
+    const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      dispatch(getAllSubscriptions({ page: currentPage + 1, limit }));
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      dispatch(getAllSubscriptions({ page: currentPage - 1, limit }));
+    }
+  };
 
   return (
     <>
@@ -77,10 +87,18 @@ export const SubscriptionClient: React.FC = () => {
         columns={columns}
         data={data}
         onSearch={handleSearch}
-        meta={{ updateData, updateColumnData }}
         filters={filters}
-
       />
+           <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="space-x-2">
+          <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1}>
+            Previous
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Next
+          </Button>
+        </div>
+      </div>
     </>
   );
 };

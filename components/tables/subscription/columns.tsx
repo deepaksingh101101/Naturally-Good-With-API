@@ -8,7 +8,7 @@ import { SubscriptionCellAction } from './cell-action';
 import { Calendar, Check, X, IndianRupee } from 'lucide-react';
 import Image from 'next/image';
 
-export const columns: ColumnDef<Subscription>[] = [
+export const columns: ColumnDef<any>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -38,147 +38,134 @@ export const columns: ColumnDef<Subscription>[] = [
     ),
   },
   {
-    accessorKey: 'subscriptionType',
+    accessorKey: 'SubscriptionTypeId.Name',
     header: 'Subscription Type',
+    cell: ({ row }) => (
+      <div>
+        {row.original.SubscriptionTypeId?.Name}
+      </div>
+    ),
   },
   {
-    accessorKey: 'frequency',
+    accessorKey: 'FrequencyId.Name',
     header: 'Frequency',
     cell: ({ row }) => (
       <div>
-        {row.original.frequency}
+        {row.original.FrequencyId?.Name}
       </div>
     )
   },
   {
-    accessorKey: 'totalDelivery',
+    accessorKey: 'TotalDeliveryNumber',
     header: 'Total Delivery',
     cell: ({ row }) => (
-      <div>
-        {row.original.totalDelivery}
+      <div className="flex items-center justify-center">
+        {row.original.TotalDeliveryNumber}
       </div>
     )
   },
   {
-    accessorKey: 'bagName',
+    accessorKey: 'Bag.BagName',
     header: 'Bags Name',
+    cell: ({ row }) => (
+      <div>
+        {row.original.Bag?.BagName}
+      </div>
+    ),
   },
   {
-    accessorKey: 'visibility',
+    accessorKey: 'Visibility',
     header: 'Visibility',
     cell: ({ row }) => (
       <div 
         style={{ borderRadius: "20px" }}
         className={`flex items-center px-2 py-1 ${
-          row.original.visibility === 'Admin' ? 'bg-red-400' :
-          row.original.visibility === 'Customer' ? 'bg-green-400' :
+          row.original.Visibility === 'Admin' ? 'bg-red-400' :
+          row.original.Visibility === 'Public' ? 'bg-green-400' :
           'bg-red-400'
         }`}
       >
-        <span className='text-black bold'>{row.original.visibility === 'Admin' ? "Admin" : "Public"}</span>
+        <span className='text-black bold'>{row.original.Visibility}</span>
       </div>
     )
   },
   {
-    accessorKey: 'subscriptionStatus',
+    accessorKey: 'Status',
     header: 'Subscription Status',
     cell: ({ row }) => (
       <div 
         style={{ borderRadius: "20px" }}
         className={`flex items-center px-2 py-1 me-5 ${
-          row.original.subscriptionStatus === 'Active' ? 'bg-green-400' : 'bg-red-400'
+          row.original.Status ? 'bg-green-400' : 'bg-red-400'
         }`}
       >
-        {row.original.subscriptionStatus === 'Active' ? (
+        {row.original.Status ? (
           <Check width={16} height={16} className="text-green-500 mr-2" />
         ) : (
           <X width={16} height={16} className="text-red-900 mr-2" />
         )}
-        <span className="text-black bold">{row.original.subscriptionStatus}</span>
+        <span className="text-black bold">{row.original.Status ? 'Active' : 'Inactive'}</span>
       </div>
     )
   },
   {
-    accessorKey: 'deliveryDays',
+    accessorKey: 'DeliveryDays',
     header: 'Delivery Days',
     cell: ({ row }) => (
       <ul>
-        {row.original.deliveryDays?.map((option, index) => (
-          <li key={index}>{option}</li>
+        {row.original.DeliveryDays?.map((day:any, index:number) => (
+          <li key={index}>{day.day}</li>
         ))}
       </ul>
     )
   },
   {
-    accessorKey: 'price',
+    accessorKey: 'OriginalPrice',
     header: 'Price',
     cell: ({ row }) => (
       <div className="flex items-center">
         <IndianRupee className="mr-1" width={16} height={16} />
-        {row.original.price}
+        {row.original.OriginalPrice}
       </div>
     )
   },
   {
-    accessorKey: 'offers',
+    accessorKey: 'Offer',
     header: 'Offers',
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        {row.original.Offer}%
+      </div>
+    )
   },
   {
-    accessorKey: 'netPrice',
+    accessorKey: 'NetPrice',
     header: 'Net Price',
     cell: ({ row }) => (
       <div className="flex items-center">
         <IndianRupee className="mr-1" width={16} height={16} />
-        {row.original.netPrice}
+        {row.original.NetPrice}
       </div>
     )
   },
   {
-    accessorKey: 'image',
+    accessorKey: 'ImageUrl',
     header: 'Image',
     cell: ({ row }) => (
       <div className="flex justify-center">
-        {row.original.image && <Image src={row.original.image} alt={row.original.subscriptionType} width={50} height={50} />}
+        {row.original.ImageUrl && <img src={row.original.ImageUrl} alt={row.original.SubscriptionTypeId?.Name} width={50} height={50} />}
       </div>
     ),
   },
   {
-    accessorKey: 'description',
+    accessorKey: 'Description',
     header: 'Description',
     cell: ({ row }) => (
       <div className="text-start">
-        {row.original.description?.split(' ').slice(0, 10).join(' ')}...
+        {row.original.Description?.split(' ').slice(0, 10).join(' ')}...
       </div>
     ),
   },
-  {
-    accessorKey: 'coupons',
-    header: 'Coupons',
-    cell: ({ row }) => (
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr className="bg-red-100">
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Code</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Discount Price (₹)</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
-            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">End Date</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {row.original.coupons?.map((coupon, index) => (
-            <tr key={index} className={index % 2 === 0 ? 'bg-blue-100' : 'bg-blue-200'}>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.code}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.discountPrice}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.startDate}</td>
-              <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{coupon.endDate}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    ),
-  }
-  
-,  
   {
     id: 'actions',
     cell: ({ row }) => <SubscriptionCellAction data={row.original} />,

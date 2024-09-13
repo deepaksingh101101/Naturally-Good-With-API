@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AxiosResponse } from 'axios';
-import { createProduct, getAllProducts, getProductById, updateProduct, updateProductAvailability } from '../actions/productActions';
 import { createSubscription, getAllSubscriptions, getSubscriptionById, updateSubscription, updateSubscriptionsStatus } from '../actions/subscriptionActions';
 
 interface SubscriptionState {
@@ -8,9 +7,9 @@ interface SubscriptionState {
   subscriptions: any[];
   selectedSubscription: any | null;
   error: string | null;
-  currentPage: number; // Track the current page
-  totalSubscriptions: number; // Track the total number of products
-  totalPages: number; // Track the total number of pages
+  currentPage: number;
+  totalSubscriptions: number;
+  totalPages: number;
 }
 
 const initialState: SubscriptionState = {
@@ -28,7 +27,7 @@ const subscriptionSlice = createSlice({
   initialState,
   reducers: {
     setCurrentPage(state, action: PayloadAction<number>) {
-      state.currentPage = action.payload; // Update currentPage in state
+      state.currentPage = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -40,9 +39,9 @@ const subscriptionSlice = createSlice({
         state.loading = false;
         const newSubscription = action.payload.data;
         state.subscriptions.push(newSubscription);
-        state.totalSubscriptions += 1; // Increment total products count
+        state.totalSubscriptions += 1;
       })
-      .addCase(createProduct.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(createSubscription.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -60,12 +59,12 @@ const subscriptionSlice = createSlice({
       .addCase(getAllSubscriptions.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getAllSubscriptions.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; products: any[] }>>) => {
+      .addCase(getAllSubscriptions.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; subscriptions: any[] }>>) => {
         state.loading = false;
-        state.subscriptions = action.payload.data.products; // Directly set products from response
-        state.totalSubscriptions = action.payload.data.total; // Total products from response
-        state.currentPage = action.payload.data.currentPage; // Current page from response
-        state.totalPages = action.payload.data.totalPages; // Total pages from response
+        state.subscriptions = action.payload.data.subscriptions;
+        state.totalSubscriptions = action.payload.data.total;
+        state.currentPage = action.payload.data.currentPage;
+        state.totalPages = action.payload.data.totalPages;
       })
       .addCase(getAllSubscriptions.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
@@ -93,19 +92,24 @@ const subscriptionSlice = createSlice({
       })
       .addCase(updateSubscriptionsStatus.fulfilled, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        const updatedSubscription = action.payload;
+        const { _id, Status } = action.payload.data;
 
+        // Update only the status of the subscription while keeping other details intact
         state.subscriptions = state.subscriptions.map(subscription =>
-          subscription._id === updatedSubscription?.data?._id ? updatedSubscription?.data : subscription
+          subscription._id === _id ? { ...subscription, Status } : subscription
         );
+
+        if (state.selectedSubscription && state.selectedSubscription._id === _id) {
+          state.selectedSubscription = { ...state.selectedSubscription, Status };
+        }
       })
-      .addCase(updateProductAvailability.rejected, (state, action: PayloadAction<any>) => {
+      .addCase(updateSubscriptionsStatus.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       });
   },
 });
 
-export const { setCurrentPage } = subscriptionSlice.actions; // Export the action
+export const { setCurrentPage } = subscriptionSlice.actions;
 
-export default subscriptionSlice.reducer; // Export the reducer
+export default subscriptionSlice.reducer;

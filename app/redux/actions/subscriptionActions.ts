@@ -68,7 +68,7 @@ export const updateSubscription = createAsyncThunk<
 
 // Action to get all products with pagination support
 export const getAllSubscriptions = createAsyncThunk<
-  AxiosResponse<{ total: number; currentPage: number; totalPages: number; products: any[] }>, // Return type
+  AxiosResponse<{ total: number; currentPage: number; totalPages: number; subscriptions: any[] }>, // Return type
   { page: number; limit: number }, // Input type for pagination
   { rejectValue: any } // Reject value type
 >(
