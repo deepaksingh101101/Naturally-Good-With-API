@@ -44,6 +44,7 @@ import { ToastAtTopRight } from '@/lib/sweetAlert';
 import apiCall from '@/lib/axios';
 import { debounce } from '@/lib/utils';
 
+// Define the schema with mandatory fields for Bag and DeliveryDays
 const subscriptionFormSchema = z.object({
   SubscriptionTypeId: z.object({
     id: z.string().min(1, 'Subscription Type ID is required'),
@@ -58,15 +59,18 @@ const subscriptionFormSchema = z.object({
   TotalDeliveryNumber: z.number().positive('Total bags must be greater than zero'),
   Visibility: z.string().min(1, 'Visibility is required'),
   Status: z.boolean(),
-  Bag: z.string().min(1, 'Bag Name is required'),
-  DeliveryDays: z.array(z.string()).min(1, 'Delivery Days are required'),
+  Bag: z.string().min(1, 'Bag Name is required'), // Ensure the Bag is mandatory
+  DeliveryDays: z.array(z.string()).min(1, 'At least one Delivery Day is required'), // Ensure 
   OriginalPrice: z.number().positive('Price must be greater than zero'),
-  Offer: z.number(),
+  Offer: z.number().optional(),
   NetPrice: z.number().positive('Net Price must be greater than zero'),
   ImageUrl: z.object({}).optional(),
   Description: z.string().optional(),
   subscriptionStartDate: z.string().min(1, 'Subscription Start Date is required'),
 });
+
+
+
 
 const visibilityOption = [
   { id: '1', name: 'Admin' },
@@ -175,6 +179,7 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
     try {
       const response = await apiCall('get', `/bag/filter?BagName=${query}`);
       setBagList(response.data.bags);
+      console.log('Fetched Bags:', response.data.bags); // Log the fetched bags
     } catch (error) {
       console.error(error);
     }
@@ -264,7 +269,7 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
 
   const price = watch('OriginalPrice');
-  const offers = watch('Offer');
+  const offers = watch('Offer')||0;
 
   useEffect(() => {
     const netPrice = price - (price * (offers / 100));
@@ -631,55 +636,59 @@ const deleteFrequency = async (frequencyId: string) => {
               )}
             />
           
-     <Controller
-      control={form.control}
-      name="Bag"
-      render={({ field }) => (
-        <FormItem>
-          <FormLabel>Select Bag</FormLabel>
-          <FormControl>
-            <ReactSelect
-              isClearable
-              isSearchable
-              options={bagList.map(bag => ({
-                value: bag._id,
-                label: `${bag.BagName} (${bag.BagMaxWeight}g)`
-              }))}
-              onInputChange={(inputValue) => {
-                if (inputValue.trim() !== '') { // Check if input is not empty
-                  debouncedFetchBags(inputValue);
-                }
-              }}
-              onChange={(selected) => {
-                field.onChange(selected ? selected.value : null);
-              }}
-              value={bagList.find(option => option._id === field.value) || null}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+          <Controller
+  control={form.control}
+  name="Bag"
+  render={({ field }) => {
+    const selectedOption = bagList.find(option => option._id === field.value);
 
-            <Controller
-              control={form.control}
-              name="DeliveryDays"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery Days</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      value={field.value || []}
-                      onChange={(value) => field.onChange(value)}
-                      options={deliveryDaysOptions}
-                      disabled={loading}
-                      placeholder="Select Delivery Days"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    return (
+      <FormItem>
+        <FormLabel>Select Bag</FormLabel>
+        <FormControl>
+          <ReactSelect
+            isClearable
+            isSearchable
+            options={bagList.map(bag => ({
+              value: bag._id,
+              label: `${bag.BagName} (${bag.BagMaxWeight}g)`
+            }))}
+            onInputChange={(inputValue) => {
+              if (inputValue.trim() !== '') {
+                debouncedFetchBags(inputValue);
+              }
+            }}
+            onChange={(selected) => {
+              field.onChange(selected ? selected.value : null);
+            }}
+            value={selectedOption ? { value: selectedOption._id, label: `${selectedOption.BagName} (${selectedOption.BagMaxWeight}g)` } : null}
+          />
+        </FormControl>
+        {errors.Bag && <FormMessage>{errors.Bag.message}</FormMessage>}
+      </FormItem>
+    );
+  }}
+/>
+
+<Controller
+  control={form.control}
+  name="DeliveryDays"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Delivery Days</FormLabel>
+      <FormControl>
+        <MultiSelect
+          value={field.value}
+          onChange={(value) => field.onChange(value)}
+          options={deliveryDaysOptions}
+          disabled={loading}
+          placeholder="Select Delivery Days"
+        />
+      </FormControl>
+      {errors.DeliveryDays && <FormMessage>{errors.DeliveryDays.message}</FormMessage>}
+    </FormItem>
+  )}
+/>
             <FormField
               control={control}
               name="NetPrice"
