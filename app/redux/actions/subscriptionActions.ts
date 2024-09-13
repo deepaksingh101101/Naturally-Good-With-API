@@ -56,7 +56,7 @@ export const updateSubscription = createAsyncThunk<
   'subscriptions/update',
   async ({ id, subscriptionData }, { rejectWithValue }) => {
     try {
-      const response = await apiCall<any>('PUT', `/product/${id}`, subscriptionData);
+      const response = await apiCall<any>('PUT', `/subscription/${id}`, subscriptionData);
       console.log('API Response:', response); // Log the response for debugging
       return response; // Return the full response
     } catch (error: any) {

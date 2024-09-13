@@ -43,7 +43,7 @@ import { setLoading } from '@/app/redux/slices/authSlice';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
 import apiCall from '@/lib/axios';
 import { debounce } from '@/lib/utils';
-import { createSubscription } from '@/app/redux/actions/subscriptionActions';
+import { createSubscription, updateSubscription } from '@/app/redux/actions/subscriptionActions';
 
 // Define the schema with mandatory fields for Bag and DeliveryDays
 const subscriptionFormSchema = z.object({
@@ -222,27 +222,43 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SubscriptionFormValues> = async (data) => {
     try {
-      console.log('Form submitted', data); // Check if this log appears in the console
+      const transformedData = {
+        SubscriptionTypeId: data.SubscriptionTypeId.id, // Use the ID from the selected subscription type
+        FrequencyId: data.FrequencyId.id, // Use the ID from the selected frequency
+        TotalDeliveryNumber: data.TotalDeliveryNumber,
+        Visibility: data.Visibility,
+        Status: data.Status,
+        Bag: data.Bag, // Assuming you store Bag ID directly
+        DeliveryDays: data.DeliveryDays.map(day => ({ day })), // Transform delivery days
+        OriginalPrice: data.OriginalPrice,
+        Offer: data.Offer,
+        NetPrice: data.NetPrice,
+        ImageUrl: data.ImageUrl || "https://example.com/subscription-image.jpg", // Assuming a default or uploaded image URL
+        Description: data.Description || "This is a dummy subscription description."
+      };
 
       setLoading(true);
       if (initialData) {
+
+        const response = await dispatch(updateSubscription({ id: initialData._id, subscriptionData: transformedData }));
+        if (response.type === 'subscriptions/update/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: "Subscription Updated!", // 'Item created.'
+          });
+          form.reset(); // Clear all fields in the form only on successful creation 
+          router.push('/subscriptions')
+
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to update product',
+          });
+        }
         // Handle edit logic here
       } else {
         // Handle create logic here
-        const transformedData = {
-          SubscriptionTypeId: data.SubscriptionTypeId.id, // Use the ID from the selected subscription type
-          FrequencyId: data.FrequencyId.id, // Use the ID from the selected frequency
-          TotalDeliveryNumber: data.TotalDeliveryNumber,
-          Visibility: data.Visibility,
-          Status: data.Status,
-          Bag: data.Bag, // Assuming you store Bag ID directly
-          DeliveryDays: data.DeliveryDays.map(day => ({ day })), // Transform delivery days
-          OriginalPrice: data.OriginalPrice,
-          Offer: data.Offer,
-          NetPrice: data.NetPrice,
-          ImageUrl: data.ImageUrl || "https://example.com/subscription-image.jpg", // Assuming a default or uploaded image URL
-          Description: data.Description || "This is a dummy subscription description."
-        };
+    
 
         const response = await dispatch(createSubscription(transformedData));
         if (response.type === 'subscriptions/create/fulfilled') {
@@ -696,40 +712,7 @@ useEffect(() => {
               )}
             />
           
-          {/* <Controller
-  control={form.control}
-  name="Bag"
-  render={({ field }) => {
-    const selectedOption = bagList.find(option => option._id === field.value);
-
-    return (
-      <FormItem>
-        <FormLabel>Select Bag</FormLabel>
-        <FormControl>
-          <ReactSelect
-            isClearable
-            isSearchable
-            options={bagList.map(bag => ({
-              value: bag._id,
-              label: `${bag.BagName} (${bag.BagMaxWeight}g)`
-            }))}
-            onInputChange={(inputValue) => {
-              if (inputValue.trim() !== '') {
-                debouncedFetchBags(inputValue);
-              }
-            }}
-            onChange={(selected) => {
-              field.onChange(selected ? selected.value : null);
-            }}
-            value={selectedOption ? { value: selectedOption._id, label: `${selectedOption.BagName} (${selectedOption.BagMaxWeight}g)` } : null}
-          />
-        </FormControl>
-        {errors.Bag && <FormMessage>{errors.Bag.message}</FormMessage>}
-      </FormItem>
-    );
-  }}
-/> */}
-
+ 
 <Controller
   control={form.control}
   name="Bag"
