@@ -80,6 +80,7 @@ type SubscriptionFormValues = z.infer<typeof subscriptionFormSchema>;
 
 interface SubscriptionFormType {
   initialData: any | null;
+  isDisabled?:boolean;
 }
 const deliveryDaysOptions = [
   { id: '1', name: 'Monday' },
@@ -92,27 +93,60 @@ const deliveryDaysOptions = [
 ];
 
 export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
-  initialData
+  initialData,
+  isDisabled
+
 }) => {
   const router = useRouter();
-  const title = initialData ? 'Edit Subscription' : 'Create New Subscription';
-  const description = initialData
-    ? 'Edit the subscription details below.'
-    : 'To create a new subscription, fill in the basic information below.';
+  const title = (isDisabled && initialData) ? 'View Subscription' :(isDisabled===false && initialData)? 'Edit Subscription':"Create Subscription"
+  const description=(isDisabled && initialData) ? 'Details of Subscription' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below" ;
   const action = initialData ? 'Save changes' : 'Create';
+  const [bagList, setBagList] = useState<any[]>([]);
+
+
+
+  // Function to transform initial data
+  const transformInitialData = (data:any) => {
+    if (!data) return {};
+    console.log(data)
+    return {
+      SubscriptionTypeId: data.SubscriptionTypeId
+        ? { id: data.SubscriptionTypeId._id, value: data.SubscriptionTypeId.Value }
+        : undefined,
+      FrequencyId: data.FrequencyId
+        ? {
+            id: data.FrequencyId._id,
+            Name: data.FrequencyId.Name,
+            Value: data.FrequencyId.Value,
+            DayBasis: data.FrequencyId.DayBasis,
+          }
+        : undefined,
+      TotalDeliveryNumber: data.TotalDeliveryNumber || undefined,
+      Visibility: data.Visibility || '',
+      Status: data.Status ?? true,
+      Bag: data.Bag ? data.Bag._id : undefined, // Ensure Bag is a string (ID) or undefined
+      DeliveryDays: data.DeliveryDays.map((day:any) => day.day) || [],
+      OriginalPrice: data.OriginalPrice || undefined,
+      Offer: data.Offer || undefined,
+      NetPrice: data.NetPrice || undefined,
+      ImageUrl: data.ImageUrl || '',
+      Description: data.Description || '',
+    };
+  };
+
 
   const form = useForm<SubscriptionFormValues>({
     resolver: zodResolver(subscriptionFormSchema),
     mode: 'onChange',
-    defaultValues: {
+    defaultValues: initialData ? transformInitialData(initialData) : {
       SubscriptionTypeId: undefined,
-      FrequencyId:undefined,
-      OriginalPrice:undefined,
+      FrequencyId: undefined,
+      OriginalPrice: undefined,
       TotalDeliveryNumber: undefined,
       Offer: undefined,
       NetPrice: undefined,
-      DeliveryDays:[],
-      Bag:'',
+      DeliveryDays: [],
+      Bag: undefined, // Make sure Bag defaults to undefined
       Status: true,
     }
   });
@@ -162,7 +196,6 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
   }, []);
 
-  const [bagList, setBagList] = useState<any[]>([]);
 
   const fetchBags = async (query: string) => {
     try {
@@ -389,6 +422,11 @@ const deleteFrequency = async (frequencyId: string) => {
     dispatch(setLoading(false));
   }
 };
+useEffect(() => {
+  if (initialData && initialData.Bag) {
+    setBagList(Array.from(initialData.Bag));
+  }
+}, [initialData]);
   return (
     <>
 
@@ -658,7 +696,7 @@ const deleteFrequency = async (frequencyId: string) => {
               )}
             />
           
-          <Controller
+          {/* <Controller
   control={form.control}
   name="Bag"
   render={({ field }) => {
@@ -685,6 +723,46 @@ const deleteFrequency = async (frequencyId: string) => {
             }}
             value={selectedOption ? { value: selectedOption._id, label: `${selectedOption.BagName} (${selectedOption.BagMaxWeight}g)` } : null}
           />
+        </FormControl>
+        {errors.Bag && <FormMessage>{errors.Bag.message}</FormMessage>}
+      </FormItem>
+    );
+  }}
+/> */}
+
+<Controller
+  control={form.control}
+  name="Bag"
+  render={({ field }) => {
+    const selectedOption = bagList.find(option => option._id === field.value);
+
+    return (
+      <FormItem>
+        <FormLabel>Select Bag</FormLabel>
+        <FormControl>
+          <ReactSelect
+            isClearable
+            isSearchable
+            options={bagList?.map(bag => ({
+              value: bag._id,
+              label: `${bag.BagName} (${bag.BagMaxWeight}g)`
+            }))}
+            onInputChange={(inputValue) => {
+              if (inputValue.trim() !== '') {
+                debouncedFetchBags(inputValue);
+              }
+            }}
+            onChange={(selected) => {
+              field.onChange(selected ? selected.value : null);
+            }}
+            value={
+              // Set initial value if initialData exists, else use selectedOption
+              initialData
+                ? { value: initialData.Bag._id, label: `${initialData.Bag.BagName} (${initialData.Bag.BagMaxWeight}g)` }
+                : selectedOption
+                ? { value: selectedOption._id, label: `${selectedOption.BagName} (${selectedOption.BagMaxWeight}g)` }
+                : null
+            }          />
         </FormControl>
         {errors.Bag && <FormMessage>{errors.Bag.message}</FormMessage>}
       </FormItem>

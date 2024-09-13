@@ -10,7 +10,7 @@ export default function SubscriptionForm() {
     <MainLayout meta={{ title: 'Subscription' }}>
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
-        < CreateSubscriptionForm  initialData={null} />
+        < CreateSubscriptionForm   initialData={null} isDisabled={false} />
       </div>
     </MainLayout>
   );
