@@ -8,6 +8,7 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+
 import {
   Form,
   FormControl,
@@ -29,7 +30,7 @@ import { Separator } from '@/components/ui/separator';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
 import { Edit, Trash } from 'lucide-react';
 import ReactSelect from 'react-select';
@@ -40,6 +41,8 @@ import { AppDispatch, RootState } from '@/app/redux/store';
 import { createFrequencyType, createSubscriptionType, deleteFrequencyType, deleteSubscriptionType, getAllFrequencyType, getAllProductType, getAllSubscriptionType } from '@/app/redux/actions/dropdownActions';
 import { setLoading } from '@/app/redux/slices/authSlice';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
+import apiCall from '@/lib/axios';
+import { debounce } from '@/lib/utils';
 
 const subscriptionFormSchema = z.object({
   SubscriptionTypeId: z.object({
@@ -91,6 +94,10 @@ const dummyBags = [
   { value: 'Veggie Bag', label: 'Veggie Bag', weight: 5000 }
 ];
 
+
+
+
+
 export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
   initialData
 }) => {
@@ -116,6 +123,7 @@ export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
       Status: true,
     }
   });
+  
 
   const { handleSubmit, control, watch, setValue, formState: { errors } } = form;
 
@@ -148,6 +156,9 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
   }, []);
 
+
+
+
   useEffect(() => {
     const fetchFrequencyType = async () => {
     const frequencyTypes=  await dispatch(getAllFrequencyType());
@@ -157,6 +168,29 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
     dispatch(setLoading(false)); 
 
   }, []);
+
+  const [bagList, setBagList] = useState<any[]>([]);
+
+  const fetchBags = async (query: string) => {
+    try {
+      const response = await apiCall('get', `/bag/filter?BagName=${query}`);
+      setBagList(response.data.bags);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const debouncedFetchBags = useCallback(debounce(fetchBags, 300), []);
+
+  useEffect(() => {
+    // Optionally, you can call debouncedFetchBags with an initial value if needed
+    // debouncedFetchBags('');
+    return () => {
+      // Optional cleanup if needed
+    };
+  }, [debouncedFetchBags]);
+
+
 
 
   const onSubmit: SubmitHandler<SubscriptionFormValues> = async (data) => {
@@ -597,33 +631,35 @@ const deleteFrequency = async (frequencyId: string) => {
               )}
             />
           
-      <Controller
-  control={form.control}
-  name="Bag"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Select Bag</FormLabel>
-      <FormControl>
-        <ReactSelect
-          isClearable
-          isSearchable
-          options={dummyBags}
-          formatOptionLabel={(option) => (
-            <div className="flex justify-between items-center">
-              <span>{option.label}</span>
-              <span className=" ms-4 text-green-700">{option.weight}g</span>
-            </div>
-          )}
-          onChange={(selected) => {
-            field.onChange(selected ? selected.value : null);
-          }}
-          value={dummyBags.find(option => option.value === field.value) || null}
-        />
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
+     <Controller
+      control={form.control}
+      name="Bag"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Select Bag</FormLabel>
+          <FormControl>
+            <ReactSelect
+              isClearable
+              isSearchable
+              options={bagList.map(bag => ({
+                value: bag._id,
+                label: `${bag.BagName} (${bag.BagMaxWeight}g)`
+              }))}
+              onInputChange={(inputValue) => {
+                if (inputValue.trim() !== '') { // Check if input is not empty
+                  debouncedFetchBags(inputValue);
+                }
+              }}
+              onChange={(selected) => {
+                field.onChange(selected ? selected.value : null);
+              }}
+              value={bagList.find(option => option._id === field.value) || null}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
 
             <Controller
               control={form.control}
