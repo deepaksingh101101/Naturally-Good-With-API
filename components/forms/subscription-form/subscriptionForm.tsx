@@ -616,8 +616,8 @@ useEffect(() => {
     <FormItem>
       <div className="flex">
         <FormLabel>Subscription Type</FormLabel>
-        <Edit onClick={openSubscriptionTypeModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
-      </div>
+{  isDisabled===false &&  <Edit onClick={openSubscriptionTypeModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
+}      </div>
       <Select
         onValueChange={(value) => {
           const parsedValue = JSON.parse(value); // Parse the JSON string back to an object
@@ -627,7 +627,7 @@ useEffect(() => {
         defaultValue={JSON.stringify(field.value)}
       >
         <FormControl>
-          <SelectTrigger>
+          <SelectTrigger disabled={isDisabled||loading} >
             <SelectValue placeholder="Select Subscription Type" />
           </SelectTrigger>
         </FormControl>
@@ -655,8 +655,8 @@ useEffect(() => {
       <div className="flex">
         <div className="flex items-center">
           <FormLabel>Frequency</FormLabel>
-          <Edit onClick={openFrequencyModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
-        </div>
+{isDisabled===false &&            <Edit onClick={openFrequencyModal} className='ms-3 cursor-pointer text-red-500' height={15} width={15} />
+}        </div>
       </div>
       <Select
         onValueChange={(value) => {
@@ -668,7 +668,7 @@ useEffect(() => {
 
       >
         <FormControl>
-          <SelectTrigger>
+          <SelectTrigger disabled={isDisabled||loading} >
             <SelectValue placeholder="Select Frequency" />
           </SelectTrigger>
         </FormControl>
@@ -700,6 +700,7 @@ useEffect(() => {
                     <Input
                       type="number"
                       placeholder="Enter Bags"
+                      disabled={isDisabled||loading}
                       className='mt-0'
                       min={1}
                       {...field}
@@ -724,6 +725,7 @@ useEffect(() => {
         <FormLabel>Select Bag</FormLabel>
         <FormControl>
           <ReactSelect
+           isDisabled={isDisabled||loading}
             isClearable
             isSearchable
             options={bagList?.map(bag => ({
@@ -764,7 +766,7 @@ useEffect(() => {
           value={field.value}
           onChange={(value) => field.onChange(value)}
           options={deliveryDaysOptions}
-          disabled={loading}
+          disabled={isDisabled||loading}
           placeholder="Select Delivery Days"
         />
       </FormControl>
@@ -787,6 +789,8 @@ useEffect(() => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
                       }}
+                      disabled={isDisabled||loading}
+
                     />
                   </FormControl>
                   <FormMessage />
@@ -808,6 +812,8 @@ useEffect(() => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
                       }}
+                      disabled={isDisabled||loading}
+
                     />
                   </FormControl>
                   <FormMessage />
@@ -829,6 +835,8 @@ useEffect(() => {
                         const value = e.target.value;
                         field.onChange(value ? Number(value) : '');
                       }}
+                      disabled={isDisabled||loading}
+
                     />
                   </FormControl>
                   <FormMessage />
@@ -843,8 +851,8 @@ useEffect(() => {
                 <FormItem>
                   <FormLabel>Subscription Visibility</FormLabel>
                   <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger>
+                    <Select disabled={isDisabled||loading} onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger disabled={isDisabled||loading} >
                         <SelectValue placeholder="Select Visibility" />
                       </SelectTrigger>
                       <SelectContent>
@@ -860,7 +868,8 @@ useEffect(() => {
                 </FormItem>
               )}
             />
-           
+       
+
             <FormField
               control={form.control}
               name="Status"
@@ -868,7 +877,7 @@ useEffect(() => {
                 <FormItem>
                   <FormLabel>Subscription Status</FormLabel>
                   <Select
-                    disabled={loading}
+                  disabled={isDisabled||loading}
                     onValueChange={field.onChange}
                     value={field.value.toString()}
                     defaultValue={field.value.toString()}
@@ -900,7 +909,8 @@ useEffect(() => {
               <FormControl>
                 <Input
                   type="file"
-                  disabled={form.formState.isSubmitting}
+                  // disabled={form.formState.isSubmitting}
+                  disabled={isDisabled||loading}
                   onChange={(e) => {
                     if (e.target.files && e.target.files.length > 0) {
                       field.onChange(e.target.files[0]);
@@ -922,7 +932,7 @@ useEffect(() => {
                 <FormLabel>Subscription Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    disabled={loading}
+                    disabled={isDisabled||loading}
                     rows={5}
                     
                     placeholder="Enter Description"
@@ -933,11 +943,48 @@ useEffect(() => {
               </FormItem>
             )}
             />
-          <Button disabled={loading} type="submit">
-            {action}
-          </Button>
+          {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
+            { initialData? 'Save Subscription':"Create Subscription"}     
+            </Button>}
         </form>
       </Form>
+
+      {
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
     </>
   );
 };

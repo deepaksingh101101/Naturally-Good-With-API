@@ -12,13 +12,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   value,
   onChange,
   options,
-  disabled,
+  disabled = false, // default to false
   placeholder
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSelect = (selectedValue: string) => {
+    if (disabled) return; // Do nothing if disabled
     if (value.includes(selectedValue)) {
       onChange(value.filter((v) => v !== selectedValue));
     } else {
@@ -42,20 +43,22 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className="relative" ref={containerRef}>
       <div
-        className="block cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
+        className={`block cursor-pointer ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+        onClick={() => !disabled && setIsOpen(!isOpen)} // Prevent opening if disabled
       >
         <div className="form-multiselect block w-full py-2 pl-3 pr-10 text-base leading-6 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm sm:leading-5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:focus:ring-indigo-400 dark:focus:border-indigo-400">
           {value.length ? value.join(', ') : placeholder}
         </div>
       </div>
-      {isOpen && (
+      {isOpen && !disabled && (
         <div className="absolute mt-1 w-full rounded-md bg-white shadow-lg z-10 dark:bg-gray-800">
           <ul className="max-h-60 rounded-md py-1 text-base leading-6 shadow-xs ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm sm:leading-5">
             {options.map((option) => (
               <li
                 key={option.id}
-                className="cursor-default select-none relative py-2 pl-3 pr-9 dark:hover:bg-gray-700 dark:text-white"
+                className={`cursor-default select-none relative py-2 pl-3 pr-9 dark:hover:bg-gray-700 dark:text-white ${
+                  disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+                }`}
                 onClick={() => handleSelect(option.name)}
               >
                 <span
