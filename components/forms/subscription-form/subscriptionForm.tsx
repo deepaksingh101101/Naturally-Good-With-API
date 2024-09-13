@@ -43,6 +43,7 @@ import { setLoading } from '@/app/redux/slices/authSlice';
 import { ToastAtTopRight } from '@/lib/sweetAlert';
 import apiCall from '@/lib/axios';
 import { debounce } from '@/lib/utils';
+import { createSubscription } from '@/app/redux/actions/subscriptionActions';
 
 // Define the schema with mandatory fields for Bag and DeliveryDays
 const subscriptionFormSchema = z.object({
@@ -62,11 +63,10 @@ const subscriptionFormSchema = z.object({
   Bag: z.string().min(1, 'Bag Name is required'), // Ensure the Bag is mandatory
   DeliveryDays: z.array(z.string()).min(1, 'At least one Delivery Day is required'), // Ensure 
   OriginalPrice: z.number().positive('Price must be greater than zero'),
-  Offer: z.number().optional(),
+  Offer: z.number().min(0, 'Offer must be zero or greater'), // Changed to allow 0
   NetPrice: z.number().positive('Net Price must be greater than zero'),
-  ImageUrl: z.object({}).optional(),
+  ImageUrl: z.string().optional(),
   Description: z.string().optional(),
-  subscriptionStartDate: z.string().min(1, 'Subscription Start Date is required'),
 });
 
 
@@ -90,17 +90,6 @@ const deliveryDaysOptions = [
   { id: '6', name: 'Saturday' },
   { id: '7', name: 'Sunday' }
 ];
-
-const dummyBags = [
-  { value: 'Regular Veggie Bag', label: 'Regular Veggie Bag', weight: 4000 },
-  { value: 'Mini Veggie Bag', label: 'Mini Veggie Bag', weight: 3000 },
-  { value: 'Large Veggie Bag', label: 'Large Veggie Bag', weight: 5000 },
-  { value: 'Veggie Bag', label: 'Veggie Bag', weight: 5000 }
-];
-
-
-
-
 
 export const CreateSubscriptionForm: React.FC<SubscriptionFormType> = ({
   initialData
@@ -200,14 +189,47 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
 
   const onSubmit: SubmitHandler<SubscriptionFormValues> = async (data) => {
     try {
+      console.log('Form submitted', data); // Check if this log appears in the console
+
       setLoading(true);
       if (initialData) {
         // Handle edit logic here
       } else {
         // Handle create logic here
+        const transformedData = {
+          SubscriptionTypeId: data.SubscriptionTypeId.id, // Use the ID from the selected subscription type
+          FrequencyId: data.FrequencyId.id, // Use the ID from the selected frequency
+          TotalDeliveryNumber: data.TotalDeliveryNumber,
+          Visibility: data.Visibility,
+          Status: data.Status,
+          Bag: data.Bag, // Assuming you store Bag ID directly
+          DeliveryDays: data.DeliveryDays.map(day => ({ day })), // Transform delivery days
+          OriginalPrice: data.OriginalPrice,
+          Offer: data.Offer,
+          NetPrice: data.NetPrice,
+          ImageUrl: data.ImageUrl || "https://example.com/subscription-image.jpg", // Assuming a default or uploaded image URL
+          Description: data.Description || "This is a dummy subscription description."
+        };
+
+        const response = await dispatch(createSubscription(transformedData));
+        if (response.type === 'subscriptions/create/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: "Subscription Created!", // 'Item created.'
+          });
+          form.reset(); // Clear all fields in the form only on successful creation 
+          router.push('/subscriptions')
+
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to create product',
+          });
+        }
+
+
+
       }
-      router.refresh();
-      router.push(`/dashboard/subscriptions`);
     } catch (error: any) {
       // Handle error
     } finally {
@@ -271,10 +293,10 @@ const [frequencyToDelete, setFrequencyToDelete] = useState<string | null>(null);
   const price = watch('OriginalPrice');
   const offers = watch('Offer')||0;
 
-  useEffect(() => {
-    const netPrice = price - (price * (offers / 100));
-    setValue('NetPrice', parseFloat(netPrice.toFixed(2)));
-  }, [price, offers, setValue]);
+  // useEffect(() => {
+  //   const netPrice = price - (price * (offers / 100));
+  //   setValue('NetPrice', parseFloat(netPrice.toFixed(2)));
+  // }, [price, offers, setValue]);
 
 
   const [deleteTypeModalOpen, setDeleteTypeModalOpen] = useState(false);
@@ -691,7 +713,7 @@ const deleteFrequency = async (frequencyId: string) => {
 />
             <FormField
               control={control}
-              name="NetPrice"
+              name="OriginalPrice"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Price</FormLabel>
