@@ -12,7 +12,7 @@ export default function page() {
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
-        <VehicleForm/>
+        <VehicleForm initialData={null} isDisabled={false}/>
       </div>
     </ScrollArea>
     </MainLayout>

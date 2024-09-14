@@ -936,7 +936,7 @@ const addRoster = async () => {
               )}
             />
            <FormField
-  control={control}
+  control={form.control}
   name="Available"
   render={({ field }) => (
     <FormItem>
