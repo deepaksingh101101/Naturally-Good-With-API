@@ -2,65 +2,93 @@
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { City } from '@/constants/city';
 import { CellAction } from './cell-action';
 
-export const columns: ColumnDef<City>[] = [
+export const columns: ColumnDef<any>[] = [
   {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'name',
+    accessorKey: 'CityName',
     header: 'City Name',
+    cell: ({ row }) => row.original.CityName || 'N/A',
   },
   {
-    accessorKey: 'sortOrder',
+    accessorKey: 'SortOrder',
     header: () => (
       <div className="text-center">Sort Order</div> // Center-align Sort Order header
     ),
-    cell: ({ row }) => <div className="flex justify-center">{row.original.sortOrder}</div>
-
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.original?.SortOrder ?? 'N/A'}</div>
+    )
   },
   {
-    accessorKey: 'routeCount',
+    accessorKey: 'RouteIncludedCount',
     header: () => (
       <div className="text-center">Route Count</div> // Center-align Route Count header
     ),
-    cell: ({ row }) => <div className="flex justify-center">{row.original.routeCount}</div>
-
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.original?.RouteIncludedCount ?? 'N/A'}</div>
+    )
   },
   {
-    accessorKey: 'zoneCount',
+    accessorKey: 'ZoneIncludedCount',
     header: () => (
       <div className="text-center">Zone Count</div> // Center-align Zone Count header
     ),
-    cell: ({ row }) => <div className="flex justify-center">{row.original.zoneCount}</div>
-
+    cell: ({ row }) => (
+      <div className="flex justify-center">{row.original?.ZoneIncludedCount ?? 'N/A'}</div>
+    )
   },
   {
-    accessorKey: 'sectorCount',
+    accessorKey: 'Serviceable',
     header: () => (
-      <div className="text-center">Sector Count</div> // Center-align Sector Count header
+      <div className="text-center">Serviceable</div> // Center-align Serviceable header
     ),
-    cell: ({ row }) => <div className="flex justify-center">{row.original.sectorCount}</div>
-
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {row.original?.Serviceable ? 'Yes' : 'No'}
+      </div>
+    )
+  },
+  {
+    accessorKey: 'CreatedBy',
+    header: 'Created By',
+    cell: ({ row }) => {
+      const createdBy = row.original?.CreatedBy;
+      return createdBy
+        ? `${createdBy?.FirstName} ${createdBy?.LastName} (${createdBy?.PhoneNumber})`
+        : 'N/A';
+    }
+  },
+  {
+    accessorKey: 'UpdatedBy',
+    header: 'Updated By',
+    cell: ({ row }) => {
+      const updatedBy = row.original?.UpdatedBy;
+      return updatedBy
+        ? `${updatedBy?.FirstName} ${updatedBy?.LastName} (${updatedBy?.PhoneNumber})`
+        : 'N/A';
+    }
+  },
+  {
+    accessorKey: 'CreatedAt',
+    header: () => (
+      <div className="text-center">Created At</div> // Center-align Serviceable header
+    ),
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {row.original?.CreatedAt }
+      </div>
+    )
+  },
+  {
+    accessorKey: 'UpdatedAt',
+    header: () => (
+      <div className="text-center">Updated At</div> // Center-align Serviceable header
+    ),
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        {row.original?.UpdatedAt}
+      </div>
+    )
   },
   {
     id: 'actions',

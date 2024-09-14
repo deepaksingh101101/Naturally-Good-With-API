@@ -71,7 +71,7 @@ export const getAllCity = createAsyncThunk<
   'city/getAll',
   async ({ page, limit }, { rejectWithValue }) => {
     try {
-      const response = await apiCall('GET', `/route/city?page=${page}&limit=${limit}`);
+      const response = await apiCall('GET', `/route/citys?page=${page}&limit=${limit}`);
       return response; // Return the full response including products and pagination data
     } catch (error: any) {
       return rejectWithValue(error || 'Failed to fetch products');

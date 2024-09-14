@@ -47,11 +47,8 @@ export const CityForm: React.FC<{ initialData?: any | null,isDisabled?:boolean }
     try {
       setLoading(true);
       let response: any;
-      console.log(initialData)
       if (initialData) {
-        console.log(data)
         response = await dispatch(updateCity({ id: initialData._id, cityData: data }));
-        console.log(response)
         if (response.type === 'city/update/fulfilled') {
           ToastAtTopRight.fire({
             icon: 'success',

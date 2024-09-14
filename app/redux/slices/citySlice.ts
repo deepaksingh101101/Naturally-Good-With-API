@@ -61,6 +61,7 @@ const citySlice = createSlice({
       })
       .addCase(getAllCity.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; citys: any[] }>>) => {
         state.loading = false;
+        console.log(action.payload)
         state.citys = action.payload.data.citys; // Directly set products from response
         state.totalCitys = action.payload.data.total; // Total products from response
         state.currentPage = action.payload.data.currentPage; // Current page from response

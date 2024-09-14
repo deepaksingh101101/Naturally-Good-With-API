@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Heading } from '@/components/ui/heading';
@@ -9,19 +9,53 @@ import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { columns } from './columns';
 import { City, CityManagementData } from '@/constants/city';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { getAllCity } from '@/app/redux/actions/cityActions';
 
 export const CityManagementClient: React.FC = () => {
   const router = useRouter();
-  const initialData: City[] = CityManagementData;
-  const [data, setData] = useState<City[]>(initialData);
+  const { citys, loading, error, currentPage, totalPages ,totalCitys} = useSelector((state: RootState) => state.citys);
+
+  const [data, setData] = useState<any[]>([]);
+  const [limit] = useState(5); // Fixed limit for items per page
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchCitys = async () => {
+      await dispatch(getAllCity({ page: currentPage, limit })); // Pass page and limit as parameters
+    };
+    fetchCitys();
+  }, [dispatch, currentPage, limit]);
+
+  // Effect to update local state when employee data changes
+  useEffect(() => {
+    if (citys) {
+      console.log(citys)
+      setData(citys);
+    }
+  }, [citys]);
+
 
   const handleSearch = (searchValue: string) => {
-    const filteredData = initialData.filter(item =>
-      item.name.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setData(filteredData);
+    // const filteredData = initialData.filter(item =>
+    //   item.name.toLowerCase().includes(searchValue.toLowerCase())
+    // );
+    // setData(filteredData);
   };
 
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      dispatch(getAllCity({ page: currentPage + 1, limit }));
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      dispatch(getAllCity({ page: currentPage - 1, limit }));
+    }
+  };
   const filters = [
     {
       label: 'Sort By',
@@ -32,7 +66,7 @@ export const CityManagementClient: React.FC = () => {
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={`City (${data.length})`}
+          title={`City (${totalCitys})`}
           description="Manage City (Client-side table functionalities.)"
         />
         <Button
@@ -49,6 +83,16 @@ export const CityManagementClient: React.FC = () => {
         data={data}
         filters={filters}
       />
+            <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="space-x-2">
+          <Button variant="outline" size="sm" onClick={handlePrevPage} disabled={currentPage === 1}>
+            Previous
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleNextPage} disabled={currentPage === totalPages}>
+            Next
+          </Button>
+        </div>
+      </div>
     </>
   );
 };
