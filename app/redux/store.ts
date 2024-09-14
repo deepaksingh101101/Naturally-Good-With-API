@@ -8,12 +8,14 @@ import subscriptionReducer from './slices/subscriptionSlice'; // Import employee
 import bagReducer from './slices/bagSlice'; // Import employee reducer
 import SubscriptionTypeReducer from './slices/subscriptionTypeSlice'; // Import employee reducer
 import FrequencyTypeReducer from './slices/frequencyTypeSlice'; // Import employee reducer
+import cityReducer from './slices/citySlice'; // Import employee reducer
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     employees: employeeReducer, // Add employee reducer
     products: productReducer, // Add employee reducer
+    citys: cityReducer, // Add employee reducer
     subscriptions: subscriptionReducer, // Add employee reducer
     bags: bagReducer, 
     subscriptionType: SubscriptionTypeReducer, 

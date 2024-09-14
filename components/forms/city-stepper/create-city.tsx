@@ -10,43 +10,78 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/app/redux/store';
+import { createCity, updateCity } from '@/app/redux/actions/cityActions';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
+import { useRouter } from 'next/navigation';
 
 export interface CityFormData {
   CityName: string;
   SortOrder: number;
-  Serviceable: string;
+  Serviceable: boolean;
 }
 
 const cityFormSchema = z.object({
   CityName: z.string().min(1, 'City name is required'),
   SortOrder: z.number().nonnegative().int().min(1, 'Sort Order must be a positive integer'),
-  Serviceable: z.string().min(1, 'Please select if serviced'),
+  Serviceable: z.boolean(),
 });
 
-export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData }) => {
+export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }) => {
   const [loading, setLoading] = useState(false);
   const form = useForm<CityFormData>({
     resolver: zodResolver(cityFormSchema),
     defaultValues: initialData || {
-      CityName: undefined,
+      CityName: '',
       SortOrder: undefined,
-      Serviceable: 'true',
+      Serviceable: true,
     },
   });
 
   const { control, handleSubmit, formState: { errors } } = form;
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
 
   const onSubmit: SubmitHandler<CityFormData> = async (data) => {
     try {
       setLoading(true);
+      let response: any;
       if (initialData) {
-        // Update existing city
+        response = await dispatch(updateCity({ id: initialData._id, cityData: data }));
+        if (response.type === 'city/update/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: "City updated!",
+          });
+          router.push('/route-management-tables/city');
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload?.message || 'Failed to update city',
+          });
+        }
       } else {
-        // Create new city
+        response = await dispatch(createCity(data));
+        if (response.type === 'city/create/fulfilled') {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: "City created!",
+          });
+          form.reset();
+          router.push('/route-management-tables/city');
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload?.message ,
+          });
+        }
       }
-      // Refresh or redirect after submission
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      ToastAtTopRight.fire({
+        icon: 'error',
+        title: error.message || 'Internal server error',
+      });
     } finally {
       setLoading(false);
     }
@@ -68,8 +103,7 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                   <FormControl>
                     <Input
                       disabled={loading}
-                      onChange={field.onChange}
-                      value={field.value}
+                      {...field}
                       placeholder="Enter City Name"
                     />
                   </FormControl>
@@ -87,8 +121,8 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                     <Input
                       type="number"
                       disabled={loading}
-                      onChange={field.onChange}
-                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
+                      value={field.value || ''}
                       placeholder="Enter Sort Order"
                     />
                   </FormControl>
@@ -96,7 +130,7 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                 </FormItem>
               )}
             />
-            <FormField
+            <Controller
               control={control}
               name="Serviceable"
               render={({ field }) => (
@@ -105,8 +139,8 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                   <FormControl>
                     <Select
                       disabled={loading}
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      onValueChange={(value) => field.onChange(value === 'true')}
+                      value={field.value.toString()}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select" />
