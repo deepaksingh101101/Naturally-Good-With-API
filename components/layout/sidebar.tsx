@@ -36,13 +36,13 @@ export default function Sidebar({ className }: { className?: string }) {
   useEffect(() => {
     const permissions: Permission[] = getSessionStorageItem('permission') || [];
 
-    const dynamicItems = permissions.flatMap((permission) => 
+    const dynamicItems = permissions.flatMap((permission) =>
       permission.details
         .filter(detail => detail.isInSidebar)
         .map(detail => ({
           title: permission.moduleName,
           href: detail.href,
-          icon: permission.icon as keyof typeof Icons, // Ensure the icon is of the correct type
+          icon: permission.icon as keyof typeof Icons,
           isAllowed: detail.isAllowed,
         }))
     );
@@ -50,7 +50,45 @@ export default function Sidebar({ className }: { className?: string }) {
     // Define static nav items
     const staticItems: NavItem[] = [
       { title: 'Dashboard', href: '/dashboard', icon: 'dashboard' }, // Example static item
-        ];
+      {
+        title: 'Route Management',
+        href: '/route-management',
+        icon: 'settings',
+        label: 'Route Management',
+        subItems: [
+          {
+            title: 'City Master',
+            href: '/route-management-tables/city',
+            icon: 'paymentSetting',
+            label: 'payment-settings'
+          },
+          {
+            title: 'Vehicle Master',
+            href: '/route-management-tables/vehicle',
+            icon: 'paymentSetting',
+            label: 'payment-settings'
+          },
+          {
+            title: 'Zone Master',
+            href: '/zone-management',
+            icon: 'paymentSetting',
+            label: 'payment-settings'
+          },
+          {
+            title: 'Locality Master',
+            href: '/locality-management',
+            icon: 'paymentSetting',
+            label: 'payment-settings'
+          },
+          {
+            title: 'Route Master',
+            href: '/route-management',
+            icon: 'paymentSetting',
+            label: 'payment-settings'
+          },
+        ]
+      }
+    ];
 
     // Concatenate static and dynamic items
     const allNavItems = staticItems.concat(dynamicItems);

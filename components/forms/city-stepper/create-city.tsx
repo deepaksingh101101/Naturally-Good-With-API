@@ -12,17 +12,15 @@ import { Separator } from '@/components/ui/separator';
 import { useState } from 'react';
 
 export interface CityFormData {
-  cityName: string;
-  pin: string;
-  sortOrder: number;
-  serviced: string;
+  CityName: string;
+  SortOrder: number;
+  Serviceable: string;
 }
 
 const cityFormSchema = z.object({
-  cityName: z.string().min(1, 'City name is required'),
-  pin: z.string().min(1, 'Pin is required').length(6, 'Pin must be 6 digits'),
-  sortOrder: z.number().nonnegative().int().min(1, 'Sort Order must be a positive integer'),
-  serviced: z.string().min(1, 'Please select if serviced'),
+  CityName: z.string().min(1, 'City name is required'),
+  SortOrder: z.number().nonnegative().int().min(1, 'Sort Order must be a positive integer'),
+  Serviceable: z.string().min(1, 'Please select if serviced'),
 });
 
 export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData }) => {
@@ -30,9 +28,9 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
   const form = useForm<CityFormData>({
     resolver: zodResolver(cityFormSchema),
     defaultValues: initialData || {
-      cityName: '',
-      sortOrder: 1,
-      serviced: 'yes',
+      CityName: undefined,
+      SortOrder: undefined,
+      Serviceable: 'true',
     },
   });
 
@@ -63,7 +61,7 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <FormField
               control={control}
-              name="cityName"
+              name="CityName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>City Name</FormLabel>
@@ -75,13 +73,13 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                       placeholder="Enter City Name"
                     />
                   </FormControl>
-                  <FormMessage>{errors.cityName?.message}</FormMessage>
+                  <FormMessage>{errors.CityName?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={control}
-              name="sortOrder"
+              name="SortOrder"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Sort Order</FormLabel>
@@ -94,13 +92,13 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                       placeholder="Enter Sort Order"
                     />
                   </FormControl>
-                  <FormMessage>{errors.sortOrder?.message}</FormMessage>
+                  <FormMessage>{errors.SortOrder?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={control}
-              name="serviced"
+              name="Serviceable"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Serviced</FormLabel>
@@ -114,12 +112,12 @@ export const CityForm: React.FC<{ initialData?: CityFormData }> = ({ initialData
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="yes">Yes</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="true">Yes</SelectItem>
+                        <SelectItem value="false">No</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.serviced?.message}</FormMessage>
+                  <FormMessage>{errors.Serviceable?.message}</FormMessage>
                 </FormItem>
               )}
             />
