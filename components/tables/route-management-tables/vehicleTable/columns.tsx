@@ -2,61 +2,63 @@
 
 import React from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Vehicle } from '@/constants/vehicle';
 import { CellAction } from './cell-action';
+import { Check, X } from 'lucide-react';
 
-export const columns: ColumnDef<Vehicle>[] = [
+// Define columns for the table
+export const columns: ColumnDef<any>[] = [
   {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false
-  },
-  {
-    accessorKey: 'vehicleName',
+    accessorKey: 'VehicleName', // Matches data key
     header: 'Vehicle Name',
+    cell: ({ row }) => <div className="">{row.original.VehicleName}</div>, // Adjust text alignment
   },
   {
-    accessorKey: 'classification',
+    accessorKey: 'Classification', // Matches data key
     header: 'Classification',
+    cell: ({ row }) => <div className="">{row.original.Classification}</div>, // Adjust text alignment
   },
   {
-    accessorKey: 'vehicleNumber',
+    accessorKey: 'Status',
+    header: 'Availability',
+    cell: ({ row }) => (
+      <div 
+        style={{ borderRadius: "20px" }}
+        className={`flex items-center px-2 py-1 me-5 ${
+          row.original.Status ? 'bg-green-400' : 'bg-red-400'
+        }`}
+      >
+        {row.original.Status ? (
+          <Check width={16} height={16} className="text-green-500 mr-2" />
+        ) : (
+          <X width={16} height={16} className="text-red-900 mr-2" />
+        )}
+        <span className="text-black bold">{row.original.Status ? 'Available' : 'Unavailable'}</span>
+      </div>
+    )
+  },
+  {
+    accessorKey: 'VehicleNumber', // Matches data key
     header: 'Vehicle Number',
-    cell: ({ row }) => <div className="flex justify-center">{row.original.vehicleNumber}</div>
+    cell: ({ row }) => <div className="">{row.original.VehicleNumber}</div>, // Adjust text alignment
   },
   {
-    accessorKey: 'vehicleModel',
+    accessorKey: 'VehicleModelType', // Matches data key
     header: 'Vehicle Model',
-    cell: ({ row }) => <div className="flex justify-center">{row.original.vehicleModel}</div>
+    cell: ({ row }) => <div className="">{row.original.VehicleModelType}</div>, // Adjust text alignment
   },
   {
-    accessorKey: 'driverName',
+    accessorKey: 'DriverName', // Matches data key
     header: 'Driver Name',
-    cell: ({ row }) => <div className="flex justify-center">{row.original.driverName}</div>
+    cell: ({ row }) => <div className="">{row.original.DriverName}</div>, // Adjust text alignment
   },
   {
-    accessorKey: 'driverNumber',
+    accessorKey: 'DriverNumber', // Matches data key
     header: 'Driver Number',
-    cell: ({ row }) => <div className="flex justify-center">{row.original.driverNumber}</div>
+    cell: ({ row }) => <div className="">{row.original.DriverNumber}</div>, // Adjust text alignment
   },
   {
     id: 'actions',
     header: 'Action',
-    cell: ({ row }) => <CellAction data={row.original} />
-  }
+    cell: ({ row }) => <CellAction data={row.original} />,
+  },
 ];

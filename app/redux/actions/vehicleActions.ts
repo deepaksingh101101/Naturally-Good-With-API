@@ -86,7 +86,7 @@ export const updateVehicleServiceableStatus = createAsyncThunk<
   { id: string; Status: boolean }, // Input type includes product ID and availability status
   { rejectValue: any } // Reject value type
 >(
-  'city/serviceable',
+  'vehicle/serviceable',
   async ({ id, Status }, { rejectWithValue }) => {
     try {
       // Make API call to update product availability

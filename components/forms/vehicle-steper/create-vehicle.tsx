@@ -43,7 +43,10 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
   const router = useRouter();
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData?{
+      ...initialData,
+      Status: initialData?.Status ? 'true' : 'false',
+    } : {
       VehicleName: '',
       Classification: '',
       VehicleNumber: '',
@@ -102,10 +105,12 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
       setLoading(false);
     }
   };
+  const title = (isDisabled && initialData) ? 'View Vehicle' :(isDisabled===false && initialData)? 'Edit Vehicle':"Create Vehicle"
+  const description=(isDisabled && initialData) ? 'Details of Vehicle' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below" ;
 
   return (
     <div className="container mx-auto p-4">
-      <Heading title={initialData ? 'Edit Vehicle' : 'Create Vehicle'} description="Fill in the details below" />
+      <Heading title={title} description={description} />
       <Separator />
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -118,7 +123,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Vehicle</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Vehicle Name"
@@ -136,7 +141,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Classification</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Classification"
@@ -155,7 +160,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Vehicle Number</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Vehicle Number"
@@ -173,7 +178,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Vehicle Model</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Vehicle Model"
@@ -191,7 +196,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Driver Name</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Driver Name"
@@ -209,7 +214,7 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
                   <FormLabel>Driver Number</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={field.onChange}
                       value={field.value}
                       placeholder="Enter Driver Number"
@@ -232,7 +237,8 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
           onValueChange={field.onChange} // Handle the value change as string
           value={field.value} // Ensure this is a string ('true' or 'false')
         >
-          <SelectTrigger>
+          <SelectTrigger  disabled={isDisabled||loading}
+ >
             <SelectValue placeholder="Select Status" />
           </SelectTrigger>
           <SelectContent>
@@ -246,13 +252,51 @@ export const VehicleForm: React.FC<{ initialData?: any ,isDisabled?:boolean}> = 
   )}
 />
 
+
           
           </div>
-          <Button type="submit" disabled={loading}>
-            {initialData ? 'Save Changes' : 'Create Vehicle'}
-          </Button>
+          {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
+            { initialData? 'Save Vehicle':"Create Vehicle"}     
+            </Button>}
         </form>
       </Form>
+
+      {
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
     </div>
   );
 };

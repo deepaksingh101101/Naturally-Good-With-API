@@ -93,7 +93,7 @@ const vehicleSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(updateVehicleServiceableStatus.fulfilled, (state, action: PayloadAction<any>) => {
-        state.loading = false;
+        console.log(action)
         const { _id, Status } = action.payload.data;
 
         // Update only the status of the subscription while keeping other details intact
