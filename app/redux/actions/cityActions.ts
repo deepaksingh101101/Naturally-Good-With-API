@@ -55,7 +55,6 @@ export const updateCity = createAsyncThunk<
   async ({ id, cityData }, { rejectWithValue }) => {
     try {
       const response = await apiCall<any>('PUT', `/route/city/${id}`, cityData);
-      console.log('API Response:', response); // Log the response for debugging
       return response; // Return the full response
     } catch (error: any) {
       return rejectWithValue(error || 'Failed to update product');

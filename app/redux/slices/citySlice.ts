@@ -75,12 +75,16 @@ const citySlice = createSlice({
       })
       .addCase(updateCity.fulfilled, (state, action: PayloadAction<AxiosResponse<any>>) => {
         state.loading = false;
-        const updatedCity = action.payload.data;
+        const updatedCity = action.payload.data; // Extract updated city data
+        
+        // Update the cities array
         state.citys = state.citys.map(city =>
           city._id === updatedCity._id ? updatedCity : city
         );
+        
+        // Update selectedCity if it's the same as the updated city
         if (state.selectedCity && state.selectedCity._id === updatedCity._id) {
-          state.selectedCity = updateCity;
+          state.selectedCity = updatedCity; // Corrected to use updatedCity
         }
       })
       .addCase(updateCity.rejected, (state, action: PayloadAction<any>) => {

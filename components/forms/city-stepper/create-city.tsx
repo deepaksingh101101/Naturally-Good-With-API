@@ -28,7 +28,7 @@ const cityFormSchema = z.object({
   Serviceable: z.boolean(),
 });
 
-export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }) => {
+export const CityForm: React.FC<{ initialData?: any | null,isDisabled?:boolean }> = ({ initialData,isDisabled }) => {
   const [loading, setLoading] = useState(false);
   const form = useForm<CityFormData>({
     resolver: zodResolver(cityFormSchema),
@@ -47,8 +47,11 @@ export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }
     try {
       setLoading(true);
       let response: any;
+      console.log(initialData)
       if (initialData) {
+        console.log(data)
         response = await dispatch(updateCity({ id: initialData._id, cityData: data }));
+        console.log(response)
         if (response.type === 'city/update/fulfilled') {
           ToastAtTopRight.fire({
             icon: 'success',
@@ -102,7 +105,7 @@ export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }
                   <FormLabel>City Name</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       {...field}
                       placeholder="Enter City Name"
                     />
@@ -120,7 +123,7 @@ export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }
                   <FormControl>
                     <Input
                       type="number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
                       value={field.value || ''}
                       placeholder="Enter Sort Order"
@@ -138,7 +141,7 @@ export const CityForm: React.FC<{ initialData?: any | null }> = ({ initialData }
                   <FormLabel>Serviced</FormLabel>
                   <FormControl>
                     <Select
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       onValueChange={(value) => field.onChange(value === 'true')}
                       value={field.value.toString()}
                     >
