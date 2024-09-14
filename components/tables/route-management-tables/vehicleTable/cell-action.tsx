@@ -93,8 +93,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         <Dialog open={toggleModelOpen} onOpenChange={setToggleModelOpen}>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Toggle City Availability</DialogTitle>
-              <DialogDescription>Changing availability to no will cause the city to not be listed anywhere.</DialogDescription>
+              <DialogTitle>Toggle Vehicle Availability</DialogTitle>
+              <DialogDescription>Changing availability to no will cause the vehicle to not be listed anywhere.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <form onSubmit={handleSubmit(updateStatus)}>
@@ -104,7 +104,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
                     name="Status"
                     render={({ field }) => (
                       <FormItem className='w-full'>
-                        <FormLabel>City Serviceable</FormLabel>
+                        <FormLabel>Vehicle Availability</FormLabel>
                         <FormControl>
                           <Select
                             disabled={loading}
