@@ -427,3 +427,60 @@ export const deleteSourceType = createAsyncThunk<
     }
   }
 );
+
+
+// Customer type 
+
+export const createCustomerType = createAsyncThunk<
+  AxiosResponse<any>, // Return type is the entire Axios response
+  Omit<any, '_id'>, // Input type excluding '_id'
+  { rejectValue: any } // Reject value type
+>(
+  'customerType/create',
+  async (customerTypeData, { rejectWithValue }) => {
+    try {
+      // Make API call to create a role
+      const response = await apiCall('POST', '/dropDown/typeofcustomer', customerTypeData);
+
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const getAllCustomerType = createAsyncThunk<
+  AxiosResponse<any[]>, // Return type is the entire Axios response
+  void, // No input parameters
+  { rejectValue: any } // Reject value type
+>(
+  'customerType/getAll',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await apiCall('GET', '/dropDown/typeofcustomers');
+      // Return the entire response object
+      return response; // Return the full response
+    } catch (error: any) {
+      return rejectWithValue(error); // Return the error directly
+    }
+  }
+);
+
+
+export const deleteCustomerTypeFromState = createAsyncThunk<
+  string, // Return type is the ID of the deleted product type
+  string, // Input type is the product type ID
+  { rejectValue: any } // Reject value type
+>(
+  'customerType/delete',
+  async (customerTypeId, { rejectWithValue }) => {
+    try {
+      const response:any= await apiCall('DELETE', `/dropDown/typeofcustomer/${customerTypeId}`);
+      return customerTypeId; // Return the product type ID after successful deletion
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to delete product type'); // Return the error message
+    }
+  }
+);

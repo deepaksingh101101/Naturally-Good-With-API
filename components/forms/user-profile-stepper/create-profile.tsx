@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import apiCall from "@/lib/axios";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
-import { createSourceType, deleteSourceType, getAllSourceType } from "@/app/redux/actions/dropdownActions";
+import { createCustomerType, createSourceType, deleteCustomerTypeFromState, deleteSourceType, getAllCustomerType, getAllSourceType } from "@/app/redux/actions/dropdownActions";
 import { ToastAtTopRight } from "@/lib/sweetAlert";
 
 interface ProfileFormType {
@@ -56,7 +56,7 @@ const FormSchema = z.object({
   email: z.string().email("Invalid email format").optional(),
   contactno: z.string().min(1, "Contact Number is required"),
   alterNateContact: z.string().optional(),
-  address2: z.string().optional(),
+  Sector: z.string().min(1,'Sector is required'),
   alterNateAddress: z.string().optional(),
   allergies: z.string().optional(),
   assignedEmployee: z.string().min(1, "Assigned Employee is required"),
@@ -258,12 +258,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const deleteSource = (index: number) => {
     setSourceOptions(sourceOptions.filter((_, i) => i !== index));
   };
-  const addCustomerType = () => {
-    if (newCustomerType) {
-      setCustomerTypeOptions([...customerTypeOptions, { id: newCustomerType.toLowerCase(), name: newCustomerType }]);
-      setNewCustomerType('');
-    }
-  };
+
   const deleteCustomerType = (index: number) => {
     setCustomerTypeOptions(customerTypeOptions.filter((_, i) => i !== index));
   };
@@ -298,8 +293,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     fetchCity(searchTerm);
   }, [searchTerm, fetchCity]);
 
+  // Source of customer
   const [fetchedSourceType, setFetchedSourceType] = useState<any[]>([]); // Specify the type here
-
 
   const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
   useEffect(() => {
@@ -338,6 +333,75 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     }
     }
   };
+
+
+  // Type of customer
+  const [fetchedCustomerType, setFetchedCustomerType] = useState<any[]>([]); // Specify the type here
+
+  useEffect(() => {
+    const fetchCustomerType = async () => {
+    const customerTypes=  await dispatch(getAllCustomerType());
+    setFetchedCustomerType(customerTypes.payload.data)
+    };
+    fetchCustomerType();
+  }, []);
+ 
+  const [deleteCustomerTypeModalOpen, setDeleteCustomerTypeModalOpen] = useState(false);
+  const [customerTypeToDelete, setCustomerTypeToDelete] = useState<string | null>(null);
+
+  const confirmDeleteCustomerType = async () => {
+    if (customerTypeToDelete) {
+      await deleteCustomerTypeTemp(customerTypeToDelete);
+      setDeleteCustomerTypeModalOpen(false); // Close the modal
+    }
+  };
+
+  const  deleteCustomerTypeTemp = async (customerTypeToDelete: string) => {
+    if (customerTypeToDelete) {
+      const response=  await dispatch(deleteCustomerTypeFromState(customerTypeToDelete)); // Dispatch the delete action
+      if (response.type === 'customerType/delete/fulfilled') {
+        setFetchedCustomerType((prev) => prev.filter(type => type._id !== customerTypeToDelete));
+         ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Customer type deleted!',
+        });
+        setNewCustomerType(''); // Clear the input field
+    } else {
+        ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to delete customer type',
+        });
+    }
+    }
+  };
+
+  const addCustomerType =async () => {
+    if (newCustomerType.trim()) { // Ensure sort order is non-negative
+      try {
+          const response = await dispatch(createCustomerType({ Name: newCustomerType})); // Include SortOrder
+          if (response.type === 'customerType/create/fulfilled') {
+              const newType:any = {
+                  _id: response.payload.data._id, // Ensure this is a string
+                  Name: newCustomerType
+              };
+              setFetchedCustomerType((prev: any[]) => [...prev, newType]); // Ensure prev is of the correct type
+              ToastAtTopRight.fire({
+                  icon: 'success',
+                  title: 'New customer type created!',
+              });
+              setNewCustomerType(''); // Clear the input field
+          } else {
+              ToastAtTopRight.fire({
+                  icon: 'error',
+                  title: response.payload.message || 'Failed to add customer type',
+              });
+          }
+      } catch (error) {
+          console.error('Error adding product type:', error);
+      } finally {
+      }
+  }
+  };
   return (
     <>
       <div className="flex items-center justify-between">
@@ -365,6 +429,21 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     <DialogFooter>
       <Button onClick={confirmDeleteSourceType} variant="destructive">Delete</Button>
       <Button onClick={() => setDeleteSourceTypeModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+
+<Dialog open={deleteCustomerTypeModalOpen} onOpenChange={setDeleteCustomerTypeModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this source type? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteCustomerType} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteCustomerTypeModalOpen(false)}>Cancel</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -444,13 +523,20 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {customerTypeOptions.map((type, typeIndex) => (
+                {fetchedCustomerType?.map((type, typeIndex) => (
                   <tr key={typeIndex}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {type.name}
+                      {type.Name}
                     </td>
                     <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteCustomerType(typeIndex)} className="cursor-pointer text-red-500" />
+                      <Trash
+                       onClick={() => {
+                        if (type._id) { // Ensure _id is defined
+                          setCustomerTypeToDelete(type._id); // Set the type ID to delete
+                          setDeleteCustomerTypeModalOpen(true); // Open the confirmation modal
+                        }
+                      }}
+                       className="cursor-pointer text-red-500" />
                     </td>
                   </tr>
                 ))}
@@ -559,7 +645,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
             />
             <FormField
               control={form.control}
-              name="address2"
+              name="Sector"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Sector</FormLabel>
@@ -570,7 +656,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.address2?.message}</FormMessage>
+                  <FormMessage>{errors.Sector?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -690,7 +776,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         getOptionValue={(option) => option._id}
                         isDisabled={loading}
                         onChange={(selected) => field.onChange(selected ? selected._id : '')}
-                        value={fetchedSourceType.find(option => option._id === field.value)}
+                        value={fetchedSourceType?.find(option => option._id === field.value)}
                       />
                     )}
                   />
@@ -716,12 +802,12 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       <ReactSelect
                         isClearable
                         isSearchable
-                        options={customerTypeOptions}
-                        getOptionLabel={(option) => option.name}
-                        getOptionValue={(option) => option.id}
+                        options={fetchedCustomerType}
+                        getOptionLabel={(option) => option.Name}
+                        getOptionValue={(option) => option._id}
                         isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={customerTypeOptions.find(option => option.id === field.value)}
+                        onChange={(selected) => field.onChange(selected ? selected._id : '')}
+                        value={fetchedCustomerType?.find(option => option._id === field.value)}
                       />
                     )}
                   />
