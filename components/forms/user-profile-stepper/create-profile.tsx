@@ -395,7 +395,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     </td>
                     <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
                       <Trash 
-                      // onClick={() => deleteSource(sourceIndex)}
                        onClick={() => {
                         if (source._id) { // Ensure _id is defined
                           setSourceToDelete(source._id); // Set the type ID to delete
@@ -686,12 +685,12 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       <ReactSelect
                         isClearable
                         isSearchable
-                        options={sourceOptions}
-                        getOptionLabel={(option) => option.name}
-                        getOptionValue={(option) => option.id}
+                        options={fetchedSourceType}
+                        getOptionLabel={(option) => option.Name}
+                        getOptionValue={(option) => option._id}
                         isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={sourceOptions.find(option => option.id === field.value)}
+                        onChange={(selected) => field.onChange(selected ? selected._id : '')}
+                        value={fetchedSourceType.find(option => option._id === field.value)}
                       />
                     )}
                   />
