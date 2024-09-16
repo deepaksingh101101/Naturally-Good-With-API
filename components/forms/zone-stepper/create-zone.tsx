@@ -1,112 +1,139 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Select from 'react-select';
-import { Button } from '@/components/ui/button';
+
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Heading } from '@/components/ui/heading';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { VehicleManagementClient } from '@/components/tables/route-management-tables/vehicleTable/client';
-import { ZoneManagementClient } from '@/components/tables/route-management-tables/zoneTable/client';
-
-// Define the interface for form data
-export interface ZoneFormData {
-  zoneName: string;
-  serviced: { label: string; value: string } | null;
-  deliverySequence: number;
-  deliveryCost: number;
-  locality: { name: string; id: string; pincode: string }[];
-  city: { id: string; label: string; value: string } | null;
-}
+import apiCall from '@/lib/axios';
+import { debounce } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/app/redux/store';
+import { createZone, updateZone } from '@/app/redux/actions/zoneActions';
+import { ToastAtTopRight } from '@/lib/sweetAlert';
+import { useRouter } from 'next/navigation';
 
 // Define the schema for form validation
 const zoneFormSchema = z.object({
-  zoneName: z.string().min(1, 'Zone Name is required'),
-  serviced: z
-    .object({
-      label: z.string(),
-      value: z.string(),
-    })
-    .nullable()
-    .refine((data) => data !== null, { message: 'Serviced status is required' }),
-  deliverySequence: z.number().positive().int().min(1, 'Delivery Sequence must be a positive integer'),
-  deliveryCost: z.number().positive().min(0, 'Delivery Cost must be a positive number'),
-  locality: z
-    .array(
-      z.object({
-        name: z.string(),
-        id: z.string(),
-        pincode: z.string(),
-      })
-    )
-    .min(1, 'At least one locality must be selected'),
-  city: z
-    .object({
-      id: z.string(),
-      label: z.string(),
-      value: z.string(),
-    })
-    .nullable()
-    .refine((data) => data !== null, { message: 'City is required' }),
+  ZoneName: z.string().min(1, 'Zone Name is required'),
+  Serviceable: z.boolean(),
+  DeliveryCost: z.number().positive().min(0, 'Delivery Cost must be a positive number'),
+  City: z.string().min(1, 'City is required'),
 });
 
-// Sample options for select fields
 const servicedOptions = [
   { label: 'Yes', value: 'yes' },
   { label: 'No', value: 'no' },
 ];
 
-const localityOptions = [
-  { name: 'Locality 1', id: 'locality1', pincode: '123456' },
-  { name: 'Locality 2', id: 'locality2', pincode: '654321' },
-  { name: 'Locality 3', id: 'locality3', pincode: '789012' },
-];
-
-const cityOptions = [
-  { id: 'city1', label: 'City 1', value: 'city1' },
-  { id: 'city2', label: 'City 2', value: 'city2' },
-  { id: 'city3', label: 'City 3', value: 'city3' },
-];
-
-export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ initialData,isDisabled }) => {
+export const ZoneForm: React.FC<{ initialData?: any; isDisabled?: boolean }> = ({ initialData, isDisabled }) => {
   const [loading, setLoading] = useState(false);
+  const [fetchedCity, setFetchedCity] = useState<{ label: string; value: string }[]>([]);
+  const [selectedCity, setSelectedCity] = useState<{ label: string; value: string } | null>(null);
+  const [servicedStatus, setServicedStatus] = useState<{ label: string; value: string } | null>(null); // For the serviced field
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const form = useForm<ZoneFormData>({
+  const fetchCity = useCallback(
+    debounce(async (term: string) => {
+      if (!term) {
+        setFetchedCity([]);
+        return;
+      }
+
+      try {
+        const response = await apiCall('GET', `/route/city/filter?CityName=${term}`);
+        if (response.status) {
+          const cities = response.data.cities.map((city: any) => ({
+            label: city.CityName,
+            value: city._id,
+          }));
+          setFetchedCity(cities);
+        } else {
+          console.error(response);
+        }
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    fetchCity(searchTerm);
+  }, [searchTerm, fetchCity]);
+
+  useEffect(() => {
+    if (initialData) {
+      // Prefill form fields with initialData
+      setSelectedCity({
+        label: initialData.city?.CityName,
+        value: initialData.city?._id,
+      });
+      setServicedStatus({
+        label: initialData.zone?.Serviceable ? 'Yes' : 'No',
+        value: initialData.zone?.Serviceable ? 'yes' : 'no',
+      });
+    }
+  }, [initialData]);
+
+  const form = useForm<any>({
     resolver: zodResolver(zoneFormSchema),
-    defaultValues: initialData || {
-      zoneName: '',
-      serviced: null,
-      deliverySequence: 1,
-      deliveryCost: 0,
-      locality: [],
-      city: null,
+    defaultValues: initialData ? {
+      ZoneName: initialData.zone?.ZoneName,
+      Serviceable: initialData.zone?.Serviceable,
+      DeliveryCost: initialData.zone?.DeliveryCost,
+      City: initialData.city?._id
+    } : {
+      ZoneName: '',
+      Serviceable: true,
+      DeliveryCost: undefined,
+      City: undefined,
     },
   });
 
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = form;
+  const { control, handleSubmit, reset } = form;
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const onSubmit: SubmitHandler<ZoneFormData> = async (data) => {
+  const onSubmit: SubmitHandler<any> = async (data) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      if (initialData) {
-        // Update existing zone logic here
-        console.log('Updating zone:', data);
+      if (!isDisabled && initialData) {
+        const response = await dispatch(updateZone({ id: initialData.zone._id, zoneData: data }));
+        if (response.type === 'zone/update/fulfilled') {
+          ToastAtTopRight.fire({ icon: 'success', title: 'Zone Updated' });
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to update zone',
+          });
+        }
       } else {
-        // Create new zone logic here
-        console.log('Creating new zone:', data);
+        const response = await dispatch(createZone(data));
+        if (response.type === 'zone/create/fulfilled') {
+          ToastAtTopRight.fire({ icon: 'success', title: 'Zone Created' });
+          reset({
+            ZoneName: '',
+            Serviceable: true,
+            DeliveryCost: undefined,
+            City: undefined
+          }); // Reset the form
+          setSelectedCity(null);
+          setServicedStatus(null);
+        } else {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Something went wrong',
+          });
+        }
       }
-      // Add success notification or redirect as needed
-    } catch (error) {
-      console.error('Form submission error:', error);
-      // Handle error (e.g., show notification)
+    } catch (error: any) {
+      ToastAtTopRight.fire({ icon: 'error', title: error.message || 'An error occurred' });
     } finally {
       setLoading(false);
     }
@@ -119,41 +146,35 @@ export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            {/* Zone Name Field */}
-             {/* City Field */}
-             <FormField
+            {/* City Field */}
+            <FormField
               control={control}
-              name="city"
+              name="City"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>City</FormLabel>
                   <FormControl>
                     <Select
                       isDisabled={loading}
-                      options={cityOptions}
+                      options={fetchedCity}
                       placeholder="Select City"
-                      value={field.value ? {
-                        label: field.value.label,
-                        value: field.value.value,
-                        id: field.value.id,
-                      } : null}
+                      value={selectedCity}
                       onChange={(selected) => {
-                        field.onChange(selected ? {
-                          id: selected.id,
-                          label: selected.label,
-                          value: selected.value,
-                        } : null);
+                        setSelectedCity(selected);
+                        field.onChange(selected?.value);
                       }}
+                      onInputChange={(inputValue) => setSearchTerm(inputValue)}
                     />
                   </FormControl>
-                  <FormMessage>{errors.city?.message}</FormMessage>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
+            {/* Zone Name Field */}
             <FormField
               control={control}
-              name="zoneName"
+              name="ZoneName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Zone Name</FormLabel>
@@ -164,17 +185,15 @@ export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ 
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.zoneName?.message}</FormMessage>
+                  <FormMessage />
                 </FormItem>
               )}
             />
 
-           
-
             {/* Serviced Field */}
             <FormField
               control={control}
-              name="serviced"
+              name="Serviceable"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Serviced</FormLabel>
@@ -183,31 +202,14 @@ export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ 
                       isDisabled={loading}
                       options={servicedOptions}
                       placeholder="Select Serviced Status"
-                      value={field.value}
-                      onChange={field.onChange}
+                      value={servicedStatus}
+                      onChange={(selected) => {
+                        setServicedStatus(selected);
+                        field.onChange(selected?.value === 'yes');
+                      }}
                     />
                   </FormControl>
-                  <FormMessage>{errors.serviced?.message}</FormMessage>
-                </FormItem>
-              )}
-            />
-
-            {/* Delivery Sequence Field */}
-            <FormField
-              control={control}
-              name="deliverySequence"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Delivery Sequence</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      disabled={loading}
-                      placeholder="Enter Delivery Sequence"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.deliverySequence?.message}</FormMessage>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -215,7 +217,7 @@ export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ 
             {/* Delivery Cost Field */}
             <FormField
               control={control}
-              name="deliveryCost"
+              name="DeliveryCost"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Delivery Cost</FormLabel>
@@ -225,65 +227,21 @@ export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ 
                       disabled={loading}
                       placeholder="Enter Delivery Cost"
                       {...field}
+                      value={field.value || ''}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                     />
                   </FormControl>
-                  <FormMessage>{errors.deliveryCost?.message}</FormMessage>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-
-        {/* Locality Field */}
-          {/* <FormField
-            control={control}
-            name="locality"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Locality</FormLabel>
-                <FormControl>
-                  <Select
-                    isMulti
-                    isDisabled={loading}
-                    options={localityOptions.map(option => ({
-                      label: (
-                        <div className='flex justify-between'>
-                          {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
-                        </div>
-                      ),
-                      value: option.id,
-                    }))}
-                    placeholder="Select Localities"
-                    value={field.value.map(option => ({
-                      label: (
-                        <div>
-                          {option.name} <span style={{ color: 'green' }}>(Pincode: {option.pincode})</span>
-                        </div>
-                      ),
-                      value: option.id,
-                    }))}
-                    onChange={(selected) => {
-                      field.onChange(selected.map(opt => ({
-                        name: localityOptions.find(loc => loc.id === opt.value)?.name || '',
-                        id: opt.value,
-                        pincode: localityOptions.find(loc => loc.id === opt.value)?.pincode || '',
-                      })));
-                    }}
-                    formatOptionLabel={({ label }) => <div>{label}</div>}
-                  />
-                </FormControl>
-                <FormMessage>{errors.locality?.message}</FormMessage>
-              </FormItem>
-            )}
-          /> */}
 
           <Button type="submit" disabled={loading}>
             {initialData ? 'Save Changes' : 'Create Zone'}
           </Button>
         </form>
       </Form>
-
-
-
     </div>
   );
 };
