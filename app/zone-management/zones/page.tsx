@@ -3,6 +3,7 @@ import { CityForm } from '@/components/forms/city-stepper/create-city';
 import { RouteForm } from '@/components/forms/route-stepper/create-route';
 import { ZoneForm } from '@/components/forms/zone-stepper/create-zone';
 import MainLayout from '@/components/layout/main-layout';
+import { ZoneManagementClient } from '@/components/tables/route-management-tables/zoneTable/client';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 const breadcrumbItems = [{ title: 'Complaint', link: '/dashboard/complaint' }];
@@ -12,8 +13,10 @@ export default function page() {
     <ScrollArea className="h-full">
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems}  />
-        <ZoneForm initialData={null} isDisabled={false}  />
-      </div>
+
+      {/* Starting Table */}
+      <ZoneManagementClient  />  
+          </div>
     </ScrollArea>
     </MainLayout>
   );

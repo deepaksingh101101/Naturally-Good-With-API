@@ -72,7 +72,7 @@ const cityOptions = [
   { id: 'city3', label: 'City 3', value: 'city3' },
 ];
 
-export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData }) => {
+export const ZoneForm: React.FC<{ initialData?: any,isDisabled?:boolean }> = ({ initialData,isDisabled }) => {
   const [loading, setLoading] = useState(false);
 
   const form = useForm<ZoneFormData>({
@@ -283,8 +283,6 @@ export const ZoneForm: React.FC<{ initialData?: ZoneFormData }> = ({ initialData
       </Form>
 
 
-      {/* Starting Table */}
-      <ZoneManagementClient  />
 
     </div>
   );
