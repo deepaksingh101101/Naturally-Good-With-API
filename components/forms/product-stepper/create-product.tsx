@@ -416,7 +416,7 @@ const addRoster = async () => {
     } else {
         ToastAtTopRight.fire({
             icon: 'error',
-            title: response.payload.message || 'Failed to add product type',
+            title: response.payload.message || 'Failed to delete product type',
         });
     }
     }

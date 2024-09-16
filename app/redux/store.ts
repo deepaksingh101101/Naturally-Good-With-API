@@ -11,6 +11,7 @@ import FrequencyTypeReducer from './slices/frequencyTypeSlice'; // Import employ
 import cityReducer from './slices/citySlice'; // Import employee reducer
 import vehicleReducer from './slices/vehicleSlice'; // Import employee reducer
 import zoneReducer from './slices/zoneSlice'; // Import employee reducer
+import SourceTypeReducer from './slices/sourceTypeSlice'; // Import employee reducer
 
 export const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ export const store = configureStore({
     bags: bagReducer, 
     subscriptionType: SubscriptionTypeReducer, 
     frequencyType: FrequencyTypeReducer, 
+    sourceType: SourceTypeReducer, 
   },
 });
 

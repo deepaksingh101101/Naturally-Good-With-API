@@ -6,10 +6,10 @@ import { CalendarIcon, Edit, Trash, Trash2Icon, TrashIcon } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ReactSelect from 'react-select';
 
-import { cn } from "@/lib/utils";
+import { cn, debounce } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -28,8 +28,13 @@ import {
 import { Heading } from "@/components/ui/heading";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import apiCall from "@/lib/axios";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/app/redux/store";
+import { createSourceType, deleteSourceType, getAllSourceType } from "@/app/redux/actions/dropdownActions";
+import { ToastAtTopRight } from "@/lib/sweetAlert";
 
 interface ProfileFormType {
   initialData: any | null;
@@ -161,24 +166,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     // Add more employees as needed
   ];
 
-  const subscriptionTypes = [
-    { id: "Staples", name: "Basic" },
-    { id: "Veggies", name: "Premium" },
-    { id: "Beans", name: "VIP" },
-    { id: "Gourds", name: "VIP" },
-    { id: "Beans", name: "VIP" },
-    { id: "Beans", name: "VIP" },
-    { id: "Beans", name: "VIP" },
-  ];
 
-  const [cityOptions, setCityOptions] = useState([
-    { id: "Gurgaon", name: "Gurgaon" },
-    { id: "Delhi", name: "Delhi" },
-    { id: "Noida", name: "Noida" },
-    { id: "Faridabad", name: "Faridabad" },
-    { id: "Ghaziabad", name: "Ghaziabad" },
-    { id: "Sahibabad", name: "Sahibabad" },
-  ]);
   const [sourceOptions, setSourceOptions] = useState([
     { id: "instagram", name: "Instagram" },
     { id: "facebook", name: "Facebook" }
@@ -187,9 +175,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     { id: "lead", name: "lead" },
     { id: "prominent", name: "Prominent" }
   ]);
-
-  const [isCityModalOpen, setIsCityModalOpen] = useState(false);
-  const [newCity, setNewCity] = useState('');
 
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const [newSource, setNewSource] = useState('');
@@ -226,13 +211,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     setFamilyMembers(updatedFamilyMembers);
   };
 
-  const openCityModal = () => {
-    setIsCityModalOpen(true);
-  };
-
-  const closeCityModal = () => {
-    setIsCityModalOpen(false);
-  };
   const openSourceModal = () => {
     setIsSourceModalOpen(true);
   };
@@ -248,17 +226,34 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     setCustomerTypeModalOpen(false);
   };
 
-  const addCity = () => {
-    if (newCity) {
-      setCityOptions([...cityOptions, { id: newCity.toLowerCase(), name: newCity }]);
-      setNewCity('');
-    }
-  };
-  const addSource = () => {
-    if (newSource) {
-      setSourceOptions([...sourceOptions, { id: newSource.toLowerCase(), name: newSource }]);
-      setNewSource('');
-    }
+
+  const addSource =async () => {
+    if (newSource.trim()) { // Ensure sort order is non-negative
+      try {
+          const response = await dispatch(createSourceType({ Name: newSource})); // Include SortOrder
+
+          if (response.type === 'sourceType/create/fulfilled') {
+              const newSourceType:any = {
+                  _id: response.payload.data._id, // Ensure this is a string
+                  Name: newSource
+              };
+              setFetchedSourceType((prev: any[]) => [...prev, newSourceType]); // Ensure prev is of the correct type
+              ToastAtTopRight.fire({
+                  icon: 'success',
+                  title: 'New source type created!',
+              });
+              setNewSource(''); // Clear the input field
+          } else {
+              ToastAtTopRight.fire({
+                  icon: 'error',
+                  title: response.payload.message || 'Failed to add product type',
+              });
+          }
+      } catch (error) {
+          console.error('Error adding product type:', error);
+      } finally {
+      }
+  }
   };
   const deleteSource = (index: number) => {
     setSourceOptions(sourceOptions.filter((_, i) => i !== index));
@@ -273,11 +268,76 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     setCustomerTypeOptions(customerTypeOptions.filter((_, i) => i !== index));
   };
 
-  const deleteCity = (index: number) => {
-    setCityOptions(cityOptions.filter((_, i) => i !== index));
-  };
- 
 
+  const [searchTerm, setSearchTerm] = useState('');
+  const [fetchedCity, setFetchedCity] = useState<{ id: string; name: string }[]>([]);
+
+  const fetchCity = useCallback(
+    debounce(async (term: string) => {
+      if (!term) {
+        setFetchedCity([]);
+        return;
+      }
+
+      try {
+        const response = await apiCall('GET', `/route/city/filter?CityName=${term}`);
+        if (response.status) {
+          console.log()
+          setFetchedCity(response.data.cities.map((city: any) => ({ name: city.CityName, id: city._id })))
+        } else {
+          console.error(response);
+        }
+      } catch (error) {
+        console.error('Error fetching cities:', error);
+      }
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    fetchCity(searchTerm);
+  }, [searchTerm, fetchCity]);
+
+  const [fetchedSourceType, setFetchedSourceType] = useState<any[]>([]); // Specify the type here
+
+
+  const dispatch = useDispatch<AppDispatch>(); // Use typed dispatch
+  useEffect(() => {
+    const fetchSourceType = async () => {
+    const sourceTypes=  await dispatch(getAllSourceType());
+    setFetchedSourceType(sourceTypes.payload.data)
+    };
+    fetchSourceType();
+  }, []);
+ 
+  const [deleteSourceTypeModalOpen, setDeleteSourceTypeModalOpen] = useState(false);
+  const [sourceToDelete, setSourceToDelete] = useState<string | null>(null);
+
+  const confirmDeleteSourceType = async () => {
+    if (sourceToDelete) {
+      await deleteSourceTypeTemp(sourceToDelete);
+      setDeleteSourceTypeModalOpen(false); // Close the modal
+    }
+  };
+
+  const  deleteSourceTypeTemp = async (sourceToDelete: string) => {
+    if (sourceToDelete) {
+      const response=  await dispatch(deleteSourceType(sourceToDelete)); // Dispatch the delete action
+      if (response.type === 'sourceType/delete/fulfilled') {
+        setFetchedSourceType((prev) => prev.filter(type => type._id !== sourceToDelete));
+         ToastAtTopRight.fire({
+            icon: 'success',
+            title: 'Source type deleted!',
+        });
+        setNewSource(''); // Clear the input field
+    } else {
+        ToastAtTopRight.fire({
+            icon: 'error',
+            title: response.payload.message || 'Failed to delete source type',
+        });
+    }
+    }
+  };
   return (
     <>
       <div className="flex items-center justify-between">
@@ -294,51 +354,20 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         )}
       </div>
       <Separator />
-      <Dialog open={isCityModalOpen} onOpenChange={(open) => !open && closeCityModal()}>
-        <DialogContent className="max-w-lg" >
-          <DialogHeader>
-            <DialogTitle>Manage Cities</DialogTitle>
-            <DialogDescription>You can manage cities here.</DialogDescription>
-          </DialogHeader>
-          <div>
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-red-200">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                    City
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {cityOptions.map((city, cityIndex) => (
-                  <tr key={cityIndex}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {city.name}
-                    </td>
-                    <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteCity(cityIndex)} className="cursor-pointer text-red-500" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="flex mt-4">
-              <Input
-                type="text"
-                placeholder="Add new city"
-                value={newCity}
-                onChange={(e) => setNewCity(e.target.value)}
-              />
-              <Button onClick={addCity} className="ml-2">
-                Add
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <Dialog open={deleteSourceTypeModalOpen} onOpenChange={setDeleteSourceTypeModalOpen}>
+  <DialogContent className="max-w-lg">
+    <DialogHeader>
+      <DialogTitle>Confirm Deletion</DialogTitle>
+      <DialogDescription>
+        Are you sure you want to delete this source type? This action cannot be undone.
+      </DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <Button onClick={confirmDeleteSourceType} variant="destructive">Delete</Button>
+      <Button onClick={() => setDeleteSourceTypeModalOpen(false)}>Cancel</Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
       <Dialog open={isSourceModalOpen} onOpenChange={(open) => !open && closeSourceModal()}>
         <DialogContent className="max-w-lg" >
@@ -359,13 +388,21 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {sourceOptions.map((source, sourceIndex) => (
+                {fetchedSourceType?.map((source, sourceIndex) => (
                   <tr key={sourceIndex}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {source.name}
+                      {source.Name}
                     </td>
                     <td className="px-6 flex justify-end py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Trash onClick={() => deleteSource(sourceIndex)} className="cursor-pointer text-red-500" />
+                      <Trash 
+                      // onClick={() => deleteSource(sourceIndex)}
+                       onClick={() => {
+                        if (source._id) { // Ensure _id is defined
+                          setSourceToDelete(source._id); // Set the type ID to delete
+                          setDeleteSourceTypeModalOpen(true); // Open the confirmation modal
+                        }
+                      }}
+                      className="cursor-pointer text-red-500" />
                     </td>
                   </tr>
                 ))}
@@ -562,7 +599,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 <FormItem>
                   <div className="flex mt-2">
                     <FormLabel>City</FormLabel>
-                    <Edit onClick={openCityModal} className="ms-3 cursor-pointer text-red-500" height={15} width={15} />
                   </div>
                   <Controller
                     control={control}
@@ -571,12 +607,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       <ReactSelect
                         isClearable
                         isSearchable
-                        options={cityOptions}
+                        options={fetchedCity}
+                        onInputChange={(inputValue) => setSearchTerm(inputValue)}
                         getOptionLabel={(option) => option.name}
                         getOptionValue={(option) => option.id}
                         isDisabled={loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={cityOptions.find(option => option.id === field.value)}
+                        value={fetchedCity.find(option => option.id === field.value)}
                       />
                     )}
                   />
