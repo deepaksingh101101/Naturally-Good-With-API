@@ -51,51 +51,45 @@ export interface family {
 }
 
 const FormSchema = z.object({
-  firstname: z.string().min(1, "First Name is required"),
-  lastname: z.string().min(1, "Last Name is required"),
-  email: z.string().email("Invalid email format").optional(),
-  contactno: z.string().min(1, "Contact Number is required"),
-  alterNateContact: z.string().optional(),
-  Sector: z.string().min(1,'Sector is required'),
-  alterNateAddress: z.string().optional(),
-  allergies: z.string().optional(),
-  assignedEmployee: z.string().min(1, "Assigned Employee is required"),
-  subscriptionType: z.string().min(1, "Subscription Type is required"),
-  subscriptionStartDate: z.date({
-    required_error: "Subscription Start Date is required.",
-  }),
-  paymentType: z.string().min(1, "Payment Type is required"),
-  street: z.string().min(1, "Street Address is required"),
-  city: z.string().min(1, "City is required"),
-  source: z.string().min(1, "Source of customer is required"),
-  customerType: z.string().min(1, "Type of Customer is required"),
-  state: z.string().min(1, 'State is required'),
-  zipcode: z.string().min(1, 'Zipcode is required'),
-  houseNumber: z.string().min(1, 'House and Floor Number is required'),
-  society: z.string().min(1, 'Society/Locality is required'),
-  // age: z.number().optional(),
-  numberOfFamilyMembers: z.number().optional(),
-  dob: z.date().optional(),
-  gender: z.string().optional(),
-  weight: z.number().optional(),
-  height: z.number().optional(),
-  preferences: z.string().optional(),
-  extraNotes: z.string().optional(),
-  cookingTimes: z.string().optional(),
-  cookingType: z.string().optional(),
-  familyMembers: z
-  .array(
-    z.object({
-      name: z.string(),
-      contactNumber: z.string(),
-      gender: z.string().optional(), // Gender is optional
-      dob: z.date().optional(),       // Date of Birth is optional
-      height: z.string().optional(),  // Height is optional
-      weight: z.number().optional(),  // Weight is optional
-      allergies: z.string().optional() // Allergies is optional
-    })
-  )
-  .optional(),
+  FirstName: z.string().min(1, "First Name is required"),
+  LastName: z.string().min(1, "Last Name is required"),
+  Phone: z.string().min(1, "Contact Number is required"),
+  Address: z.object(
+    {
+      HouseNumber: z.string().min(1, "House Number is required"),
+      SocietyLocality: z.string().min(1, "Society/Locality is required"),
+      Sector: z.string().min(1, "Sector is required"),
+      City: z.string().min(1, "City is required"),
+      State: z.string().min(1, "State is required"),
+      ZipCode: z.string().min(1, "Zipcode is required"),
+    }
+  ),
+  Email: z.string().email("Invalid email format").optional(),
+  AlternateContactNumber: z.string().optional(),
+  Allergies: z.string().optional(),
+  DOB: z.date().optional(),
+  Weight: z.number().optional(),
+  Height: z.number().optional(),
+  Preferences: z.string().optional(),
+  Gender: z.string().optional(),
+  HowOftenYouCookedAtHome: z.string().optional(),
+  WhatDoYouUsuallyCook: z.string().optional(),
+  AlternateAddress: z.string().optional(),
+  FamilyMembers:z
+  .array(z.object(
+    {
+      Name: z.string().optional(),
+      Height: z.number().optional(),
+      Weight: z.number().optional(),
+      Dob: z.string().optional(),
+      Gender: z.string().optional(),
+      Allergies: z.string().optional(),
+    }
+  )).optional(),
+  ExtraNotes: z.string().optional(),
+  AssignedEmployee: z.string().min(1, "Assigned Employee is required"),
+  Source: z.string().min(1, "Source of customer is required"),
+  CustomerType: z.string().min(1, "Type of Customer is required"),
 });
 
 export const CreateProfileOne: React.FC<ProfileFormType> = ({
@@ -127,15 +121,16 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
+
       setLoading(true);
       if (initialData) {
         // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
       } else {
         // const res = await axios.post(`/api/products/create-product`, data);
-        // console.log("product", res);
+        console.log("user", data);
       }
-      router.refresh();
-      router.push(`/dashboard/products`);
+      // router.refresh();
+      // router.push(`/dashboard/products`);
     } catch (error: any) {
     } finally {
       setLoading(false);
@@ -189,13 +184,12 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     setFamilyMembers([
       ...familyMembers,
       { 
-        name: "", 
-        contactNumber: "", 
-        gender: "", 
-        dob: null, 
-        height: "", 
-        weight: "", 
-        allergies: "" 
+        Name: "", 
+        Gender: "", 
+        Dob: null, 
+        Height: "", 
+        Weight: "", 
+        Allergies: "" 
       }
     ]);
   };
@@ -565,33 +559,33 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
             <FormField
               control={form.control}
-              name="firstname"
+              name="FirstName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
                   <FormControl>
                     <Input disabled={loading} placeholder="John" {...field} />
                   </FormControl>
-                  <FormMessage>{errors.firstname?.message}</FormMessage>
+                  <FormMessage>{errors.FirstName?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="lastname"
+              name="LastName"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
                   <FormControl>
                     <Input disabled={loading} placeholder="Doe" {...field} />
                   </FormControl>
-                  <FormMessage>{errors.lastname?.message}</FormMessage>
+                  <FormMessage>{errors.LastName?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="contactno"
+              name="Phone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contact Number</FormLabel>
@@ -603,7 +597,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.contactno?.message}</FormMessage>
+                  <FormMessage>{errors.Phone?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -611,7 +605,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         
             <FormField
               control={form.control}
-              name="houseNumber"
+              name="Address.HouseNumber"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>House and Floor Number</FormLabel>
@@ -622,13 +616,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.houseNumber?.message}</FormMessage>
+                  {/* <FormMessage>{errors.HouseNumber?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="society"
+              name="Address.SocietyLocality"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Society/Locality</FormLabel>
@@ -639,13 +633,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.society?.message}</FormMessage>
+                  {/* <FormMessage>{errors.SocietyLocality?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="Sector"
+              name="Address.Sector"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Sector</FormLabel>
@@ -656,13 +650,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.Sector?.message}</FormMessage>
+                  {/* <FormMessage>{errors.Sector?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
               <FormField
               control={form.control}
-              name="zipcode"
+              name="Address.ZipCode"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Zipcode</FormLabel>
@@ -673,13 +667,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.zipcode?.message}</FormMessage>
+                  {/* <FormMessage>{errors.zipcode?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="city"
+              name="Address.City"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex mt-2">
@@ -687,7 +681,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   </div>
                   <Controller
                     control={control}
-                    name="city"
+                    name="Address.City"
                     render={({ field }) => (
                       <ReactSelect
                         isClearable
@@ -702,14 +696,14 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       />
                     )}
                   />
-                  <FormMessage>{errors.city?.message}</FormMessage>
+                  {/* <FormMessage>{errors.city?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
             
             <FormField
               control={form.control}
-              name="state"
+              name="Address.State"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>State</FormLabel>
@@ -720,19 +714,19 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.state?.message}</FormMessage>
+                  {/* <FormMessage>{errors.state?.message}</FormMessage> */}
                 </FormItem>
               )}
             />
              <FormField
               control={form.control}
-              name="assignedEmployee"
+              name="AssignedEmployee"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Assign Employee</FormLabel>
                   <Controller
                     control={control}
-                    name="assignedEmployee"
+                    name="AssignedEmployee"
                     render={({ field }) => (
                       <ReactSelect
                         isClearable
@@ -751,13 +745,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       />
                     )}
                   />
-                  <FormMessage>{errors.assignedEmployee?.message}</FormMessage>
+                  <FormMessage>{errors.AssignedEmployee?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="source"
+              name="Source"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex mt-2">
@@ -766,7 +760,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   </div>
                   <Controller
                     control={control}
-                    name="source"
+                    name="Source"
                     render={({ field }) => (
                       <ReactSelect
                         isClearable
@@ -780,7 +774,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       />
                     )}
                   />
-                  <FormMessage>{errors.source?.message}</FormMessage>
+                  <FormMessage>{errors.Source?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -788,7 +782,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           
            <FormField
               control={form.control}
-              name="customerType"
+              name="CustomerType"
               render={({ field }) => (
                 <FormItem>
                   <div className="flex mt-2">
@@ -797,7 +791,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   </div>
                   <Controller
                     control={control}
-                    name="customerType"
+                    name="CustomerType"
                     render={({ field }) => (
                       <ReactSelect
                         isClearable
@@ -811,7 +805,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       />
                     )}
                   />
-                  <FormMessage>{errors.customerType?.message}</FormMessage>
+                  <FormMessage>{errors.CustomerType?.message}</FormMessage>
                 </FormItem>
               )}
             />
@@ -822,7 +816,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
           <FormField
               control={form.control}
-              name="email"
+              name="Email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
@@ -833,13 +827,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.email?.message}</FormMessage>
+                  <FormMessage>{errors.Email?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="alterNateContact"
+              name="AlternateContactNumber"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Alternate Contact Number</FormLabel>
@@ -851,14 +845,14 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.alterNateContact?.message}</FormMessage>
+                  <FormMessage>{errors.AlternateContactNumber?.message}</FormMessage>
                 </FormItem>
               )}
             />
            
               <FormField
               control={form.control}
-              name="alterNateAddress"
+              name="AlternateAddress"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Alternate Address</FormLabel>
@@ -869,13 +863,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage>{errors.alterNateAddress?.message}</FormMessage>
+                  <FormMessage>{errors.AlternateAddress?.message}</FormMessage>
                 </FormItem>
               )}
             />
              <FormField
               control={control}
-              name="dob"
+              name="DOB"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date of Birth</FormLabel>
@@ -906,13 +900,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage>{errors.dob?.message}</FormMessage>
+                  <FormMessage>{errors.DOB?.message}</FormMessage>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="gender"
+              name="Gender"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gender</FormLabel>
@@ -928,13 +922,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.gender?.message}</FormMessage>
+                  <FormMessage>{errors.Gender?.message}</FormMessage>
                 </FormItem>
               )}
             />
                <FormField
   control={form.control}
-  name="height"
+  name="Height"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Height</FormLabel>
@@ -948,13 +942,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           value={field.value || ''}
         />
       </FormControl>
-      <FormMessage>{errors.height?.message}</FormMessage>
+      <FormMessage>{errors.Height?.message}</FormMessage>
     </FormItem>
   )}
 />
      <FormField
   control={form.control}
-  name="weight"
+  name="Weight"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Weight</FormLabel>
@@ -968,7 +962,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           value={field.value || ''}
         />
       </FormControl>
-      <FormMessage>{errors.weight?.message}</FormMessage>
+      <FormMessage>{errors.Weight?.message}</FormMessage>
     </FormItem>
   )}
 />
@@ -980,7 +974,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
 <FormField
   control={form.control}
-  name="preferences"
+  name="Preferences"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Preferences</FormLabel>
@@ -991,14 +985,14 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           {...field}
         />
       </FormControl>
-      <FormMessage>{errors.preferences?.message}</FormMessage>
+      <FormMessage>{errors.Preferences?.message}</FormMessage>
     </FormItem>
   )}
 />
 
 <FormField
   control={form.control}
-  name="allergies"
+  name="Allergies"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Allergies</FormLabel>
@@ -1009,13 +1003,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           {...field}
         />
       </FormControl>
-      <FormMessage>{errors.allergies?.message}</FormMessage>
+      <FormMessage>{errors.Allergies?.message}</FormMessage>
     </FormItem>
   )}
 />
 <FormField
               control={form.control}
-              name="cookingTimes"
+              name="HowOftenYouCookedAtHome"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>How often do you cook at home? </FormLabel>
@@ -1031,14 +1025,14 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage>{errors.cookingTimes?.message}</FormMessage>
+                  <FormMessage>{errors.HowOftenYouCookedAtHome?.message}</FormMessage>
                 </FormItem>
               )}
             />
 
 <FormField
   control={form.control}
-  name="cookingType"
+  name="WhatDoYouUsuallyCook"
   render={({ field }) => (
     <FormItem>
       <FormLabel>What do you usually cook?</FormLabel>
@@ -1049,48 +1043,10 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           {...field}
         />
       </FormControl>
-      <FormMessage>{errors.cookingType?.message}</FormMessage>
+      <FormMessage>{errors.WhatDoYouUsuallyCook?.message}</FormMessage>
     </FormItem>
   )}
 />
-
-{/* <FormField
-              control={form.control}
-              name="numberOfFamilyMembers"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Number Of Family Members</FormLabel>
-                  <FormControl>
-                    <Input
-                    type="number"
-                      disabled={loading}
-                      placeholder="Enter Number Of Family Members"
-                      onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
-                      value={field.value || ''}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.numberOfFamilyMembers?.message}</FormMessage>
-                </FormItem>
-              )}
-            /> */}
-
-{/* <FormField
-              control={form.control}
-              name="allergies"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Allergies</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={loading}
-                      placeholder="Enter any allergies"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage>{errors.allergies?.message}</FormMessage>
-                </FormItem>
-              )}
-            /> */}
 
 <div className="mt-4 flex justify-between">
                   <Button
@@ -1153,7 +1109,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                                 disabled={loading}
                                 placeholder="Enter name"
                                 value={member.name}
-                                onChange={(e) => handleMemberChange(index, "name", e.target.value)}
+                                onChange={(e) => handleMemberChange(index, "Name", e.target.value)}
                               />
                             </td>
                             <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
@@ -1162,7 +1118,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         disabled={loading}
         placeholder="Height"
         value={member.height}
-        onChange={(e) => handleMemberChange(index, "height", e.target.value)}
+        onChange={(e) => handleMemberChange(index, "Height", e.target.value)}
       />
     </td>
 
@@ -1179,9 +1135,9 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         
                            
                             <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
-      <Controller
-        control={control}
-        name={`familyMembers.${index}.dob`}
+      {/* <Controller
+        control={form.control}
+        name={`FamilyMembers.${index}.Dob`}
         render={({ field }) => (
           <Popover>
             <PopoverTrigger asChild>
@@ -1193,8 +1149,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     !field.value && "text-muted-foreground"
                   )}
                 >
-                  {field.value ? format(field.value,   
- "dd MMM yyyy") : <span>Pick a date</span>}
+                  {field.value ? format(new Date(field.value), "dd MMM yyyy") : <span>Pick a date</span>}
                   <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
               </FormControl>
@@ -1214,13 +1169,13 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           </Popover>   
 
         )}
-      />
+      /> */}
       {/* You can add FormMessage here if needed */}
     </td>
     <td className="px-2 py-2  whitespace-nowrap text-sm min-w-32 text-gray-500">
                               <Select
                                 disabled={loading}
-                                onValueChange={(value) => handleMemberChange(index, "gender", value)}
+                                onValueChange={(value) => handleMemberChange(index, "Gender", value)}
                                 value={member.gender}
                               >
                                 <SelectTrigger className="mt-5 " >
@@ -1244,7 +1199,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         disabled={loading}
         placeholder="Enter any allergies"
         value={member.allergies}
-        onChange={(e) => handleMemberChange(index, "allergies", e.target.value)}
+        onChange={(e) => handleMemberChange(index, "Allergies", e.target.value)}
       />
     </td>
                             {/* Add more table cells for Date of Birth, Height, Weight, Allergies */}
@@ -1265,7 +1220,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </div>
           <FormField
   control={form.control}
-  name="extraNotes"
+  name="ExtraNotes"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Extra Notes</FormLabel>
@@ -1276,7 +1231,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
           {...field}
         />
       </FormControl>
-      <FormMessage>{errors.extraNotes?.message}</FormMessage>
+      <FormMessage>{errors.ExtraNotes?.message}</FormMessage>
     </FormItem>
   )}
 />

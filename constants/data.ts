@@ -189,7 +189,7 @@ export const navItems: NavItem[] = [
       },  
       {
         title: 'Zone Master',
-        href: '/zone-management',
+        href: '/zones',
         icon: 'paymentSetting',
         label: 'payment-settings'
       },

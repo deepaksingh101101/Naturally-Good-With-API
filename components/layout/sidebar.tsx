@@ -70,7 +70,7 @@ export default function Sidebar({ className }: { className?: string }) {
           },
           {
             title: 'Zone Master',
-            href: '/zone-management',
+            href: '/zone-management/zones',
             icon: 'paymentSetting',
             label: 'payment-settings'
           },
@@ -87,7 +87,75 @@ export default function Sidebar({ className }: { className?: string }) {
             label: 'payment-settings'
           },
         ]
-      }
+      },
+      {
+        title: 'Report And Analytics',
+        href: '/report-management',
+        icon: 'report',
+        label: 'create-report',
+        subItems: [
+          {
+            title: 'Account Statement',
+            href: '/report-management/account-statement',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
+          {
+            title: 'Invoice Summary',
+            href: '/report-management/invoice-summary',
+            icon: 'invoiceSummary',
+            label: 'invoice-summary'
+          },
+          {
+            title: 'Sales Report',
+            href: '/report-management/sales-report',
+            icon: 'salesReport',
+            label: 'sales-report'
+          },
+          {
+            title: 'Bill Summary',
+            href: '/report-management/bill-summary',
+            icon: 'billSummary',
+            label: 'bill-summary'
+          },
+          {
+            title: 'Product Stock',
+            href: '/report-management/product-stock',
+            icon: 'productStock',
+            label: 'product-stock'
+          },
+          {
+            title: 'Packwise Report',
+            href: '/report-management/pack-wise',
+            icon: 'productStock',
+            label: 'product-stock'
+          },
+          {
+            title: 'Routewise Report',
+            href: '/report-management/route-wise',
+            icon: 'productStock',
+            label: 'product-stock'
+          },
+          {
+            title: 'Transaction',
+            href: '/report-management/transaction',
+            icon: 'transaction',
+            label: 'transaction'
+          },
+          {
+            title: 'Income Summary',
+            href: '/report-management/income-summary',
+            icon: 'incomeSummary',
+            label: 'income-summary'
+          },
+          {
+            title: 'Tax Summary',
+            href: '/report-management/tax-summary',
+            icon: 'transaction',
+            label: 'tax-summary'
+          }
+        ]
+      },
     ];
 
     // Concatenate static and dynamic items
