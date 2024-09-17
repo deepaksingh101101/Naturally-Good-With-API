@@ -100,6 +100,12 @@ export default function Sidebar({ className }: { className?: string }) {
             icon: 'accountStatement',
             label: 'account-statement'
           },
+          {
+            title: 'Customer Snapshot',
+            href: '/report-management/snapshot-report',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
           // {
           //   title: 'Account Statement',
           //   href: '/report-management/account-statement',

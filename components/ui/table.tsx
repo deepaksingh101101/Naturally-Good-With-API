@@ -48,20 +48,29 @@ const TableFooter = React.forwardRef<
 ));
 TableFooter.displayName = 'TableFooter';
 
-const TableRow = React.forwardRef<
-  HTMLTableRowElement,
-  React.HTMLAttributes<HTMLTableRowElement>
->(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    style={{borderBottomWidth:"0px"}}
-    className={cn(
-      'border-b-0 transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
-      className
-    )}
-    {...props}
-  />
-));
+interface TableRowProps extends React.HTMLAttributes<HTMLTableRowElement> {
+  highlightedRow?: number; // Add a prop to specify which row to highlight
+  rowNumber?: number; // Prop to receive the row number
+}
+
+const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
+  ({ className, highlightedRow, rowNumber, ...props }, ref) => {
+    const isHighlighted = highlightedRow === rowNumber; // Check if the current row should be highlighted
+
+    return (
+      <tr
+        ref={ref}
+        style={{ borderBottomWidth: "0px" }}
+        className={cn(
+          'border-b-0 transition-colors  data-[state=selected]:bg-muted',
+          isHighlighted ? 'bg-green-300' : '', // Apply green background if highlighted
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
 TableRow.displayName = 'TableRow';
 
 const TableHead = React.forwardRef<

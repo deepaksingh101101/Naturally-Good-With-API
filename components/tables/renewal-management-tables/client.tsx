@@ -72,6 +72,7 @@ export const RenewalClient: React.FC = () => {
         searchKeys={["customerName"]}
         columns={columns}
         data={data}
+        rowNo={51}
         onSearch={handleSearch}
       />
     </>

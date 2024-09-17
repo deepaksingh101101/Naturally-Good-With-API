@@ -3,6 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format, addDays } from 'date-fns';
 import { Calendar } from 'lucide-react';
+import Link from 'next/link';
 
 export const columns: ColumnDef<any>[] = [
   {
@@ -36,7 +37,7 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => 
       <div className="flex  items-center justify-center">
 
-    <span className='bg-red-400 rounded-lg text-white px-3' >{row.original.totalRenewalDue}</span>
+    <Link href='' className='bg-red-400 hover:scale-105 rounded-lg text-white px-3' >{row.original.totalRenewalDue}</Link>
     </div>
   },
   {
@@ -45,14 +46,14 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) => 
       <div className="flex items-center justify-center">
 
-    <span className='bg-green-500 rounded-lg text-white px-3 '>{row.original.renewed}</span> </div>
+    <Link href='' className='bg-green-500 hover:scale-105 rounded-lg text-white px-3 '>{row.original.renewed}</Link> </div>
   },
   {
     accessorKey: 'drop',
     header: 'Drop',
     cell: ({ row }) =>
       <div className="flex items-center justify-center">
- <span className='bg-red-500 rounded-lg text-white px-3 '>{row.original.drop}</span>    </div>
+ <Link href='' className='bg-red-500 hover:scale-105 rounded-lg text-white px-3 '>{row.original.drop}</Link>    </div>
 
   },
   {
@@ -61,7 +62,7 @@ export const columns: ColumnDef<any>[] = [
     cell: ({ row }) =>
       <div className="flex items-center justify-center">
 
-      <span className='bg-yellow-500 rounded-lg text-white px-3 '>{row.original.carryForward}</span>
+      <Link href='' className='hover:scale-105 bg-yellow-500 rounded-lg text-white px-3 '>{row.original.carryForward}</Link>
       </div>
   },
   {
@@ -69,7 +70,7 @@ export const columns: ColumnDef<any>[] = [
     header: 'Cumulative Drop',
     cell: ({ row }) =>
       <div className="flex items-center justify-center">
- <span>{row.original.cumulativeDrop}</span>      </div>
+ <Link className='bg-black px-3 rounded-lg text-white'  href=''>{row.original.cumulativeDrop}</Link>      </div>
 
   },
   {

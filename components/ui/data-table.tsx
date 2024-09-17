@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
     updateData: (rowIndex: number, columnId: string, value: any) => void;
     updateColumnData: (columnId: string, value: any) => void;
   };
+  rowNo?:number;
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   onSearch,
   filters,
   meta,
+  rowNo,
 }: DataTableProps<TData, TValue>) {
   const [filterInput, setFilterInput] = useState('');
 
@@ -78,6 +80,8 @@ export function DataTable<TData, TValue>({
       onSearch(value);
     }
   };
+
+
 
   return (
     <>
@@ -127,11 +131,18 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row, index) => (
+                <TableRow
+                  key={row.id}
+                  rowNumber={index} // Pass row number
+                  highlightedRow={rowNo} // Pass the highlighted row number
+                  data-state={row.getIsSelected() && 'selected'}
+                >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                    <TableCell key={cell.id}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
                   ))}
                 </TableRow>
               ))
