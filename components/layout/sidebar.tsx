@@ -106,6 +106,12 @@ export default function Sidebar({ className }: { className?: string }) {
             icon: 'accountStatement',
             label: 'account-statement'
           },
+          {
+            title: 'Packing/Delivery Report',
+            href: '/report-management/packing-report',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
           // {
           //   title: 'Account Statement',
           //   href: '/report-management/account-statement',
