@@ -60,6 +60,40 @@ export const columns: ColumnDef<UserSnapshot>[] = [
     ),
   },
   {
+    accessorKey: 'totalSubscriptions',
+    header: 'Total Subscriptions',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="" style={{ borderRadius: '50%' }}>
+          {row.original.totalSubscriptions}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'activeSubscriptions',
+    header: 'Active Subscriptions',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="" style={{ borderRadius: '50%' }}>
+          {row.original.activeSubscriptions}
+        </span>
+      </div>
+    ),
+  },
+  
+  {
+    accessorKey: 'lastSubscription',
+    header: 'Last Subscription',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="" style={{ borderRadius: '50%' }}>
+          {row.original.lastSubscription}
+        </span>
+      </div>
+    ),
+  },
+  {
     accessorKey: 'totalDeliveries',
     header: 'Total Deliveries',
     cell: ({ row }) => (
@@ -83,23 +117,23 @@ export const columns: ColumnDef<UserSnapshot>[] = [
   },
 
   {
-    accessorKey: 'lastSubscription',
-    header: 'Last Subscription',
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <span className="" style={{ borderRadius: '50%' }}>
-          {row.original.lastSubscription}
-        </span>
-      </div>
-    ),
-  },
-  {
     accessorKey: 'lastDelivery',
     header: 'Last Delivery',
     cell: ({ row }) => (
       <div className="flex justify-center">
         <span className="" style={{ borderRadius: '50%' }}>
           {row.original.lastDelivery}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'nextDelivery',
+    header: 'Next Delivery',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="" style={{ borderRadius: '50%' }}>
+          {row.original.nextDelivery}
         </span>
       </div>
     ),
@@ -116,23 +150,12 @@ export const columns: ColumnDef<UserSnapshot>[] = [
     ),
   },
   {
-    accessorKey: 'currentDayDelivery',
-    header: 'Current Delivery Day',
+    accessorKey: 'activeWeeks',
+    header: 'Active Weeks',
     cell: ({ row }) => (
       <div className="flex justify-center">
         <span className="" style={{ borderRadius: '50%' }}>
-          {row.original.currentDayDelivery}
-        </span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'lastDayDelivery',
-    header: 'Last Delivery Day',
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <span className="" style={{ borderRadius: '50%' }}>
-          {row.original.lastDayDelivery}
+          {row.original.activeWeeks}
         </span>
       </div>
     ),
@@ -155,6 +178,17 @@ export const columns: ColumnDef<UserSnapshot>[] = [
       <div className="flex justify-center">
         <span className="" style={{ borderRadius: '50%' }}>
           {row.original.totalRevenue}
+        </span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'moneySaved',
+    header: 'Money Saved',
+    cell: ({ row }) => (
+      <div className="flex justify-center">
+        <span className="" style={{ borderRadius: '50%' }}>
+          {row.original.moneySaved}
         </span>
       </div>
     ),

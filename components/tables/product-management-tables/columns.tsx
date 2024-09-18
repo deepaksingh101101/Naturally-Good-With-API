@@ -159,6 +159,15 @@ export const columns: ColumnDef<any>[] = [
     ),
   },
   {
+    accessorKey: 'Notes',
+    header: 'Notes',
+    cell: ({ row }) => (
+      <div className="text-start">
+        {row?.original?.Notes?.split(' ').slice(0, 10).join(' ')}...
+      </div>
+    ),
+  },
+  {
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />,
   },

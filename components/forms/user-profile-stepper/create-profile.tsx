@@ -92,9 +92,11 @@ const FormSchema = z.object({
   CustomerType: z.string().min(1, "Type of Customer is required"),
 });
 
+export type UserFormValues = z.infer<typeof FormSchema>;
+
+
 export const CreateProfileOne: React.FC<ProfileFormType> = ({
   initialData,
-  categories,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -107,9 +109,34 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const toastMessage = initialData ? "Product updated." : "Product created.";
   const action = initialData ? "Save changes" : "Create";
 
-  const form = useForm<z.infer<typeof FormSchema>>({
+  const form = useForm<UserFormValues>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
+    defaultValues:initialData
+    ? {
+        ...initialData}
+    : {
+          FirstName: '',
+          LastName: '',
+          Phone: '',
+          Address: undefined,
+          Email: '',
+          AlternateContactNumber: undefined,
+          Allergies: undefined,
+          DOB: undefined,
+          Weight: undefined,
+          Height: '',
+          Preferences: '',
+          Gender: '',
+          HowOftenYouCookedAtHome:'',
+          WhatDoYouUsuallyCook:'',
+          AlternateAddress:undefined,
+          FamilyMembers:undefined,
+          ExtraNotes:undefined,
+          AssignedEmployee:undefined,
+          Source:undefined,
+          CustomerType:undefined,
+        },
   });
 
   const {
@@ -162,14 +189,6 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   ];
 
 
-  const [sourceOptions, setSourceOptions] = useState([
-    { id: "instagram", name: "Instagram" },
-    { id: "facebook", name: "Facebook" }
-  ]);
-  const [customerTypeOptions, setCustomerTypeOptions] = useState([
-    { id: "lead", name: "lead" },
-    { id: "prominent", name: "Prominent" }
-  ]);
 
   const [isSourceModalOpen, setIsSourceModalOpen] = useState(false);
   const [newSource, setNewSource] = useState('');
@@ -249,13 +268,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       }
   }
   };
-  const deleteSource = (index: number) => {
-    setSourceOptions(sourceOptions.filter((_, i) => i !== index));
-  };
 
-  const deleteCustomerType = (index: number) => {
-    setCustomerTypeOptions(customerTypeOptions.filter((_, i) => i !== index));
-  };
 
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -396,6 +409,38 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       }
   }
   };
+
+
+  const [searchEmployeeTerm, setSearchEmployeeTerm] = useState('');
+  const [fetchedEmployee, setFetchedEmployee] = useState<{ id: string; name: string,phone:string }[]>([]);
+
+  const fetchEmployee = useCallback(
+    debounce(async (term: string) => {
+      if (!term) {
+        setFetchedEmployee([]);
+        return;
+      }
+
+      try {
+        const response = await apiCall('GET', `/admin/employee/filter?term=${term}`);
+        if (response.status) {
+          console.log()
+          setFetchedEmployee(response.data.employees.map((employee: any) => ({ name: employee.FirstName + employee.LastName, id: employee._id,phone:employee.PhoneNumber })))
+        } else {
+          console.error(response);
+        }
+      } catch (error) {
+        console.error('Error fetching employee:', error);
+      }
+    }, 500),
+    []
+  );
+
+  useEffect(() => {
+    fetchEmployee(searchEmployeeTerm);
+  }, [searchEmployeeTerm, fetchEmployee]);
+
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -731,17 +776,18 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       <ReactSelect
                         isClearable
                         isSearchable
-                        options={employees}
+                        options={fetchedEmployee}
+                        onInputChange={(inputValue) => setSearchEmployeeTerm(inputValue)}
                         getOptionLabel={(option) => option.name} // Only display the employee name
                         getOptionValue={(option) => option.id}
                         isDisabled={loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={employees.find(option => option.id === field.value)}
-                        filterOption={(candidate, input) => {
-                          const employee = employees.find(emp => emp.id === candidate.value);
-                          return candidate.label.toLowerCase().includes(input.toLowerCase()) ||
-                            (employee?.phoneNumber.includes(input) ?? false);
-                        }} // Custom filter logic to search by phone number
+                        value={fetchedEmployee.find(option => option.id === field.value)}
+                        // filterOption={(candidate, input) => {
+                        //   const employee = fetchedEmployee.find(emp => emp.id === candidate.value);
+                        //   return candidate.label.toLowerCase().includes(input.toLowerCase()) ||
+                        //     (employee?.phone.includes(input) ?? false);
+                        // }} // Custom filter logic to search by phone number
                       />
                     )}
                   />

@@ -16,6 +16,8 @@ import { Controller, useForm } from 'react-hook-form';
 import ReactSelect from 'react-select';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { UserSnapshot, userSnapshotData } from '@/constants/user-snapshot-data';
+import { OrderSnapshot, orderSnapshotData } from '@/constants/packing-snapshot-data';
 
 export const PackingClient: React.FC = () => {
   const router = useRouter();
@@ -50,6 +52,8 @@ export const PackingClient: React.FC = () => {
     // api call and reset
     // form.reset();
   };
+  const initialData: OrderSnapshot[] = orderSnapshotData;
+  const [data, setData] = useState<OrderSnapshot[]>(initialData);
 
 
   return (
@@ -118,13 +122,12 @@ export const PackingClient: React.FC = () => {
       <div className="flex justify-end"></div>
       </form>
       </Form>
-      {/* <DataTable
+      <DataTable
         searchKeys={["customerName"]}
         columns={columns}
         data={data}
-        rowNo={51}
         onSearch={handleSearch}
-      /> */}
+      />
     </>
   );
 };

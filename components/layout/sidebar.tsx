@@ -112,6 +112,12 @@ export default function Sidebar({ className }: { className?: string }) {
             icon: 'accountStatement',
             label: 'account-statement'
           },
+          {
+            title: 'Complain Summary Report',
+            href: '/report-management/complain-report',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
           // {
           //   title: 'Account Statement',
           //   href: '/report-management/account-statement',

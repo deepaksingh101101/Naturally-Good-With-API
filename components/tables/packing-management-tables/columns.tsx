@@ -1,91 +1,80 @@
 'use client';
 
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { OrderSnapshot } from '@/constants/packing-snapshot-data';
 import { ColumnDef } from '@tanstack/react-table';
-import { format, addDays } from 'date-fns';
-import { Calendar } from 'lucide-react';
+import { Calendar, Route } from 'lucide-react';
 import Link from 'next/link';
 
-export const columns: ColumnDef<any>[] = [
+export const columns: ColumnDef<OrderSnapshot>[] = [
   {
-    accessorKey: 'week',
-    header: 'Week',
-    cell: ({ row }) => <span>{row.original.week}</span>, // Displays Week
+    accessorKey: 'deliverySequence',
+    header: 'Sequence',
+    cell: ({ row }) => <span>{row.original.deliverySequence}</span>, // Displays Order Number
   },
   {
-    accessorKey: 'startDate',
-    header: 'Week Start Date',
-    cell: ({ row }) => <span className='flex justify-start items-center' ><Calendar height={14} width={14} className='text-blue-600 me-2' /><span>{row.original.startDate}</span></span>, // Displays Start Date
+    accessorKey: 'route',
+    header: 'Route',
+    cell: ({ row }) => <span className='flex justify-center items-center' > <Route height={14} width={15} className='text-blue-500 me-2' /> <span>{row.original.route}</span></span>, // Displays Route
   },
   {
-    accessorKey: 'endDate',
-    header: 'Week End Date',
-    cell: ({ row }) => <span className='flex justify-start items-center' ><Calendar height={14} width={14} className='text-red-600 me-2' /><span>{row.original.endDate}</span></span>, // Displays End Date
+    accessorKey: 'customerName',
+    header: 'Customer Name',
+    cell: ({ row }) => <span>{row.original.customerName}</span>, // Displays Customer Name
   },
   {
-    accessorKey: 'totalSubscription',
-    header: 'Subscriptions',
+    accessorKey: 'address',
+    header: 'Address',
+    cell: ({ row }) => <span>{row.original.address}</span>, // Displays Address
+  },
+  {
+    accessorKey: 'mobile',
+    header: 'Mobile',
+    cell: ({ row }) => <span>{row.original.mobile}</span>, // Displays Mobile Number
+  },
+
+
+  {
+    accessorKey: 'items',
+    header: 'Items',
     cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <span>{row.original.totalSubscription}</span>
-      </div>
-    ),
+      <Accordion type="single" collapsible>
+        <AccordionItem value="items-list">
+          <AccordionTrigger className="bg-gray-300 text-black py-2 px-4 rounded-lg hover:bg-gray-400">
+            {row.original.items.length > 0 ? 'View Items' : 'No Items'}
+          </AccordionTrigger>
+          <AccordionContent>
+            <div className="p-2 bg-gray-100 rounded-lg shadow-md">
+              <ul className="list-disc list-inside space-y-1">
+                {row.original.items.length > 0 ? (
+                  row.original.items.map((item, index) => (
+                    <li key={index} className="text-gray-700">{item}</li>
+                  ))
+                ) : (
+                  <li className="text-gray-500">No items</li>
+                )}
+              </ul>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    ), // Displays Items in an accordion with enhanced styling
   }
-,  
+  ,
   {
-    accessorKey: 'totalRenewalDue',
-    header: 'Renewal Due',
-    cell: ({ row }) => 
-      <div className="flex  items-center justify-center">
+    accessorKey: 'deliveryDate',
+    header: 'Delivery Date',
+    cell: ({ row }) => <span>{row.original.deliveryDate}</span>, // Displays Mobile Number
+  },
 
-    <Link href='' className='bg-red-400 hover:scale-105 rounded-lg text-white px-3' >{row.original.totalRenewalDue}</Link>
-    </div>
+  {
+    accessorKey: 'type',
+    header: 'Type',
+    cell: ({ row }) => <span>{row.original.type}</span>, // Displays Type
   },
   {
-    accessorKey: 'renewed',
-    header: 'Renewed',
-    cell: ({ row }) => 
-      <div className="flex items-center justify-center">
-
-    <Link href='' className='bg-green-500 hover:scale-105 rounded-lg text-white px-3 '>{row.original.renewed}</Link> </div>
-  },
-  {
-    accessorKey: 'drop',
-    header: 'Drop',
-    cell: ({ row }) =>
-      <div className="flex items-center justify-center">
- <Link href='' className='bg-red-500 hover:scale-105 rounded-lg text-white px-3 '>{row.original.drop}</Link>    </div>
-
-  },
-  {
-    accessorKey: 'carryForward',
-    header: 'Carry Forward',
-    cell: ({ row }) =>
-      <div className="flex items-center justify-center">
-
-      <Link href='' className='hover:scale-105 bg-yellow-500 rounded-lg text-white px-3 '>{row.original.carryForward}</Link>
-      </div>
-  },
-  {
-    accessorKey: 'cumulativeDrop',
-    header: 'Cumulative Drop',
-    cell: ({ row }) =>
-      <div className="flex items-center justify-center">
- <Link className='bg-black px-3 rounded-lg text-white'  href=''>{row.original.cumulativeDrop}</Link>      </div>
-
-  },
-  {
-    accessorKey: 'activeSubscriber',
-    header: 'Active Subscribers',
-    cell: ({ row }) =>
-      <div className="flex items-center justify-center">
- <span>{row.original.activeSubscriber}</span>   </div>
-  },
-  {
-    accessorKey: 'inactiveSubscriber',
-    header: 'Inactive Subscribers',
-    cell: ({ row }) =>
-      <div className="flex items-center justify-center">
-
-      <span>{row.original.inactiveSubscriber}</span></div>
+    accessorKey: 'note',
+    header: 'Note',
+    cell: ({ row }) => <span>{row.original.note || 'N/A'}</span>, // Displays Note
   },
 ];

@@ -49,7 +49,8 @@ interface ProductFormType {
 
 const productFormSchema = z.object({
   ProductName: z.string().min(1, 'Product Name is required'),
-  Description: z.string().optional(),
+  Description: z.string().min(1,'Description is required'),
+  Notes: z.string().optional(),
   ImageURL: z.string().optional(),
   Visibility: z.string().min(1, 'Visibility is required'),
   // unitType: z.string().min(1, 'Unit Type is required'),
@@ -226,6 +227,7 @@ const [sortOrderForRoster, setSortOrderForRoster] = useState(1); // Default sort
     : {
           ProductName: '',
           Description: '',
+          Notes: '',
           ImageURL: 'https://as2.ftcdn.net/v2/jpg/07/51/48/59/1000_F_751485962_KRHodHm6qZVlHP6CEotajjBSLqImseez.webp',
           Visibility: 'Admin',
           MinimumUnits: undefined,
@@ -1027,6 +1029,7 @@ const addRoster = async () => {
               )}
             />
           </div>
+       
           <FormField
             control={form.control}
             name="Description"
@@ -1038,6 +1041,25 @@ const addRoster = async () => {
                     disabled={isDisabled||loading}
                     rows={5}
                     placeholder="Enter Description"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+<FormField
+            control={form.control}
+            name="Notes"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Extra Notes</FormLabel>
+                <FormControl>
+                  <Textarea
+                    disabled={isDisabled||loading}
+                    rows={5}
+                    placeholder="Enter any Extra notes"
                     {...field}
                   />
                 </FormControl>

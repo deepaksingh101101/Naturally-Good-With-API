@@ -8,15 +8,19 @@ export type UserSnapshot = {
   lastName: string;
   email: string;
   phoneNumber: string;
-  totalDeliveries: number;
-  remainingDeliveries: number;
-  lastSubscription: string; // You can format this date if needed
-  lastDelivery: string; // You can format this date if needed
-  additionalDays: number;
-  currentDayDelivery: string;
-  lastDayDelivery: string;
-  subscribedSince: string; // You can format this date if needed
-  totalRevenue: number;
+  totalSubscriptions: string;
+  activeSubscriptions: string;
+  lastSubscription: string;
+  totalDeliveries: string;
+  remainingDeliveries: string;
+  lastDelivery: string;
+  nextDelivery: string;
+  additionalDays: string;
+  activeWeeks: string;
+  subscribedSince: string;
+  totalRevenue: string;
+  moneySaved: string;
+
 };
 
 
@@ -31,161 +35,56 @@ export const userSnapshotData: UserSnapshot[] = [
     firstName: 'John',
     lastName: 'Doe',
     email: 'john.doe@example.com',
-    phoneNumber: '123-456-7890',
-    totalDeliveries: 50,
-    remainingDeliveries: 10,
-    lastSubscription: formatDate('2023-08-15'),
-    lastDelivery: formatDate('2023-08-20'),
-    additionalDays: 2,
-    currentDayDelivery: "Monday",
-    lastDayDelivery: "Wednesday",
+    phoneNumber: '1234567890',
+    totalSubscriptions: '5',
+    activeSubscriptions: 'Monthly Mini Veggies',
+    lastSubscription: "Monthly Mini Veggies",
+    totalDeliveries: '100',
+    remainingDeliveries: '10',
+    lastDelivery: formatDate('2024-09-01'),
+    nextDelivery: formatDate('2024-09-15'),
+    additionalDays: '7',
+    activeWeeks: '25',
     subscribedSince: formatDate('2023-01-01'),
-    totalRevenue: 5000,
+    totalRevenue: '1000',
+    moneySaved: '200'
   },
   {
     sno: 2,
     firstName: 'Jane',
     lastName: 'Smith',
     email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
+    phoneNumber: '0987654321',
+    totalSubscriptions: '3',
+    activeSubscriptions: 'Monthly Regular Veggies',
+    lastSubscription: "Monthly Regular Veggies",
+    totalDeliveries: '75',
+    remainingDeliveries: '5',
+    lastDelivery: formatDate('2024-09-10'),
+    nextDelivery: formatDate('2024-09-25'),
+    additionalDays: '2',
+    activeWeeks: '18',
+    subscribedSince: formatDate('2022-11-10'),
+    totalRevenue: '750',
+    moneySaved: '150'
   },
   {
     sno: 3,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 4,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 5,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 6,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 7,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 8,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 9,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  {
-    sno: 10,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    phoneNumber: '987-654-3210',
-    totalDeliveries: 40,
-    remainingDeliveries: 5,
-    lastSubscription: formatDate('2023-07-10'),
-    lastDelivery: formatDate('2023-07-15'),
-    additionalDays: 1,
-    currentDayDelivery: "Friday",
-    lastDayDelivery: "Wednesday",
-    subscribedSince: formatDate('2022-12-01'),
-    totalRevenue: 4000,
-  },
-  // Add more user data as needed
+    firstName: 'Michael',
+    lastName: 'Johnson',
+    email: 'michael.johnson@example.com',
+    phoneNumber: '1122334455',
+    totalSubscriptions: '8',
+    activeSubscriptions: 'Monthly Regular Veggies',
+    lastSubscription: "Monthly Regular Veggies",
+    totalDeliveries: '150',
+    remainingDeliveries: '20',
+    lastDelivery: formatDate('2024-08-30'),
+    nextDelivery: formatDate('2024-09-20'),
+    additionalDays: '4',
+    activeWeeks: '32',
+    subscribedSince: formatDate('2022-08-25'),
+    totalRevenue: '2000',
+    moneySaved: '400'
+  }
 ];
-
