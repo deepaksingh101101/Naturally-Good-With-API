@@ -116,20 +116,20 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     ? {
         ...initialData}
     : {
-          FirstName: '',
-          LastName: '',
-          Phone: '',
+          FirstName: undefined,
+          LastName: undefined,
+          Phone: undefined,
           Address: undefined,
-          Email: '',
+          Email: undefined,
           AlternateContactNumber: undefined,
           Allergies: undefined,
           DOB: undefined,
           Weight: undefined,
-          Height: '',
-          Preferences: '',
-          Gender: '',
-          HowOftenYouCookedAtHome:'',
-          WhatDoYouUsuallyCook:'',
+          Height: undefined,
+          Preferences: undefined,
+          Gender: undefined,
+          HowOftenYouCookedAtHome:undefined,
+          WhatDoYouUsuallyCook:undefined,
           AlternateAddress:undefined,
           FamilyMembers:undefined,
           ExtraNotes:undefined,
@@ -598,7 +598,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(processForm)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="w-full space-y-8"
         >
           <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
@@ -1160,7 +1160,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                             </td>
                             <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
       <Input
-        type="text"
+        type="number"
         disabled={loading}
         placeholder="Height"
         value={member.height}

@@ -118,6 +118,12 @@ export default function Sidebar({ className }: { className?: string }) {
             icon: 'accountStatement',
             label: 'account-statement'
           },
+          {
+            title: 'SKU Wise Order Report',
+            href: '/report-management/sku',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
           // {
           //   title: 'Account Statement',
           //   href: '/report-management/account-statement',
