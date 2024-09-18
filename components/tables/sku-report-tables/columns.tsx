@@ -19,15 +19,6 @@ const staticColumns: ColumnDef<ProductReportManagementRow>[] = [
     ),
   },
   {
-    accessorKey: 'productCode',
-    header: 'Product Code',
-    cell: ({ row }) => (
-      <div className="flex items-center justify-center">
-        <span>{row.original.productCode}</span>
-      </div>
-    ),
-  },
-  {
     accessorKey: 'productType',
     header: 'Product Type',
     cell: ({ row }) => (
