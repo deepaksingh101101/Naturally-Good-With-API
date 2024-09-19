@@ -2,7 +2,7 @@ import { Employee } from '@/types/Employee';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { createEmployee, getAllEmployees, getEmployeeById, updateEmployee } from '../actions/employeeActions';
 import { AxiosResponse } from 'axios';
-import { createUser, getAllUsers, getUserById } from '../actions/userActions';
+import { createUser, getAllUsers, getUserById, updateUser } from '../actions/userActions';
 
 interface UserState {
   loading: boolean;
@@ -73,6 +73,21 @@ const userSlice = createSlice({
         state.error = action.payload;
       })
 
+            .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action: PayloadAction<AxiosResponse<any>>) => {
+        state.loading = false;
+        const updatedUser = action.payload.data;
+        state.users = state.users.map(user =>
+          user._id === updatedUser._id ? updatedUser : user
+        );
+        state.selectedUser = updatedUser;
+      })
+      .addCase(updateUser.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

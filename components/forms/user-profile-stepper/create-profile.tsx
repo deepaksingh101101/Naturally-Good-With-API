@@ -35,11 +35,11 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import { createCustomerType, createSourceType, deleteCustomerTypeFromState, deleteSourceType, getAllCustomerType, getAllSourceType } from "@/app/redux/actions/dropdownActions";
 import { ToastAtTopRight } from "@/lib/sweetAlert";
-import { createUser } from "@/app/redux/actions/userActions";
+import { createUser, updateUser } from "@/app/redux/actions/userActions";
 
 interface ProfileFormType {
   initialData: any | null;
-  categories: any;
+  isDisabled?:boolean
 }
 export interface family {
   name: string;
@@ -104,6 +104,7 @@ export type UserFormValues = z.infer<typeof FormSchema>;
 
 export const CreateProfileOne: React.FC<ProfileFormType> = ({
   initialData,
+  isDisabled,
 }) => {
   const params = useParams();
   const router = useRouter();
@@ -116,12 +117,20 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const toastMessage = initialData ? "Product updated." : "Product created.";
   const action = initialData ? "Save changes" : "Create";
 
+
+
+
   const form = useForm<UserFormValues>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
     defaultValues:initialData
     ? {
-        ...initialData}
+      ...initialData,
+      Address: {
+        ...initialData.Address,
+        City:{id:initialData.Address.City._id,name:initialData.Address.City.CityName} // Pre-fill city value
+      }
+    }
     : {
           FirstName: undefined,
           LastName: undefined,
@@ -160,6 +169,52 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
       setLoading(true);
       if (initialData) {
+        let user={...data,FamilyMembers:familyMembers}
+        let response=await dispatch(updateUser({ id: initialData._id, userData: user }));
+        if (response.type === "user/update/rejected") {
+          ToastAtTopRight.fire({
+            icon: 'error',
+            title: response?.payload.message,
+          });
+        } else if (response.type === "user/update/fulfilled") {
+          ToastAtTopRight.fire({
+            icon: 'success',
+            title: response?.payload.message,
+          });
+          form.reset({
+            FirstName: "",
+            LastName: "",
+            Phone: "",
+            Address: {
+              HouseNumber: "",
+              SocietyLocality: "",
+              Sector: "",
+              City: "",
+              State: "",
+              ZipCode: "",
+            },
+            Email: "",
+            AlternateContactNumber: "",
+            Allergies: "",
+            DOB: undefined,
+            Weight: undefined,
+            Height: undefined,
+            Preferences: "",
+            Gender: "",
+            HowOftenYouCookedAtHome: "",
+            WhatDoYouUsuallyCook: "",
+            AlternateAddress: "",
+            FamilyMembers: [], // Reset array to an empty array
+            ExtraNotes: "",
+            AssignedEmployee: "",
+            Source: "",
+            CustomerType: "",
+          });
+          setFamilyMembers([])
+          router.push(`/user-management`);
+
+           // Clear all fields in the form only on successful creation 
+        }
         // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
       } else {
         // const res = await axios.post(`/api/products/create-product`, data);
@@ -229,7 +284,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   const [newCustomerType, setNewCustomerType] = useState('');
 
 
-  const [familyMembers, setFamilyMembers] = useState<any[]>(initialData?.familyMembers || []);
+  const [familyMembers, setFamilyMembers] = useState<any[]>(initialData?.FamilyMembers || []);
 
   const handleAddMember = () => {
     setFamilyMembers([
@@ -476,17 +531,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
   return (
     <>
       <div className="flex items-center justify-between">
-        <Heading title={title} description={description} />
-        {initialData && (
-          <Button
-            disabled={loading}
-            variant="destructive"
-            size="sm"
-            onClick={() => setOpen(true)}
-          >
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
+      <Heading title={isDisabled && initialData ? 'View User' :(isDisabled===false && initialData)? 'Edit User':"Create User"} description={isDisabled && initialData ? 'Details of User' :(isDisabled===false && initialData)? 'Edit the details below ':"Fill the details below"} />
+     
       </div>
       <Separator />
       <Dialog open={deleteSourceTypeModalOpen} onOpenChange={setDeleteSourceTypeModalOpen}>
@@ -641,7 +687,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 <FormItem>
                   <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input disabled={loading} placeholder="John" {...field} />
+                    <Input disabled={isDisabled||loading} placeholder="John" {...field} />
                   </FormControl>
                   <FormMessage>{errors.FirstName?.message}</FormMessage>
                 </FormItem>
@@ -654,7 +700,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 <FormItem>
                   <FormLabel>Last Name</FormLabel>
                   <FormControl>
-                    <Input disabled={loading} placeholder="Doe" {...field} />
+                    <Input disabled={isDisabled||loading} placeholder="Doe" {...field} />
                   </FormControl>
                   <FormMessage>{errors.LastName?.message}</FormMessage>
                 </FormItem>
@@ -670,7 +716,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     <Input
                       type="number"
                       placeholder="Enter your contact number"
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       {...field}
                     />
                   </FormControl>
@@ -688,7 +734,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>House and Floor Number</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter House/Floor Number"
                       {...field}
                     />
@@ -705,7 +751,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>Society/Locality</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Society/Locality"
                       {...field}
                     />
@@ -722,7 +768,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>Sector</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Sector"
                       {...field}
                     />
@@ -739,7 +785,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>Zipcode</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                      disabled={isDisabled||loading}
                       placeholder="Enter Zipcode"
                       {...field}
                     />
@@ -767,7 +813,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         onInputChange={(inputValue) => setSearchTerm(inputValue)}
                         getOptionLabel={(option) => option.name}
                         getOptionValue={(option) => option.id}
-                        isDisabled={loading}
+                        isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
                         value={fetchedCity.find(option => option.id === field.value)}
                       />
@@ -786,7 +832,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>State</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                       disabled={isDisabled||loading} 
                       placeholder="Enter State"
                       {...field}
                     />
@@ -812,7 +858,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         onInputChange={(inputValue) => setSearchEmployeeTerm(inputValue)}
                         getOptionLabel={(option) => option.name} // Only display the employee name
                         getOptionValue={(option) => option.id}
-                        isDisabled={loading}
+                        isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
                         value={fetchedEmployee.find(option => option.id === field.value)}
                         // filterOption={(candidate, input) => {
@@ -846,7 +892,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         options={fetchedSourceType}
                         getOptionLabel={(option) => option.Name}
                         getOptionValue={(option) => option._id}
-                        isDisabled={loading}
+                        isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected._id : '')}
                         value={fetchedSourceType?.find(option => option._id === field.value)}
                       />
@@ -877,7 +923,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         options={fetchedCustomerType}
                         getOptionLabel={(option) => option.Name}
                         getOptionValue={(option) => option._id}
-                        isDisabled={loading}
+                        isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected._id : '')}
                         value={fetchedCustomerType?.find(option => option._id === field.value)}
                       />
@@ -900,7 +946,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                       disabled={isDisabled||loading} 
                       placeholder="johndoe@gmail.com"
                       {...field}
                     />
@@ -919,7 +965,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                     <Input
                       type="number"
                       placeholder="Enter your contact number"
-                      disabled={loading}
+                      disabled={isDisabled||loading} 
                       {...field}
                     />
                   </FormControl>
@@ -936,7 +982,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormLabel>Alternate Address</FormLabel>
                   <FormControl>
                     <Input
-                      disabled={loading}
+                       disabled={isDisabled||loading} 
                       placeholder="Enter House number, Floor number, locality Address"
                       {...field}
                     />
@@ -945,43 +991,45 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
-             <FormField
-              control={control}
-              name="DOB"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Date of Birth</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? format(field.value, "dd MMM yyyy") : <span>Pick a date</span>}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date(new Date().setHours(0, 0, 0, 0)) || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage>{errors.DOB?.message}</FormMessage>
-                </FormItem>
+           <FormField
+  control={control}
+  name="DOB"
+  render={({ field }) => (
+    <FormItem className="flex flex-col">
+      <FormLabel>Date of Birth</FormLabel>
+      <Popover>
+        <PopoverTrigger asChild>
+          <FormControl>
+            <Button
+            disabled={isDisabled||loading}
+              variant="outline"
+              className={cn(
+                "w-full pl-3 text-left font-normal",
+                !field.value && "text-muted-foreground"
               )}
-            />
+            >
+              {field.value ? format(new Date(field.value), "dd MMM yyyy") : <span>Pick a date</span>}
+              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+            </Button>
+          </FormControl>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={field.value ? new Date(field.value) : undefined}
+            onSelect={field.onChange}
+            disabled={(date) =>
+              isDisabled || date > new Date(new Date().setHours(0, 0, 0, 0))
+            }
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+      <FormMessage>{errors.DOB?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
             <FormField
               control={form.control}
               name="Gender"
@@ -989,7 +1037,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 <FormItem>
                   <FormLabel>Gender</FormLabel>
                   <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                    <Select  disabled={isDisabled||loading}  onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select Gender" />
                       </SelectTrigger>
@@ -1014,7 +1062,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         <Input
           type="number"
           placeholder="Enter height"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
           onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
           value={field.value || ''}
@@ -1034,7 +1082,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         <Input
           type="number"
           placeholder="Enter weight"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
           onChange={(e) => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))}
           value={field.value || ''}
@@ -1059,7 +1107,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       <FormControl>
         <Input
           placeholder="Enter preferences"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
         />
       </FormControl>
@@ -1077,7 +1125,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       <FormControl>
         <Input
           placeholder="Enter allergies"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
         />
       </FormControl>
@@ -1092,7 +1140,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 <FormItem>
                   <FormLabel>How often do you cook at home? </FormLabel>
                   <FormControl>
-                    <Select disabled={loading} onValueChange={field.onChange} value={field.value}>
+                    <Select  disabled={isDisabled||loading}  onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select here" />
                       </SelectTrigger>
@@ -1117,7 +1165,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       <FormControl>
         <Input
           placeholder="Select here"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
         />
       </FormControl>
@@ -1130,7 +1178,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <Button
                     type="button"
                     onClick={handleAddMember}
-                    disabled={loading}
+                    disabled={isDisabled||loading} 
                     className="mt-2"
                   >
                     Add Family Member
@@ -1143,7 +1191,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
                 {/* Family Members Table */}
                 <div className="mt-8">
-                  {familyMembers.length > 0 && (
+                  {familyMembers?.length > 0 && (
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead>
                         <tr>
@@ -1179,92 +1227,95 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                       </thead>
                       <tbody className="bg-white divide-y   
                           divide-gray-200">
-                        {familyMembers.map((member, index) => (
-                          <tr key={index}>
-                            <td className=" py-2 whitespace-nowrap text-sm text-gray-500">
-                              <Input
-                                type="text"
-                                disabled={loading}
-                                placeholder="Enter name"
-                                value={member.name}
-                                onChange={(e) => handleMemberChange(index, "Name", e.target.value)}
-                              />
-                            </td>
-                            <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+                       {familyMembers.map((member, index) => (
+  <tr key={index}>
+    {/* Name */}
+    <td className="py-2 whitespace-nowrap text-sm text-gray-500">
       <Input
-        type="number"
-        disabled={loading}
-        placeholder="Height"
-        value={member.height}
-        onChange={(e) => handleMemberChange(index, "Height", e.target.value)}
+        type="text"
+        disabled={isDisabled || loading}
+        placeholder="Enter name"
+        value={member.Name || ""}
+        onChange={(e) => handleMemberChange(index, "Name", e.target.value)}
       />
     </td>
-
+    
+    {/* Height */}
+    <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+      <Input
+        type="number"
+        disabled={isDisabled || loading}
+        placeholder="Height"
+        value={member.Height || ""}
+        onChange={(e) => handleMemberChange(index, "Height", e.target.value === "" ? undefined : Number(e.target.value))}
+      />
+    </td>
+    
     {/* Weight */}
     <td className="px-2 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
       <Input
         type="number"
-        disabled={loading}
+        disabled={isDisabled || loading}
         placeholder="Weight"
-        value={member.Weight || ''}
-        onChange={(e) => handleMemberChange(index, "Weight", e.target.value === '' ? undefined : Number(e.target.value))}
+        value={member.Weight || ""}
+        onChange={(e) => handleMemberChange(index, "Weight", e.target.value === "" ? undefined : Number(e.target.value))}
       />
     </td>
-                        
-                           
-    <td className="px-2 min-w-40  py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+    
+    {/* Date of Birth */}
+    <td className="px-2 min-w-40 py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
       <Input
         type="date"
-        disabled={loading}
+        disabled={isDisabled || loading}
         required={false}
         placeholder="Date of Birth"
-        value={member.Dob || ''}
-        onChange={(e) => handleMemberChange(index, "Dob" , e.target.value)}
+        value={member.Dob ? new Date(member.Dob).toISOString().split("T")[0] : ""}
+        onChange={(e) => handleMemberChange(index, "Dob", e.target.value)}
       />
     </td>
-
-    <td className="px-2 py-2  whitespace-nowrap text-sm min-w-32 text-gray-500">
-                              <Select
-                                disabled={loading}
-                                onValueChange={(value) => handleMemberChange(index, "Gender", value)}
-                                value={member.gender}
-                              >
-                                <SelectTrigger className="mt-5 " >
-                                  <SelectValue placeholder="Select Gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Male">Male</SelectItem>
-                                  <SelectItem value="Female">Female</SelectItem>   
-                                  <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>   
-
-                            </td>
-  
     
-
+    {/* Gender */}
+    <td className="px-2 py-2 whitespace-nowrap text-sm min-w-32 text-gray-500">
+      <Select
+        disabled={isDisabled || loading}
+        onValueChange={(value) => handleMemberChange(index, "Gender", value)}
+        value={member.Gender || ""}
+      >
+        <SelectTrigger className="mt-5">
+          <SelectValue placeholder="Select Gender" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Male">Male</SelectItem>
+          <SelectItem value="Female">Female</SelectItem>
+          <SelectItem value="Other">Other</SelectItem>
+        </SelectContent>
+      </Select>
+    </td>
+    
     {/* Allergies */}
     <td className="px-2 py-2 whitespace-nowrap text-sm text-gray-500">
       <Input
         type="text"
-        disabled={loading}
+        disabled={isDisabled || loading}
         placeholder="Enter any allergies"
-        value={member.allergies}
+        value={member.Allergies || ""}
         onChange={(e) => handleMemberChange(index, "Allergies", e.target.value)}
       />
     </td>
-                            {/* Add more table cells for Date of Birth, Height, Weight, Allergies */}
-                            <td className="pe-3 py-4 whitespace-nowrap text-right text-sm font-medium">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveMember(index)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2Icon className="h-6 w-6" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+    
+    {/* Remove Member */}
+    <td className="pe-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+      <button
+        type="button"
+        onClick={() => handleRemoveMember(index)}
+        className="text-red-600 hover:text-red-900"
+      >
+        <Trash2Icon className="h-6 w-6" />
+      </button>
+    </td>
+  </tr>
+))}
+
                       </tbody>
                     </table>
                   )}
@@ -1278,7 +1329,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       <FormControl>
         <Input
           placeholder="Enter any extra notes"
-          disabled={loading}
+          disabled={isDisabled||loading} 
           {...field}
         />
       </FormControl>
@@ -1288,17 +1339,50 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 />
           <div className="mt-8 pt-5">
             <div className="flex justify-end">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="px-7 bg-green-700 text-white"
-              >
-                {action}
-              </Button>
+            {isDisabled===false && <Button type="submit" disabled={isDisabled||loading}>
+            { initialData? 'Save User':"Create User"}     
+            </Button>}
             </div>
           </div>
         </form>
       </Form>
+
+      {
+  isDisabled === true && initialData && (
+    <div className="grid grid-cols-1 mt-5 md:grid-cols-2 gap-6 p-6 bg-white rounded-lg shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedBy?.FirstName} {initialData?.CreatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.CreatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated By:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedBy?.FirstName} {initialData?.UpdatedBy?.LastName}
+        </p>
+        <p className="text-md text-gray-600 dark:text-gray-400 mt-1">
+          {initialData?.UpdatedBy?.PhoneNumber}
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Created At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.CreatedAt} 
+        </p>
+      </div>
+      <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">Updated At:</p>
+        <p className="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">
+          {initialData?.UpdatedAt} 
+        </p>
+      </div>
+    </div>
+  )
+}
     </>
   );
 };
