@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus } from 'lucide-react';
+import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus, ChevronDown } from 'lucide-react';
 import { SaleReportManagementData } from '@/constants/sale-report-data';
 import { Input } from '../ui/input';
 import { RevenueReportManagementData } from '@/constants/revenue-report-data';
 import { Button } from '../ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu';
 
 export const RevenueComponent: React.FC = () => {
   const [revenueData] = useState(RevenueReportManagementData);
@@ -41,6 +42,51 @@ export const RevenueComponent: React.FC = () => {
             <Download height={16} className="mr-2 mt-1 animate-bounce" />
             Download
           </Button>
+
+                
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button style={{ background: "#04894d", color: 'white' }} className="text-xs md:text-sm ms-4">
+          Filter <ChevronDown className="ml-2 h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-50">
+        {/* Static Filter 1 */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            Bag
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-48">
+            <DropdownMenuItem>Most Revenued</DropdownMenuItem>
+            <DropdownMenuItem>Least Revenued</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+
+        {/* Static Filter 2 */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            Price Range
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-48">
+            <DropdownMenuItem>Under $50</DropdownMenuItem>
+            <DropdownMenuItem>$50 - $100</DropdownMenuItem>
+            <DropdownMenuItem>Over $100</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+
+        {/* Static Filter 3 */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            Availability
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-48">
+            <DropdownMenuItem>In Stock</DropdownMenuItem>
+            <DropdownMenuItem>Out of Stock</DropdownMenuItem>
+            <DropdownMenuItem>Pre-Order</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      </DropdownMenuContent>
+    </DropdownMenu>
       </div>
       </div>
       <Separator className="my-4" />

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus, GiftIcon, UserCircle, Share } from 'lucide-react';
+import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus, GiftIcon, UserCircle, Share, ChevronDown } from 'lucide-react';
 import { SaleReportManagementData } from '@/constants/sale-report-data';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -40,6 +40,9 @@ export const SalesComponent: React.FC = () => {
             <Download height={16} className="mr-2 mt-1 animate-bounce" />
             Download
           </Button>
+
+
+
       </div>
       </div>
       <Separator className="my-4" />
