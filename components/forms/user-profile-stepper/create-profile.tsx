@@ -35,6 +35,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import { createCustomerType, createSourceType, deleteCustomerTypeFromState, deleteSourceType, getAllCustomerType, getAllSourceType } from "@/app/redux/actions/dropdownActions";
 import { ToastAtTopRight } from "@/lib/sweetAlert";
+import { createUser } from "@/app/redux/actions/userActions";
 
 interface ProfileFormType {
   initialData: any | null;
@@ -53,7 +54,10 @@ export interface family {
 const FormSchema = z.object({
   FirstName: z.string().min(1, "First Name is required"),
   LastName: z.string().min(1, "Last Name is required"),
-  Phone: z.string().min(1, "Contact Number is required"),
+  Phone: z.string()
+  .min(1, "Contact Number is required")
+  .regex(/^[6-9]\d{9}$/, "Phone number must be a 10-digit number starting with 6, 7, 8, or 9"),
+
   Address: z.object(
     {
       HouseNumber: z.string().min(1, "House Number is required"),
@@ -65,7 +69,10 @@ const FormSchema = z.object({
     }
   ),
   Email: z.string().email("Invalid email format").optional(),
-  AlternateContactNumber: z.string().optional(),
+  AlternateContactNumber: z.string()
+  .min(1, "Contact Number is required")
+  .regex(/^[6-9]\d{9}$/, "Phone number must be a 10-digit number starting with 6, 7, 8, or 9").optional(),
+
   Allergies: z.string().optional(),
   DOB: z.date().optional(),
   Weight: z.number().optional(),
@@ -146,6 +153,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     watch,
   } = form;
 
+
+
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
 
@@ -154,7 +163,52 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         // await axios.post(`/api/products/edit-product/${initialData._id}`, data);
       } else {
         // const res = await axios.post(`/api/products/create-product`, data);
-        console.log("user", data);
+        let user={...data,FamilyMembers:familyMembers}
+          let response=await dispatch(createUser(user));
+          if (response.type === "user/create/rejected") {
+            ToastAtTopRight.fire({
+              icon: 'error',
+              title: response?.payload.message,
+            });
+          } else if (response.type === "user/create/fulfilled") {
+            ToastAtTopRight.fire({
+              icon: 'success',
+              title: response?.payload.message,
+            });
+            form.reset({
+              FirstName: "",
+              LastName: "",
+              Phone: "",
+              Address: {
+                HouseNumber: "",
+                SocietyLocality: "",
+                Sector: "",
+                City: "",
+                State: "",
+                ZipCode: "",
+              },
+              Email: "",
+              AlternateContactNumber: "",
+              Allergies: "",
+              DOB: undefined,
+              Weight: undefined,
+              Height: undefined,
+              Preferences: "",
+              Gender: "",
+              HowOftenYouCookedAtHome: "",
+              WhatDoYouUsuallyCook: "",
+              AlternateAddress: "",
+              FamilyMembers: [], // Reset array to an empty array
+              ExtraNotes: "",
+              AssignedEmployee: "",
+              Source: "",
+              CustomerType: "",
+            });
+            setFamilyMembers([])
+            router.push(`/user-management`);
+
+             // Clear all fields in the form only on successful creation 
+          }
       }
       // router.refresh();
       // router.push(`/dashboard/products`);
@@ -164,29 +218,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
     }
   };
 
-  const onDelete = async () => {
-    try {
-      setLoading(true);
-      //   await axios.delete(`/api/${params.storeId}/products/${params.productId}`);
-      router.refresh();
-      router.push(`/${params.storeId}/products`);
-    } catch (error: any) {
-    } finally {
-      setLoading(false);
-      setOpen(false);
-    }
-  };
 
-  const processForm = (data: z.infer<typeof FormSchema>) => {
-    // api call and reset
-    // form.reset();
-  };
-
-  const employees = [
-    { id: "employee1", name: "John Doe", phoneNumber: "123-456-7890" },
-    { id: "employee2", name: "Jane Smith", phoneNumber: "098-765-4321" },
-    // Add more employees as needed
-  ];
 
 
 
@@ -1146,7 +1178,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y   
- divide-gray-200">
+                          divide-gray-200">
                         {familyMembers.map((member, index) => (
                           <tr key={index}>
                             <td className=" py-2 whitespace-nowrap text-sm text-gray-500">
@@ -1174,50 +1206,23 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
         type="number"
         disabled={loading}
         placeholder="Weight"
-        value={member.weight || ''}
-        onChange={(e) => handleMemberChange(index, "weight", e.target.value === '' ? undefined : Number(e.target.value))}
+        value={member.Weight || ''}
+        onChange={(e) => handleMemberChange(index, "Weight", e.target.value === '' ? undefined : Number(e.target.value))}
       />
     </td>
                         
                            
-                            <td className="px-2 py-4 whitespace-nowrap text-sm text-gray-500">
-      {/* <Controller
-        control={form.control}
-        name={`FamilyMembers.${index}.Dob`}
-        render={({ field }) => (
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full pl-3 text-left font-normal",
-                    !field.value && "text-muted-foreground"
-                  )}
-                >
-                  {field.value ? format(new Date(field.value), "dd MMM yyyy") : <span>Pick a date</span>}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) =>
-                  date > new   
- Date() || date < new Date("1900-01-01")
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>   
-
-        )}
-      /> */}
-      {/* You can add FormMessage here if needed */}
+    <td className="px-2 min-w-40  py-2 whitespace-nowrap text-sm max-w-7 text-gray-500">
+      <Input
+        type="date"
+        disabled={loading}
+        required={false}
+        placeholder="Date of Birth"
+        value={member.Dob || ''}
+        onChange={(e) => handleMemberChange(index, "Dob" , e.target.value)}
+      />
     </td>
+
     <td className="px-2 py-2  whitespace-nowrap text-sm min-w-32 text-gray-500">
                               <Select
                                 disabled={loading}
