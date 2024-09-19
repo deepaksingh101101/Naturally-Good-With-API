@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { Heading } from '@/components/ui/heading';
 import { Separator } from '@/components/ui/separator';
-import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus } from 'lucide-react';
+import { Search, Trash, Download, FileText, Calendar, IndianRupee, User, Plus, ArrowBigUpDash, RefreshCcw, Briefcase, BriefcaseIcon, ArrowBigUpDashIcon, SendHorizontal, Truck, CandlestickChart, Percent, RefreshCcwDot, IndianRupeeIcon, Shield, Minus, GiftIcon, UserCircle, Share } from 'lucide-react';
 import { SaleReportManagementData } from '@/constants/sale-report-data';
 import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
 export const SalesComponent: React.FC = () => {
   const [salesData] = useState(SaleReportManagementData);
@@ -32,6 +33,13 @@ export const SalesComponent: React.FC = () => {
           value={selectedMonth}
           onChange={handleMonthChange}
         />
+           <Button
+            variant="outline"
+            className="flex ms-2 items-center bg-blue-500 text-white px-4 py-2 border border-gray-300 rounded-lg hover:bg-blue-500 hover:text-white transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105 dark:bg-blue-500"
+          >
+            <Download height={16} className="mr-2 mt-1 animate-bounce" />
+            Download
+          </Button>
       </div>
       </div>
       <Separator className="my-4" />
@@ -51,7 +59,45 @@ export const SalesComponent: React.FC = () => {
               </div>
               <Separator />
 
+              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+
+              <div className="flex items-center border border-gray-300 p-4 rounded-lg bg-white shadow-md">
+                  <CandlestickChart className="w-10 h-10 text-green-600" />
+                  <div className="ml-4">
+                    <span className="text-lg font-semibold text-gray-700">
+                      Sales By Sales Team
+                    </span>
+                    <p className="text-xl text-gray-900">
+                      {monthData.SalesBySalesTeam}
+                    </p>
+                  </div>
+                </div>
+              <div className="flex items-center border border-gray-300 p-4 rounded-lg bg-white shadow-md">
+                  <GiftIcon className="w-10 h-10 text-green-600" />
+                  <div className="ml-4">
+                    <span className="text-lg font-semibold text-gray-700">
+                      Sales Through Coupons
+                    </span>
+                    <p className="text-xl text-gray-900">
+                      {monthData.SalesByCoupons}
+                    </p>
+                  </div>
+                </div>
+              <div className="flex items-center border border-gray-300 p-4 rounded-lg bg-white shadow-md">
+                  <Share className="w-10 h-10 text-green-600" />
+                  <div className="ml-4">
+                    <span className="text-lg font-semibold text-gray-700">
+                      Sales Through Referral
+                    </span>
+                    <p className="text-xl text-gray-900">
+                      {monthData.SalesByReferral}
+                    </p>
+                  </div>
+                </div>
+
+
                 {/* Cumulative Active Subscribers */}
                 <div className="flex items-center border border-gray-300 p-4 rounded-lg bg-white shadow-md">
                   <FileText className="w-10 h-10 text-green-600" />

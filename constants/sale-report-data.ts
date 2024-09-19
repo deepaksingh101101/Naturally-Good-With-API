@@ -42,6 +42,9 @@ export interface SaleReportManagement {
     MonthlySubscriptionBreakup: number;
     AnnualSubscriptionBreakup: number;
     OtherSubscriptionBreakup: number;
+    SalesBySalesTeam: number;
+    SalesByCoupons: number;
+    SalesByReferral: number;
   }[];
 }
 
@@ -92,6 +95,9 @@ export const SaleReportManagementData: SaleReportManagement[] = [
         MonthlySubscriptionBreakup: 4000,
         AnnualSubscriptionBreakup: 1000,
         OtherSubscriptionBreakup: 500,
+        SalesBySalesTeam: 49333,
+        SalesByCoupons: 37392,
+        SalesByReferral: 327823,
       },
       // Add more monthly data objects as needed
     ],
