@@ -13,14 +13,15 @@ import { ComplaintManagement, ComplaintManagementData } from '@/constants/compla
 import { ComplaintReportManagement, ComplaintReportManagementData } from '@/constants/complaint-report-data';
 import { CalendarDateRangePicker } from '@/components/date-range-picker';
 import { ProductReportManagement, ProductReportManagementData } from '@/constants/sku-report-data';
-import { staticColumns } from './columns';
+import { SaleReportManagement, SaleReportManagementData } from '@/constants/sale-report-data';
+import salesColumns from './columns';
 
-export const SkuClient: React.FC = () => {
+export const SaleClient: React.FC = () => {
   const router = useRouter();
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   
-  const initialData: ProductReportManagement[] = ProductReportManagementData;
-  const [data, setData] = useState<ProductReportManagement[]>(initialData);
+  const initialData: any[] = SaleReportManagementData;
+  const [data, setData] = useState<any[]>(initialData);
 
   const handleSearch = (searchQuery: string) => {
     // Add logic to filter data based on searchQuery
@@ -31,8 +32,8 @@ export const SkuClient: React.FC = () => {
     <>
       <div className="flex items-start justify-between mb-6">
         <Heading
-          title="SKU Order Report"
-          description="View SKU wise order report for the selected time period."
+          title="Sales Report"
+          description="View Sale report for the selected time period."
         />
         <div className="flex space-x-2">
           {/* <YearPicker onYearChange={(year) => setSelectedYear(year)} /> */}
@@ -58,7 +59,7 @@ export const SkuClient: React.FC = () => {
       <div className="flex justify-end"></div>
       <DataTable
         searchKeys={["customerName"]}
-        columns={staticColumns}
+        columns={salesColumns}
         data={data}
         rowNo={51}
         onSearch={handleSearch}

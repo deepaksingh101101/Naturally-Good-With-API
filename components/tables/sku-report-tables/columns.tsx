@@ -1,17 +1,13 @@
 'use client';
-
-import { ProductReportManagement, ProductReportManagementData } from '@/constants/sku-report-data';
 import { ColumnDef } from '@tanstack/react-table';
-import { CalendarCheck } from 'lucide-react';
+import { CellAction } from './cell-action';
 
-// Define the row type based on ProductReportManagement
-type ProductReportManagementRow = ProductReportManagement;
 
 // Define static columns
-const staticColumns: ColumnDef<ProductReportManagementRow>[] = [
+export const staticColumns: ColumnDef<any>[] = [
   {
     accessorKey: 'sno',
-    header: 'S.No',
+    header: 'SNo',
     cell: ({ row }) => (
       <div className="flex items-center justify-center">
         <span>{row.original.sno}</span>
@@ -81,40 +77,15 @@ const staticColumns: ColumnDef<ProductReportManagementRow>[] = [
       </div>
     ),
   },
+  {
+    accessorKey:'soldUnits',
+    header: 'Sold Units',
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        <span>{row.original.soldUnits}</span>
+      </div>
+    ),
+  },
 ];
 
-// Extract unique dates from the sales data
-const extractUniqueDates = (data: ProductReportManagement[]) => {
-  const dates = new Set<string>();
-  data.forEach(record => {
-    record.salesData.forEach(sale => {
-      dates.add(sale.date);
-    });
-  });
-  return Array.from(dates).sort(); // Sort the dates if needed
-};
 
-// Generate columns for sales data
-const generateSalesDataColumns = (uniqueDates: string[]) => {
-  return uniqueDates.map((date, index) => ({
-    accessorKey: `salesData_${index}`,
-    header: date,
-    cell: ({ row }: { row: { original: ProductReportManagement } }) => {
-      const sale = row.original.salesData.find(s => s.date === date);
-      return (
-        <div className="flex items-center justify-center">
-          <span>{sale ? sale.quantitySold : '-'}</span>
-        </div>
-      );
-    },
-  }));
-};
-
-// Get unique dates from the actual data
-const uniqueDates = extractUniqueDates(ProductReportManagementData);
-
-// Combine static columns with dynamically generated sales data columns
-export const columns: ColumnDef<ProductReportManagementRow>[] = [
-  ...staticColumns,
-  ...generateSalesDataColumns(uniqueDates),
-];

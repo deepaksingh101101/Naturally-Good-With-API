@@ -124,6 +124,12 @@ export default function Sidebar({ className }: { className?: string }) {
             icon: 'accountStatement',
             label: 'account-statement'
           },
+          {
+            title: 'Sale Report',
+            href: '/report-management/sales',
+            icon: 'accountStatement',
+            label: 'account-statement'
+          },
           // {
           //   title: 'Account Statement',
           //   href: '/report-management/account-statement',

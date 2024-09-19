@@ -9,10 +9,8 @@ export interface ProductReportManagement {
   unitQuantity: number;
   totalQuantity: number;
   units: string;
-  salesData: {
-    date: string;
-    quantitySold: number;
-  }[];
+  soldUnits: number;
+
 }
 
 export const ProductReportManagementData: ProductReportManagement[] = [
@@ -26,15 +24,7 @@ export const ProductReportManagementData: ProductReportManagement[] = [
     unitQuantity: 1000,
     totalQuantity: 5000,
     units: 'Gram',
-    salesData: [
-      { date: '15-May', quantitySold: 100 },
-      { date: '16-May', quantitySold: 95 },
-      { date: '17-May', quantitySold: 110 },
-      { date: '18-May', quantitySold: 105 },
-      { date: '19-May', quantitySold: 115 },
-      { date: '20-May', quantitySold: 135 },
-      { date: '21-MAY', quantitySold: 155 },
-    ]
+    soldUnits:2000,
   },
   {
     sno: 2,
@@ -46,15 +36,7 @@ export const ProductReportManagementData: ProductReportManagement[] = [
     unitQuantity: 1000,
     totalQuantity: 4800,
     units: 'Gram',
-    salesData: [
-      { date: '15-May', quantitySold: 90 },
-      { date: '16-May', quantitySold: 85 },
-      { date: '17-May', quantitySold: 100 },
-      { date: '18-May', quantitySold: 95 },
-      { date: '19-May', quantitySold: 105 },
-      { date: '20-May', quantitySold: 135 },
-      { date: '21-MAY', quantitySold: 155 },
-    ]
+    soldUnits:3000,
   },
   {
     sno: 3,
@@ -66,14 +48,6 @@ export const ProductReportManagementData: ProductReportManagement[] = [
     unitQuantity: 1000,
     totalQuantity: 3200,
     units: 'Gram',
-    salesData: [
-      { date: '15-May', quantitySold: 70 },
-      { date: '16-May', quantitySold: 75 },
-      { date: '17-May', quantitySold: 80 },
-      { date: '18-May', quantitySold: 85 },
-      { date: '19-May', quantitySold: 90 },
-      { date: '20-May', quantitySold: 135 },
-      { date: '21-MAY', quantitySold: 155 },
-    ]
+    soldUnits:2000,
   }
 ];
