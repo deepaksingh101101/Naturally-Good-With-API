@@ -23,8 +23,8 @@ export interface SaleReportManagement {
     NewRevenueIncreasePercentage: number;
     RenewalRevenueIncreasePercentage: number;
     RevenueBookedMonthOnMonthAccrued: number;
-    EmiBags: number;
-    EmiRevenueBooked: number;
+    // EmiBags: number;
+    // EmiRevenueBooked: number;
     AverageRevenuePerBag: number;
     TrialToSubscriptions: number;
     CashFlowReceivedCurrentMonth: number;
@@ -73,8 +73,8 @@ export const SaleReportManagementData: SaleReportManagement[] = [
         NewRevenueIncreasePercentage: 10,
         RenewalRevenueIncreasePercentage: 5,
         RevenueBookedMonthOnMonthAccrued: 85000,
-        EmiBags: 50,
-        EmiRevenueBooked: 25000,
+        // EmiBags: 50,
+        // EmiRevenueBooked: 25000,
         AverageRevenuePerBag: 70,
         TrialToSubscriptions: 30,
         CashFlowReceivedCurrentMonth: 55000,

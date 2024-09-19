@@ -2,6 +2,7 @@
 import { RenewalReport } from '@/components/analytics/RenewalReport';
 import BreadCrumb from '@/components/breadcrumb';
 import MainLayout from '@/components/layout/main-layout';
+import { SalesComponent } from '@/components/saleReport/SalesComponent';
 import { ComplainClient } from '@/components/tables/complain-report-tables/client';
 import { RenewalClient } from '@/components/tables/renewal-management-tables/client';
 import { SaleClient } from '@/components/tables/sales-report-tables/client';
@@ -20,7 +21,8 @@ export default function SaleReportPage() {
       <div className="flex-1 space-y-4 min-h-screen p-4 pt-6 md:p-8">
         <BreadCrumb items={breadcrumbItems} />
         {/* <RenewalReport/> */}
-        <SaleClient/>
+        {/* <SaleClient/> */}
+        <SalesComponent/>
       </div>
     </MainLayout>
   );
