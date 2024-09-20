@@ -120,6 +120,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
 
 
+
+  console.log("initialData", initialData)
   const form = useForm<UserFormValues>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
@@ -128,8 +130,18 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
       ...initialData,
       Address: {
         ...initialData.Address,
-        City:{id:initialData.Address.City._id,name:initialData.Address.City.CityName} // Pre-fill city value
-      }
+        City:initialData.Address.City._id // Pre-fill city value
+      },
+      AssignedEmployee: 
+       initialData.AssignedEmployee._id// Pre-fill city value
+      ,
+      Source:initialData?.Source._id,
+      CustomerType:initialData?.CustomerType._id,
+      Phone:initialData.Phone.toString(),
+      AlternateContactNumber:initialData.AlternateContactNumber.toString(),
+      DOB:new Date (initialData.DOB)
+
+
     }
     : {
           FirstName: undefined,
@@ -166,10 +178,9 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     try {
-
       setLoading(true);
       if (initialData) {
-        let user={...data,FamilyMembers:familyMembers}
+        let user={...data,FamilyMembers:familyMembers,Phone:undefined,Email:undefined}
         let response=await dispatch(updateUser({ id: initialData._id, userData: user }));
         if (response.type === "user/update/rejected") {
           ToastAtTopRight.fire({
@@ -706,24 +717,25 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                 </FormItem>
               )}
             />
-            <FormField
+         {!(initialData && (isDisabled===false)) &&   <FormField
               control={form.control}
               name="Phone"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
-                    <Input
-                      type="number"
-                      placeholder="Enter your contact number"
-                      disabled={isDisabled||loading}
-                      {...field}
-                    />
+                  <Input
+          type="text"
+          placeholder="Enter your contact number"
+          disabled={isDisabled || loading}
+          value={String(field.value || '')} // Convert to string
+          onChange={(e) => field.onChange(String(e.target.value))} // Convert input to string
+        />
                   </FormControl>
                   <FormMessage>{errors.Phone?.message}</FormMessage>
                 </FormItem>
               )}
-            />
+            />}
           
         
             <FormField
@@ -815,7 +827,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         getOptionValue={(option) => option.id}
                         isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={fetchedCity.find(option => option.id === field.value)}
+                        value={fetchedCity.find(option => option.id === field.value)||{id:initialData?.Address?.City._id,name:initialData?.Address?.City?.CityName}}
+
                       />
                     )}
                   />
@@ -860,12 +873,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                         getOptionValue={(option) => option.id}
                         isDisabled={isDisabled||loading}
                         onChange={(selected) => field.onChange(selected ? selected.id : '')}
-                        value={fetchedEmployee.find(option => option.id === field.value)}
-                        // filterOption={(candidate, input) => {
-                        //   const employee = fetchedEmployee.find(emp => emp.id === candidate.value);
-                        //   return candidate.label.toLowerCase().includes(input.toLowerCase()) ||
-                        //     (employee?.phone.includes(input) ?? false);
-                        // }} // Custom filter logic to search by phone number
+                        value={fetchedEmployee.find(option => option.id === field.value)||{id:initialData?.AssignedEmployee?._id,name:initialData?.AssignedEmployee?.FirstName+initialData?.AssignedEmployee?.LastName,phone:initialData?.AssignedEmployee?.Phone}}
                       />
                     )}
                   />
@@ -938,7 +946,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 
           </div>
           <div className="relative mb-4 gap-8 rounded-md border p-4 md:grid md:grid-cols-3">
-          <FormField
+        {!(initialData && (isDisabled===false)) &&   <FormField
               control={form.control}
               name="Email"
               render={({ field }) => (
@@ -954,7 +962,7 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
                   <FormMessage>{errors.Email?.message}</FormMessage>
                 </FormItem>
               )}
-            />
+            />}
             <FormField
               control={form.control}
               name="AlternateContactNumber"

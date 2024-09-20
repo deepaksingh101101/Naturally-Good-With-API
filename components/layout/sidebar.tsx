@@ -89,6 +89,12 @@ export default function Sidebar({ className }: { className?: string }) {
         ]
       },
       {
+        title: 'Complain Management',
+        href: '/complaint-management',
+        icon: 'complaint',
+        label: 'Complain Management'
+      },
+      {
         title: 'Report And Analytics',
         href: '/report-management',
         icon: 'report',

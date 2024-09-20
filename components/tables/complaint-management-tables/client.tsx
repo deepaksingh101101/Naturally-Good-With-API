@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/ui/data-table';
 import { Heading } from '@/components/ui/heading';
@@ -12,17 +12,39 @@ import { useRouter } from 'next/navigation';
 import { columns } from './columns';
 import { SubscriptionManagement, SubscriptionManagementData } from '@/constants/subscription-management-data';
 import { ComplaintManagement, ComplaintManagementData } from '@/constants/complaint-management-data';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '@/app/redux/store';
+import { getAllComplainType } from '@/app/redux/actions/complaintActions';
 
 export const ComplaintManagementClient: React.FC = () => {
   const router = useRouter();
-  const initialData: ComplaintManagement[] = ComplaintManagementData;
-  const [data, setData] = useState<ComplaintManagement[]>(initialData);
+  const { complainTypes, loading, error, currentPage, totalPages ,totalComplaintTypes} = useSelector((state: RootState) => state.complainType);
+
+
+  const [data, setData] = useState<any[]>([]);
+  const [limit] = useState(2); // Fixed limit for items per page
+
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      await dispatch(getAllComplainType({ page: currentPage, limit })); // Pass page and limit as parameters
+    };
+    fetchEmployees();
+  }, [dispatch, currentPage, limit]);
+
+  // Effect to update local state when employee data changes
+  useEffect(() => {
+    if (complainTypes) {
+      setData(complainTypes);
+    }
+  }, [complainTypes]);
 
   const handleSearch = (searchValue: string) => {
-    const filteredData = initialData.filter(item =>
-      item.complaintType.toLowerCase().includes(searchValue.toLowerCase())
-    );
-    setData(filteredData);
+    // const filteredData = initialData.filter(item =>
+    //   item.complaintType.toLowerCase().includes(searchValue.toLowerCase())
+    // );
+    // setData(filteredData);
   };
 
   const handleSort = (sortBy: string, sortOrder: 'asc' | 'desc') => {
@@ -55,7 +77,7 @@ export const ComplaintManagementClient: React.FC = () => {
     <>
       <div className="flex items-start justify-between">
         <Heading
-          title={` Create Complaint Type (${data.length})`}
+          title={` Create Complaint Type (${totalComplaintTypes})`}
           description="Complaint Subscription (Client side table functionalities.)"
         />
         <Button

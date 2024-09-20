@@ -1,11 +1,10 @@
-'use client';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { CellAction } from './cell-action';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ComplaintManagement } from '@/constants/complaint-management-data';
 
-export const columns: ColumnDef<ComplaintManagement>[] = [
+// Updated Columns
+export const columns: ColumnDef<any>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -26,32 +25,61 @@ export const columns: ColumnDef<ComplaintManagement>[] = [
     enableHiding: false
   },
   {
-    accessorKey: 'sno',
-    header: 'Sno'
+    accessorKey: '_id',
+    header: 'Sno',
+    cell: ({ row }) => <div>{row.index + 1}</div> // Generate row number (Sno)
   },
   {
-    accessorKey: 'complaintType',
+    accessorKey: 'ComplaintType', // Matches the payload structure
     header: 'Complaint Type'
   },
   {
-    accessorKey: 'status',
+    accessorKey: 'Status',
     header: 'Status',
     cell: ({ row }) => (
       <div 
         style={{ borderRadius: "20px" }}
         className={`flex items-center px-2 py-1 ${
-          row.original.status === 'Active' ? 'bg-green-400' :
-          row.original.status === 'Inactive' ? 'bg-red-400' :
-          'bg-red-400'
+          row.original.Status ? 'bg-green-400' : 'bg-red-400'
         }`}
       >
-        <span className='text-black bold'>{row.original.status}</span>
+        <span className='text-black bold'>
+          {row.original.Status ? 'Active' : 'Inactive'}
+        </span>
       </div>
     )
   },
   {
-    accessorKey: 'resolution',
-    header: 'Resolution'
+    accessorKey: 'Description', // Matches the payload structure
+    header: 'Description'
+  },
+  {
+    accessorKey: 'CreatedBy.FirstName', // Access nested field
+    header: 'Created By',
+    cell: ({ row }) => (
+      <div>
+        {row.original.CreatedBy.FirstName} {row.original.CreatedBy.LastName}
+      </div>
+    )
+  },
+  {
+    accessorKey: 'UpdatedBy.FirstName', // Access nested field
+    header: 'Updated By',
+    cell: ({ row }) => (
+      <div>
+        {row.original.UpdatedBy.FirstName} {row.original.UpdatedBy.LastName}
+      </div>
+    )
+  },
+  {
+    accessorKey: 'UpdatedAt',
+    header: 'Last Updated',
+    cell: ({ row }) => new Date(row.original.UpdatedAt).toLocaleString() // Format date
+  },
+  {
+    accessorKey: 'CreatedAt',
+    header: 'Created At',
+    cell: ({ row }) => new Date(row.original.CreatedAt).toLocaleString() // Format date
   },
   {
     id: 'actions',

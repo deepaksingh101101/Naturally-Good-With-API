@@ -13,6 +13,7 @@ import vehicleReducer from './slices/vehicleSlice'; // Import employee reducer
 import zoneReducer from './slices/zoneSlice'; // Import employee reducer
 import SourceTypeReducer from './slices/sourceTypeSlice'; // Import employee reducer
 import CustomerTypeReducer from './slices/customerTypeSlice'; // Import employee reducer
+import ComplainTypeReducer from './slices/complaintTypeSlice'; // Import employee reducer
 import userReducer from './slices/userSlice'; // Import employee reducer
 
 export const store = configureStore({
@@ -30,6 +31,7 @@ export const store = configureStore({
     frequencyType: FrequencyTypeReducer, 
     sourceType: SourceTypeReducer, 
     customerType: CustomerTypeReducer, 
+    complainType: ComplainTypeReducer, 
   },
 });
 
