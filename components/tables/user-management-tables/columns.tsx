@@ -17,39 +17,22 @@ const getRandomColor = () => {
   return color;
 };
 
-export const columns: ColumnDef<UserManagement>[] = [
-  {
-    id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={table.getIsAllPageRowsSelected()}
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const columns: ColumnDef<any>[] = [
+
   {
     accessorKey: 'sno',
     header: 'SNo',
     cell: ({ row }) => (
       <div className="flex justify-center">
         <span className="text-red-600 font-bold px-1" style={{ borderRadius: '50%' }}>
-          {row.original.sno}
+          {row.index + 1} {/* Adding 1 to make the index start from 1 instead of 0 */}
         </span>
       </div>
     ),
-  },
+  }
+,  
   {
-    accessorKey: 'firstName',
+    accessorKey: 'FirstName',
     header: 'First Name',
     cell: ({ row }) => (
       <div className="flex items-center">
@@ -57,182 +40,164 @@ export const columns: ColumnDef<UserManagement>[] = [
           className="flex items-center justify-center w-8 h-8 rounded-full mr-2"
           style={{ backgroundColor: getRandomColor(), color: 'white' }}
         >
-          {row.original.firstName.charAt(0)}
+          {row.original.FirstName.charAt(0)}
         </div>
-        <span>{row.original.firstName}</span>
+        <span>{row.original.FirstName}</span>
       </div>
     ),
     enableSorting: true,
   },
   {
-    accessorKey: 'lastName',
+    accessorKey: 'LastName',
     header: 'Last Name',
   },
   {
-    accessorKey: 'contact',
+    accessorKey: 'Phone',
     header: 'Contact',
     cell: ({ row }) => (
       <div className="flex flex-col me-5">
         <div className="flex items-center mt-1">
           <Mail className="text-blue-500 mr-2" width={10} height={10} />
-          <span className="text-[12px]">{row.original.email}</span>
+          <span className="text-[12px]">{row.original.Email}</span>
         </div>
         <div className="flex items-center mt-2">
           <Phone className="text-green-500 mr-2" width={10} height={10} />
-          <span className="text-[12px]">{row.original.phoneNumber}</span>
+          <span className="text-[12px]">{row.original.Phone}</span>
         </div>
       </div>
     ),
   },
-
- 
-
-
   {
-    accessorKey: 'customerType',
-    header: 'customer Type',
-  },
-
+    accessorKey: 'Address',
+    header: 'Address',
+    cell: ({ row }) => {
+      const address = row.original.Address;
+      return (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 bg-white border border-gray-300 rounded-lg shadow-sm">
+            <thead>
+              <tr className="bg-red-100">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">House Number</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Society Locality</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Sector</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">City</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">State</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Zip Code</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              <tr>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.HouseNumber ?? '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.SocietyLocality ?? '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.Sector ?? '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.City.CityName ?? '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.State ?? '-'}</td>
+                <td className="px-4 py-2 text-sm text-gray-900">{address?.ZipCode ?? '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      );
+    },
+  }
+  
+  
+  
+,  
   {
-    accessorKey: 'houseNumber',
-    header: 'House & Floor Number',
-  },
-
-  {
-    accessorKey: 'society/Locality',
-    header: 'Society',
-    cell: ({ row }) => (
-      <div className="flex items-center mt-1 me-4">
-        <MapPin className="text-red-500 mr-2" width={16} height={16} />
-        {row.original.society}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'sector',
-    header: 'Sector',
-  },
-  {
-    accessorKey: 'zipcode',
-    header: 'Zipcode',
-  },
-  {
-    accessorKey: 'city',
-    header: 'City',
-  },
-  {
-    accessorKey: 'state',
-    header: 'State',
-  },
-  {
-    accessorKey: 'numberOfFamilyMembers',
-    header: 'Family Members',
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <span className="px-1" style={{ borderRadius: '50%' }}>
-          {row.original.numberOfFamilyMembers}
-        </span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'dob',
-    header: 'DATE OF BIRTH',
-  },
-  {
-    accessorKey: 'gender',
-    header: 'Gender',
-  },
-
-  {
-    accessorKey: 'subscriptionType',
-    header: 'Subscription Type',
-  },
-  {
-    accessorKey: 'deliveryFrequency',
-    header: 'Delivery Frequency',
-  },
-  {
-    accessorKey: 'employeeName',
-    header: 'Associated Employee',
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.employeeName}</div>
-    ),
-  },
-  {
-    accessorKey: 'assignedRoutes',
-    header: 'Assigned Routes',
-    cell: ({ row }) => (
-      <div>
-        {row.original.assignedRoutes?.map(route => (
-          <div key={route}>{route}</div>
-        ))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: 'accountStatus',
+    accessorKey: 'AccountStatus',
     header: 'Account Status',
     cell: ({ row }) => (
       <div
         style={{ borderRadius: '20px' }}
         className={`flex items-center px-2 py-1 ${
-          row.original.accountStatus === 'Active' ? 'bg-green-400' : 'bg-red-400'
+          row.original.AccountStatus === true ? 'bg-green-400' : 'bg-red-400'
         }`}
       >
-        {row.original.accountStatus === 'Active' ? (
+        {row.original.AccountStatus === true ? (
           <Check width={16} height={16} className="text-green-500 mr-2" />
         ) : (
           <X width={16} height={16} className="text-red-900 mr-2" />
         )}
-        <span className="text-black bold">{row.original.accountStatus}</span>
+        <span className="text-black bold">{row.original.AccountStatus===true?"Active":"Inactive"}</span>
       </div>
     ),
-  },
-  {
-    accessorKey: 'subscriptionStartDate',
-    header: 'Subscription Start Date',
-  },
-  {
-    accessorKey: 'subscriptionEndDate',
-    header: 'Subscription End Date',
   },
 
   {
-    accessorKey: 'alterNateContact',
-    header: 'Alternate Contact',
+    accessorKey: 'Allergies',
+    header: 'Allergies',
   },
   {
-    accessorKey: 'alterNateAddress',
-    header: 'Alternate Address',
+    accessorKey: 'AlternateAddress',
+    header: 'AlternateAddress',
   },
   {
-    accessorKey: 'customerWeight',
-    header: 'Customer Weight',
-    cell: ({ row }) => (
-      <div className="flex justify-center">
-        <span className="px-1" style={{ borderRadius: '50%' }}>
-          {row.original.customerWeight}
-        </span>
-      </div>
-    ),
+    accessorKey: 'AlternateContactNumber',
+    header: 'Alternate Contact Number',
   },
   {
-    accessorKey: 'preferences',
+    accessorKey: 'AlternateAddress',
+    header: 'AlternateAddress',
+  },
+  {
+    accessorKey: 'AssignedEmployee.Email',
+    header: 'AssignedEmployee',
+  },
+  {
+    accessorKey: 'CreatedAt',
+    header: 'CreatedAt',
+  },
+  {
+    accessorKey: 'UpdatedAt',
+    header: 'UpdatedAt',
+  },
+  {
+    accessorKey: 'CreatedBy.Email',
+    header: 'CreatedBy',
+  },
+  {
+    accessorKey: 'UpdatedBy.Email',
+    header: 'UpdatedBy',
+  },
+  {
+    accessorKey: 'CustomerType.Name',
+    header: 'Customer Type',
+  },
+  {
+    accessorKey: 'DOB',
+    header: 'Date of Birth',
+  },
+  {
+    accessorKey: 'ExtraNotes',
+    header: 'Extra Notes',
+  },
+  {
+    accessorKey: 'Gender',
+    header: 'Gender',
+  },
+  {
+    accessorKey: 'Height',
+    header: 'Height',
+  },
+  {
+    accessorKey: 'Weight',
+    header: 'Weight',
+  },
+  {
+    accessorKey: 'Preferences',
     header: 'Preferences',
   },
   {
-    accessorKey: 'notes',
-    header: 'Notes',
+    accessorKey: 'Source.Name',
+    header: 'Source',
   },
   {
-    accessorKey: 'lastUpdateDate',
-    header: 'Last Profile Update',
+    accessorKey: 'WhatDoYouUsuallyCook',
+    header: 'WhatDoYouUsuallyCook',
   },
-  {
-    accessorKey: 'createdDate',
-    header: 'Created Date',
-  },
+
+
   {
     id: 'actions',
     cell: ({ row }) => <CellAction data={row.original} />,

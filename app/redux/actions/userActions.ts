@@ -80,3 +80,23 @@ export const getAllUsers = createAsyncThunk<
     }
   }
 );
+
+
+// Action to update the availability of a product
+export const toggleAccountStatus = createAsyncThunk<
+  AxiosResponse<any>, // Return type is the entire Axios response
+  { id: string; AccountStatus: boolean }, // Input type includes product ID and availability status
+  { rejectValue: any } // Reject value type
+>(
+  'user/updateAccountStatus',
+  async ({ id, AccountStatus }, { rejectWithValue }) => {
+    try {
+      // Make API call to update product availability
+      const response = await apiCall<any>('PUT', `/admin/user/toggle/${id}`, { AccountStatus: AccountStatus });
+      return response; // Return the full response
+    } catch (error: any) {
+      // Handle errors and return the error message
+      return rejectWithValue(error || 'Failed to update product availability');
+    }
+  }
+);

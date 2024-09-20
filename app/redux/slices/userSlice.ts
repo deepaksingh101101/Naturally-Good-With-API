@@ -2,7 +2,7 @@ import { Employee } from '@/types/Employee';
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { createEmployee, getAllEmployees, getEmployeeById, updateEmployee } from '../actions/employeeActions';
 import { AxiosResponse } from 'axios';
-import { createUser, getAllUsers, getUserById, updateUser } from '../actions/userActions';
+import { createUser, getAllUsers, getUserById, toggleAccountStatus, updateUser } from '../actions/userActions';
 
 interface UserState {
   loading: boolean;
@@ -60,12 +60,19 @@ const userSlice = createSlice({
       .addCase(getAllUsers.pending, (state) => {
         state.loading = true;
       })
-      .addCase(getAllUsers.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; users: any[] }>>) => {
-        state.loading = false;
-        state.users = [...state.users, ...action.payload.data.users]; // Append new users to the existing ones
-        state.totalUsers = action.payload.data.total; // Total users from the response
-        state.currentPage = action.payload.data.currentPage; // Current page from response
-        state.totalPages = action.payload.data.totalPages; // Total pages from response
+    //   .addCase(getAllUsers.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; users: any[] }>>) => {
+    //     state.loading = false;
+    //     state.users = [...state.users, ...action.payload.data.users]; // Append new users to the existing ones
+    //     state.totalUsers = action.payload.data.total; // Total users from the response
+    //     state.currentPage = action.payload.data.currentPage; // Current page from response
+    //     state.totalPages = action.payload.data.totalPages; // Total pages from response
+    // })
+    .addCase(getAllUsers.fulfilled, (state, action: PayloadAction<AxiosResponse<{ total: number; currentPage: number; totalPages: number; users: any[] }>>) => {
+      state.loading = false;
+      state.users = action.payload.data.users; // Directly set employees from response
+      state.totalUsers = action.payload.data.total; // Total employees from response
+      state.currentPage = action.payload.data.currentPage; // Current page from response
+      state.totalPages = action.payload.data.totalPages; // Total pages from response
     })
     
       .addCase(getAllUsers.rejected, (state, action: PayloadAction<any>) => {
@@ -85,6 +92,22 @@ const userSlice = createSlice({
         state.selectedUser = updatedUser;
       })
       .addCase(updateUser.rejected, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      .addCase(toggleAccountStatus.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(toggleAccountStatus.fulfilled, (state, action: PayloadAction<any>) => {
+        state.loading = false;
+        const updatedUser = action.payload;
+
+        state.users = state.users.map(user =>
+          user._id === updatedUser?.data?._id ? updatedUser?.data : user
+        );
+      })
+      .addCase(toggleAccountStatus.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.error = action.payload;
       });
