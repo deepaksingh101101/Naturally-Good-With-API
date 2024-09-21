@@ -1,6 +1,5 @@
 'use client';
 
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Heading } from '@/components/ui/heading';
@@ -11,15 +10,15 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Trash, CalendarIcon, Edit } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { SubmitHandler, useForm, Controller } from 'react-hook-form';
-import { cn } from '@/lib/utils';
+import { cn, debounce } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import ReactSelect from 'react-select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format, isSameDay, isBefore, addDays, getDay } from 'date-fns';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import apiCall from '@/lib/axios';
 
 interface Coupon {
   id: string;
@@ -27,32 +26,15 @@ interface Coupon {
   discountPrice: number;
 }
 
-interface SubscriptionType {
-  id: string;
-  name: string;
-  subScriptionPrice: number;
-  coupons: Coupon[];
-  allowedDeliveryDays: string[];
-}
-
-interface Customer {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  assignedEmployee: {
-    name: string;
-    phoneNumber: string;
-  };
-}
 
 interface OrderManagementFormType {
   initialData: any | null;
 }
 
 const orderFormSchema = z.object({
-  customerName: z.string().min(1, 'Customer Name is required'),
+  CustomerName: z.string().min(1, 'Customer Name is required'),
   employeeName: z.string().min(1, 'Employee Name is required'),
-  subscriptionType: z.string().min(1, 'Subscription Type is required'),
+  SubscriptionType: z.string().min(1, 'Subscription Type is required'),
   subscriptionPrice: z.number().positive('Subscription Price must be greater than zero'),
   coupon: z.object({
     id: z.string(),
@@ -82,12 +64,6 @@ const orderFormSchema = z.object({
   orderStatus: z.string()  // New field for order status
 });
 
-const dummyBags = [
-  { value: 'Regular Veggie Bag', label: 'Regular Veggie Bag', weight: 4000 },
-  { value: 'Mini Veggie Bag', label: 'Mini Veggie Bag', weight: 3000 },
-  { value: 'Large Veggie Bag', label: 'Large Veggie Bag', weight: 5000 },
-  { value: 'Veggie Bag', label: 'Veggie Bag', weight: 5000 }
-];
 
 const getDayIndex = (day: string): number => {
   switch(day) {
@@ -110,16 +86,15 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
   const [manualDiscountPercentage, setManualDiscountPercentage] = useState(0); // New state for manual discount percentage
   const title = initialData ? 'Edit Order' : 'Create New Order';
   const description = initialData ? 'Edit the Order details.' : 'To create a new Order, fill in the required information.';
-  const toastMessage = initialData ? 'Order updated.' : 'Order created.';
   const action = initialData ? 'Save changes' : 'Create';
 
   const form = useForm({
     resolver: zodResolver(orderFormSchema),
     mode: 'onChange',
     defaultValues: {
-      customerName: '',
+      CustomerName: '',
       employeeName: '',
-      subscriptionType: '',
+      SubscriptionType: '',
       subscriptionPrice: 0,
       coupon: undefined,
       manualDiscount: 0,
@@ -174,28 +149,70 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     }
   };
 
-  const orderedOptions = [
-    { id: '1', name: 'Mini Veggie Bag' },
-    { id: '2', name: 'Regular Veggie Bag' },
-  ];
+// Search use debouncing implementation
+  const [fetchedUser, setFetchedUser] = useState<{ id: string; name: string,phone:string,email:string }[]>([]);
+  const [searchUserTerm, setSearchUserTerm] = useState('');
 
-  const employeeOptions = [
-    { id: '1', name: 'John Doe', phoneNumber: '123-456-7890' },
-    { id: '2', name: 'Jane Smith', phoneNumber: '098-765-4321' },
-  ];
+  
+  const fetchUser = useCallback(
+    debounce(async (term: string) => {
+      if (!term) {
+        setFetchedUser([]);
+        return;
+      }
 
-  const customerOptions: Customer[] = [
-    { id: '1', name: 'Alice Johnson', phoneNumber: '123-456-7890', assignedEmployee: { name: "John Doe", phoneNumber: '123-456-7890' } },
-    { id: '2', name: 'Bob Brown', phoneNumber: '098-765-4321', assignedEmployee: { name: "Jane Smith", phoneNumber: '098-765-4321' } },
-  ];
+      try {
+        const response = await apiCall('GET', `/admin/user/filter?term=${term}`);
+        if (response.status) {
+          setFetchedUser(response.data.users.map((user: any) => ({ name: user.FirstName + user.LastName, id: user._id,phone:user.PhoneNumber,email:user.Email  })))
+        } else {
+          console.error(response);
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    }, 500),
+    []
+  );
 
-  const subscriptionTypes: SubscriptionType[] = [
-    { id: '1', name: 'Staples', subScriptionPrice: 1000,allowedDeliveryDays:['MONDAY',"WEDNESDAY"], coupons: [{ id: '1', code: "TRYNEW200", discountPrice: 200 }, { id: '2', code: "TRYNEW100", discountPrice: 100 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] },
-    { id: '2', name: 'Monthly Mini Veggies', subScriptionPrice: 1200,allowedDeliveryDays:["THURSDAY","TUESDAY"], coupons: [{ id: '1', code: "TODAY200", discountPrice: 200 }, { id: '2', code: "TRY500", discountPrice: 500 }, { id: '3', code: "NATGOOD800", discountPrice: 800 }] }
-  ];
+  useEffect(() => {
+    fetchUser(searchUserTerm);
+  }, [searchUserTerm, fetchUser]);
 
-  const selectedCustomer = watch('customerName');
-  const selectedSubscriptionType = watch('subscriptionType');
+// Search subscription debouncing implementation
+const [fetchedSubscription, setFetchedSubscription] = useState<any[]>([]);
+const [searchSubscriptionTerm, setSearchSubscriptionTerm] = useState('');
+
+
+const fetchSubscription = useCallback(
+  debounce(async (term: string) => {
+    if (!term) {
+      setFetchedSubscription([]);
+      return;
+    }
+
+    try {
+      const response = await apiCall('GET', `/subscription/search?term=${term}`);
+      if (response.status) {
+        console.log(response.data.subscriptions)
+        setFetchedSubscription(response.data.subscriptions)
+      } else {
+        console.error(response);
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+    }
+  }, 500),
+  []
+);
+
+useEffect(() => {
+  fetchSubscription(searchSubscriptionTerm);
+}, [searchSubscriptionTerm, fetchSubscription]);
+
+
+
+  const selectedSubscriptionType = watch('SubscriptionType');
   const selectedCoupon = watch('coupon') as Coupon | undefined;
   const subscriptionPrice = watch('subscriptionPrice');
   const manualDiscount = watch('manualDiscount');
@@ -217,22 +234,22 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     return allowedDays.some(day => getDayIndex(day) === dayIndex);
   };
 
-  useEffect(() => {
-    const customer = customerOptions.find(option => option.name === selectedCustomer);
-    if (customer) {
-      setValue('employeeName', customer.assignedEmployee.name);
-    } else {
-      setValue('employeeName', '');
-    }
-  }, [selectedCustomer, setValue]);
+  // useEffect(() => {
+  //   const customer = customerOptions.find(option => option.name === selectedCustomer);
+  //   if (customer) {
+  //     setValue('employeeName', customer.assignedEmployee.name);
+  //   } else {
+  //     setValue('employeeName', '');
+  //   }
+  // }, [selectedCustomer, setValue]);
 
   useEffect(() => {
-    const subscription = subscriptionTypes.find(option => option.name === selectedSubscriptionType);
+    const subscription = fetchedSubscription.find(option => option._id === selectedSubscriptionType);
     if (subscription) {
-      setValue('subscriptionPrice', subscription.subScriptionPrice);
+      setValue('subscriptionPrice', subscription?.OriginalPrice);
       setValue('coupon', undefined); // Reset coupon when subscription type changes
       setValue('manualDiscount', 0); // Reset manual discount when subscription type changes
-      setValue('netPrice', subscription.subScriptionPrice); // Reset net price
+      setValue('netPrice', subscription.NetPrice); // Reset net price
     } else {
       setValue('subscriptionPrice', 0);
       setValue('coupon', undefined);
@@ -262,8 +279,16 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
     }
   }, [netPrice, subscriptionPrice,selectedPaymentType]);
 
-  const allowedDeliveryDays = subscriptionTypes.find(option => option.name === selectedSubscriptionType)?.allowedDeliveryDays || [];
-
+  interface DeliveryDay {
+    day: string;
+    _id: string;
+  }
+  const allowedDeliveryDays: string[] = fetchedSubscription
+  .find(option => option._id === selectedSubscriptionType)
+  ?.DeliveryDays.map((dayObj: DeliveryDay) => dayObj.day.toUpperCase()) || [];
+  
+  // const allowedDeliveryDays: string[] = ['MONDAY', 'TUESDAY']
+  console.log(allowedDeliveryDays)
   return (
     <>
       <div className="flex items-center justify-between">
@@ -289,7 +314,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
             <>
               <Controller
                 control={form.control}
-                name="customerName"
+                name="CustomerName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Customer Name</FormLabel>
@@ -297,46 +322,46 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                       <ReactSelect
                         isClearable
                         isSearchable
-                        options={customerOptions}
+                        options={fetchedUser}
+                        onInputChange={(inputValue) => setSearchUserTerm(inputValue)}
                         getOptionLabel={(option) => option.name}
                         getOptionValue={(option) => option.id}
                         isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.name : '')}
-                        value={customerOptions.find(option => option.name === field.value)}
-                        filterOption={(candidate, input) => {
-                          const customer = customerOptions.find(cust => cust.id === candidate.value);
-                          return candidate.label.toLowerCase().includes(input.toLowerCase()) ||
-                            (customer?.phoneNumber.includes(input) ?? false);
-                        }}
+                        onChange={(selected) => field.onChange(selected ? selected.id : '')}
+                        value={fetchedUser.find(option => option.id === field.value)}
+                       
                       />
                     </FormControl>
-                    <FormMessage>{errors.customerName?.message}</FormMessage>
+                    <FormMessage>{errors.CustomerName?.message}</FormMessage>
                   </FormItem>
                 )}
               />
 
-              <Controller
-                control={form.control}
-                name="subscriptionType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Subscription Type</FormLabel>
-                    <FormControl>
-                      <ReactSelect
-                        isClearable
-                        isSearchable
-                        options={subscriptionTypes}
-                        getOptionLabel={(option) => option.name}
-                        getOptionValue={(option) => option.id}
-                        isDisabled={loading}
-                        onChange={(selected) => field.onChange(selected ? selected.name : '')}
-                        value={subscriptionTypes.find(option => option.name === field.value)}
-                      />
-                    </FormControl>
-                    <FormMessage>{errors.subscriptionType?.message}</FormMessage>
-                  </FormItem>
-                )}
-              />
+<Controller
+  control={form.control}
+  name="SubscriptionType"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Subscription Type</FormLabel>
+      <FormControl>
+        <ReactSelect
+          isClearable
+          isSearchable
+          options={fetchedSubscription}
+          getOptionLabel={(option) => option.subscriptionType[0]?.Name + " "+option.frequencyType[0]?.Name +" "+option.TotalDeliveryNumber+" "+option.bag[0]?.BagName}  // Correct label for display
+          getOptionValue={(option) => option._id}  // Correct value for form
+          onInputChange={(inputValue) => setSearchSubscriptionTerm(inputValue)}
+          isDisabled={loading}
+          onChange={(selected) => field.onChange(selected ? selected._id : '')}
+          value={fetchedSubscription.find(option => option._id === field.value)}
+        />
+      </FormControl>
+      <FormMessage>{errors.SubscriptionType?.message}</FormMessage>
+    </FormItem>
+  )}
+/>
+
+
 
               <FormField
                 control={form.control}
@@ -380,7 +405,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                   </FormItem>
                 )}
               />
- <Controller
+ {/* <Controller
                 control={form.control}
                 name="coupon"
                 render={({ field }) => (
@@ -401,13 +426,13 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
               <FormField
                 control={form.control}
                 name="manualDiscountPercentage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Manual Discount Percentage</FormLabel>
+                    <FormLabel>Manual Discount</FormLabel>
                     <FormControl>
                       <Input
                         disabled
@@ -510,7 +535,7 @@ export const CreateOrder: React.FC<OrderManagementFormType> = ({ initialData }) 
                 )}
               />
 
-              <FormField
+<FormField
                 control={form.control}
                 name="deliveryStartDate"
                 render={({ field }) => (

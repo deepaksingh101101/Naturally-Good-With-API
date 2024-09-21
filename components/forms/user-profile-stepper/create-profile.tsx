@@ -108,20 +108,8 @@ export const CreateProfileOne: React.FC<ProfileFormType> = ({
 }) => {
   const params = useParams();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const title = initialData ? "Edit Customer" : "Create Customer";
-  const description = initialData
-    ? "Edit a product."
-    : "To create new Customer, we first need some basic information about Customer.";
-  const toastMessage = initialData ? "Product updated." : "Product created.";
-  const action = initialData ? "Save changes" : "Create";
-
-
-
-
-
-  console.log("initialData", initialData)
+ 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(FormSchema),
     mode: "onChange",
